@@ -1,0 +1,6 @@
+{
+  "name": "Health Care Hub",
+  "description": "A premium digital wellness assistant, featuring personalized nutrition calculation, tailored meal plans, customized workout routines, and fitness tracking.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

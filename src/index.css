@@ -1,0 +1,303 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&family=Playfair+Display:ital@0;1&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-serif: "Playfair Display", ui-serif, Georgia, serif;
+
+  --color-bg-deep: var(--bg-deep);
+  --color-bg-base: var(--bg-base);
+  --color-bg-nav: var(--bg-nav);
+  --color-bg-card: var(--bg-card);
+  --color-bg-surface: var(--bg-surface);
+
+  --color-gold-primary: var(--gold-primary);
+  --color-gold-light: var(--gold-light);
+  --color-gold-dark: var(--gold-dark);
+
+  --color-purple-primary: var(--purple-primary);
+  --color-purple-light: var(--purple-light);
+  --color-purple-dark: var(--purple-dark);
+
+  --color-text-headline: var(--text-headline);
+  --color-text-body: var(--text-body);
+  --color-text-muted: var(--text-muted);
+  --color-text-gold: var(--text-gold);
+  --color-text-purple: var(--text-purple);
+
+  --border-subtle: var(--border-subtle);
+  --border-gold: var(--border-gold);
+  --border-purple: var(--border-purple);
+  --border-mid: var(--border-mid);
+}
+
+:root {
+  --bg-deep: #0A0E1A;
+  --bg-base: #0C1019;
+  --bg-nav: #071327;
+  --bg-card: #0C132D;
+  --bg-surface: #131A35;
+
+  --gold-primary: #F4A220;
+  --gold-light: #F8C78A;
+  --gold-dark: #C07A08;
+  --gold-glow: rgba(244, 162, 32, 0.30);
+
+  --purple-primary: #7C3AED;
+  --purple-light: #A78BFA;
+  --purple-dark: #4C1D95;
+  --purple-glow: rgba(124, 58, 237, 0.30);
+
+  --text-headline: #F6E4CC;
+  --text-body: #A7A7AF;
+  --text-muted: #848B9B;
+  --text-gold: #F4A220;
+  --text-purple: #A78BFA;
+
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-gold: rgba(244, 162, 32, 0.20);
+  --border-purple: rgba(124, 58, 237, 0.25);
+  --border-mid: rgba(255, 255, 255, 0.10);
+
+  --shadow-gold: 0 0 32px rgba(244, 162, 32, 0.25);
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.40);
+  --shadow-deep: 0 8px 48px rgba(0, 0, 0, 0.60);
+}
+
+/* Midnight OLED Theme (Pink/Magenta Accents, True Black background) */
+:root.theme-midnight {
+  --bg-deep: #000000;
+  --bg-base: #000000;
+  --bg-nav: #000000;
+  --bg-card: #0A0A0A;
+  --bg-surface: #121212;
+
+  --purple-primary: #EC4899; /* Hot Pink */
+  --purple-light: #FBCFE8;
+  --purple-dark: #9D174D;
+  --purple-glow: rgba(236, 72, 153, 0.30);
+
+  --text-headline: #FFFFFF;
+  --text-body: #CCCCCC;
+  --text-muted: #666666;
+  --text-purple: #FBCFE8;
+
+  --border-subtle: rgba(255, 255, 255, 0.04);
+  --border-purple: rgba(236, 72, 153, 0.25);
+  --border-mid: rgba(255, 255, 255, 0.08);
+}
+
+/* Forest Zen Theme (Emerald green accents for calm, mental wellness) */
+:root.theme-forest {
+  --bg-deep: #030806;
+  --bg-base: #050E0B;
+  --bg-nav: #020605;
+  --bg-card: #061510;
+  --bg-surface: #0B251D;
+
+  --purple-primary: #10B981; /* Emerald Green */
+  --purple-light: #A7F3D0;
+  --purple-dark: #064E3B;
+  --purple-glow: rgba(16, 185, 129, 0.30);
+
+  --text-headline: #D1FAE5;
+  --text-body: #99F6E4;
+  --text-muted: #4B5563;
+  --text-purple: #A7F3D0;
+
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --border-purple: rgba(16, 185, 129, 0.25);
+  --border-mid: rgba(255, 255, 255, 0.08);
+}
+
+/* Sunrise Gold Theme (Amber gold theme) */
+:root.theme-sunrise {
+  --bg-deep: #0C0702;
+  --bg-base: #140C03;
+  --bg-nav: #080501;
+  --bg-card: #180D04;
+  --bg-surface: #261607;
+
+  --purple-primary: #F59E0B; /* Amber Gold */
+  --purple-light: #FDE68A;
+  --purple-dark: #78350F;
+  --purple-glow: rgba(245, 158, 11, 0.30);
+
+  --text-headline: #FEF3C7;
+  --text-body: #FCD34D;
+  --text-muted: #78350F;
+  --text-purple: #FDE68A;
+
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --border-purple: rgba(245, 158, 11, 0.25);
+  --border-mid: rgba(255, 255, 255, 0.08);
+}
+
+body {
+  background-color: var(--bg-deep);
+  color: var(--text-body);
+  font-family: 'Inter', system-ui, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.text-gradient-gold {
+  background: linear-gradient(135deg, #F4A220 0%, #F8C78A 60%, #F4A220 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-purple {
+  background: linear-gradient(135deg, #7C3AED 0%, #A78BFA 60%, #7C3AED 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.border-gold-glow {
+  border-color: rgba(244, 162, 32, 0.20);
+  box-shadow: 0 0 32px rgba(244, 162, 32, 0.25);
+}
+
+.border-purple-glow {
+  border-color: rgba(124, 58, 237, 0.25);
+  box-shadow: 0 0 32px rgba(124, 58, 237, 0.20);
+}
+
+/* ========================
+   CUSTOM 3D TACTILE BUTTONS
+   Purple = Primary, Gold = Accent
+======================== */
+
+.btn-3d-gold {
+  position: relative;
+  background: linear-gradient(135deg, #b8770a 0%, #F4A220 50%, #e8991f 100%) !important;
+  color: #0a0a0f !important;
+  border-bottom: 4px solid #7a4f06 !important;
+  transition: transform 0.1s ease, border-bottom-width 0.1s ease, filter 0.2s ease !important;
+  cursor: pointer;
+  box-shadow: 0 0 14px rgba(244, 162, 32, 0.15) !important;
+}
+.btn-3d-gold:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+  border-bottom-width: 5px !important;
+  box-shadow: 0 0 20px rgba(244, 162, 32, 0.22) !important;
+}
+.btn-3d-gold:active {
+  transform: translateY(3px) !important;
+  border-bottom-width: 1px !important;
+}
+
+.btn-3d-purple {
+  position: relative;
+  background: linear-gradient(135deg, #5b21b6 0%, #7C3AED 50%, #9333ea 100%) !important;
+  color: #f3e8ff !important;
+  border-bottom: 4px solid #3b0764 !important;
+  transition: transform 0.1s ease, border-bottom-width 0.1s ease, filter 0.2s ease !important;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(124, 58, 237, 0.20) !important;
+}
+.btn-3d-purple:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+  border-bottom-width: 5px !important;
+  box-shadow: 0 0 28px rgba(124, 58, 237, 0.30) !important;
+}
+.btn-3d-purple:active {
+  transform: translateY(3px) !important;
+  border-bottom-width: 1px !important;
+}
+
+/* Soft purple variant: for subtle accent tags, chips, badges */
+.badge-purple {
+  background: rgba(124, 58, 237, 0.12);
+  border: 1px solid rgba(124, 58, 237, 0.25);
+  color: #A78BFA;
+}
+
+/* Purple card hover state */
+.card-purple-hover {
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.card-purple-hover:hover {
+  border-color: rgba(124, 58, 237, 0.30) !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 18px rgba(124, 58, 237, 0.08) !important;
+}
+
+.btn-3d-slate {
+  position: relative;
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%) !important;
+  color: #f8fafc !important;
+  border-bottom: 4px solid #0f172a !important;
+  transition: transform 0.1s ease, border-bottom-width 0.1s ease, filter 0.2s ease !important;
+  cursor: pointer;
+}
+.btn-3d-slate:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+  border-bottom-width: 5px !important;
+}
+.btn-3d-slate:active {
+  transform: translateY(3px) !important;
+  border-bottom-width: 1px !important;
+}
+
+.btn-3d-red {
+  position: relative;
+  background: linear-gradient(135deg, #991b1b 0%, #dc2626 100%) !important;
+  color: #fef2f2 !important;
+  border-bottom: 4px solid #7f1d1d !important;
+  transition: transform 0.1s ease, border-bottom-width 0.1s ease, filter 0.2s ease !important;
+  cursor: pointer;
+}
+.btn-3d-red:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+  border-bottom-width: 5px !important;
+}
+.btn-3d-red:active {
+  transform: translateY(3px) !important;
+  border-bottom-width: 1px !important;
+}
+
+/* 3D Bento Grid Cards */
+.card-3d {
+  position: relative;
+  transform-style: preserve-3d;
+  perspective: 1000px;
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+  border-bottom: 4px solid rgba(255, 255, 255, 0.04) !important;
+}
+.card-3d:hover {
+  transform: translateY(-4px) rotateX(1.5deg) rotateY(-1.5deg);
+  border-color: rgba(244, 162, 32, 0.2) !important;
+  border-bottom-color: rgba(244, 162, 32, 0.3) !important;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 20px rgba(244, 162, 32, 0.05) !important;
+}
+
+/* Purple 3D card variant for mind/sleep/mental features */
+.card-3d-purple {
+  position: relative;
+  transform-style: preserve-3d;
+  perspective: 1000px;
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+  border-bottom: 4px solid rgba(124, 58, 237, 0.10) !important;
+}
+.card-3d-purple:hover {
+  transform: translateY(-4px) rotateX(1.5deg) rotateY(-1.5deg);
+  border-color: rgba(124, 58, 237, 0.25) !important;
+  border-bottom-color: rgba(124, 58, 237, 0.35) !important;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 20px rgba(124, 58, 237, 0.08) !important;
+}
+
+/* Custom scrollbar for horizontal pills */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pakistan HealthCare Hub</title>
+    <script>
+      // Fix for "Cannot set property fetch of #<Window> which has only a getter" inside sandboxed iframes
+      try {
+        const originalFetch = window.fetch;
+        let customFetch = originalFetch;
+        
+        const defineOn = (obj) => {
+          if (obj) {
+            try {
+              Object.defineProperty(obj, 'fetch', {
+                get() {
+                  return customFetch;
+                },
+                set(value) {
+                  customFetch = value;
+                },
+                configurable: true,
+                enumerable: true
+              });
+            } catch (err) {
+              console.warn("Failed to define fetch on object", err);
+            }
+          }
+        };
+
+        defineOn(window);
+        if (typeof globalThis !== 'undefined' && globalThis !== window) {
+          defineOn(globalThis);
+        }
+        if (typeof self !== 'undefined' && self !== window) {
+          defineOn(self);
+        }
+      } catch (e) {
+        console.warn("Failed fetch override setup", e);
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
