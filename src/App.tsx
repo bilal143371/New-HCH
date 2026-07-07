@@ -11,7 +11,7 @@ import ReminderCenterView from './components/ReminderCenterView';
 import ThreeDLoadingScreen from './components/ThreeDLoadingScreen';
 import { UserProfile, UserMetrics, LoggedActivity, Exercise } from './types';
 import { calculatePersonalMetrics } from './utils/metrics';
-import { Sparkles, Key, LogIn, Lock, CheckCircle } from 'lucide-react';
+import { Sparkles, Key, LogIn, Lock, CheckCircle, ShieldAlert } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 export interface ReminderConfig {
@@ -525,7 +525,12 @@ export default function App() {
   };
 
   const handleLogout = () => {
-    if (confirm('Are you sure you want to log out? All your logged information will remain saved.')) {
+    const isGuestUser = sessionType === 'guest';
+    const warningMsg = isGuestUser 
+      ? "Warning: Your fitness logs, calories tracked, and progress milestones are stored on this device only. Please register to save them permanently."
+      : "Are you sure you want to log out? Your local profile will be cleared from this browser session.";
+
+    if (confirm(warningMsg)) {
       localStorage.clear();
       setProfile(null);
       setMetrics(null);
@@ -559,7 +564,6 @@ export default function App() {
   return (
     <div className="min-h-screen bg-bg-deep text-text-body flex flex-col justify-between">
       
-      {/* Top sticky Navbar */}
       <Navbar
         profile={profile}
         sessionType={sessionType}
@@ -569,10 +573,11 @@ export default function App() {
         currentTab={currentTab}
         setCurrentTab={setCurrentTab}
         onSimulateExpiration={handleSimulateExpiration}
+        onStartOnboarding={handleStartOnboardingFlow}
       />
 
       {/* Main Core Router View */}
-      <main className="flex-grow">
+      <main className="flex-grow pb-16 md:pb-0">
         {isOnboardingOpen ? (
           <Onboarding
             initialProfile={profile}
@@ -589,6 +594,31 @@ export default function App() {
                 exit={{ opacity: 0, y: -15 }}
                 transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
               >
+                {sessionType === 'guest' && (
+                  <div className="max-w-6xl mx-auto px-4 md:px-8 mt-6">
+                    <div className="bg-purple-50 border border-purple-200/95 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm border-l-4 border-l-purple-500">
+                      <div className="flex items-center space-x-3 text-left">
+                        <div className="w-9 h-9 rounded-xl bg-purple-100 flex items-center justify-center border border-purple-200 shrink-0 text-purple-600">
+                          <ShieldAlert className="w-5 h-5 animate-pulse" />
+                        </div>
+                        <div>
+                          <strong className="text-xs font-bold text-text-headline block">
+                            Guest Session: 3 Days Remaining. Link Email to preserve data
+                          </strong>
+                          <span className="text-[10px] text-text-muted leading-relaxed">
+                            Your fitness logs, calories tracked, and progress milestones are stored on this device only. Please register to save them permanently.
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setShowSignupUpgradeModal(true)}
+                        className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white text-[10px] font-extrabold rounded-xl shadow-sm transition active:scale-95 shrink-0 uppercase tracking-wider font-mono"
+                      >
+                        Register Free ✦
+                      </button>
+                    </div>
+                  </div>
+                )}
                 <Dashboard
                   profile={profile}
                   metrics={metrics}
@@ -796,23 +826,23 @@ export default function App() {
       )}
 
       {/* Global Floating Toasts Stack */}
-      <div className="fixed top-20 right-4 z-[9999] space-y-2.5 max-w-sm pointer-events-none">
+      <div className="fixed top-6 right-6 z-[9999] space-y-2.5 w-[calc(100%-3rem)] sm:max-w-sm pointer-events-none">
         <AnimatePresence>
           {toasts.map((t) => (
             <motion.div
               key={t.id}
-              initial={{ opacity: 0, x: 50, scale: 0.9 }}
-              animate={{ opacity: 1, x: 0, scale: 1 }}
-              exit={{ opacity: 0, x: 50, scale: 0.9 }}
-              className="pointer-events-auto bg-bg-card border border-gold-primary/30 shadow-deep rounded-xl p-4 flex items-start space-x-3 text-left"
+              initial={{ opacity: 0, y: -20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.95 }}
+              className="pointer-events-auto bg-white border border-purple-200/90 shadow-lg shadow-sky-500/[0.04] rounded-2xl p-4 flex items-start space-x-3.5 text-left border-l-4 border-l-purple-500"
             >
-              <div className="w-8 h-8 rounded-full bg-gold-primary/10 flex items-center justify-center border border-gold-primary/20 shrink-0">
-                <Sparkles className="w-4 h-4 text-gold-primary" />
+              <div className="w-8 h-8 rounded-xl bg-purple-50 flex items-center justify-center border border-purple-100 shrink-0 text-purple-600">
+                <Sparkles className="w-4 h-4" />
               </div>
-              <div className="space-y-1 flex-grow">
+              <div className="space-y-0.5 flex-grow">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-text-headline">{t.title}</span>
-                  <span className="text-[8px] font-mono text-text-muted">
+                  <span className="text-[8px] font-mono text-text-muted font-bold">
                     {t.timestamp.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', second: '2-digit' })}
                   </span>
                 </div>

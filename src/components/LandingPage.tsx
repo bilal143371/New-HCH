@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Activity, ShieldAlert, CheckCircle, Flame, Heart, Sparkles, LogIn, Clock, Smile } from 'lucide-react';
+import { ShieldAlert, CheckCircle, Flame, Heart, Sparkles, LogIn, Clock, Smile, Dumbbell, Soup, Brain, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import TiltCard from './TiltCard';
 
@@ -14,6 +14,35 @@ const SLOGANS = [
   "✦ Simple home workouts and customized healthy meals.",
   "✦ Take care of your mind, body, and soul."
 ];
+
+// Custom Premium Medical-Grade SVG Icons colored in Slate, Sky Blue, and Mint Green
+const SVGIconNutrition = () => (
+  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z" fill="#10B981"/>
+    <path d="M8.5 10.5C9.32843 10.5 10 9.82843 10 9C10 8.17157 9.32843 7.5 8.5 7.5C7.67157 7.5 7 8.17157 7 9C7 9.82843 7.67157 10.5 8.5 10.5Z" fill="#0284C7"/>
+    <path d="M15.5 10.5C16.3284 10.5 17 9.82843 17 9C17 8.17157 16.3284 7.5 15.5 7.5C14.6716 7.5 14 8.17157 14 9C14 9.82843 14.6716 10.5 15.5 10.5Z" fill="#0284C7"/>
+  </svg>
+);
+
+const SVGIconFitness = () => (
+  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M20.57 14.86L22 13.43L20.57 12L17 15.57L8.43 7L12 3.43L10.57 2L9.14 3.43L7.71 2L5.57 4.14L4.14 2.71L2.71 4.14L4.14 5.57L2 7.71L3.43 9.14L2 10.57L3.43 12L7 8.43L15.57 17L12 20.57L13.43 22L14.86 20.57L16.29 22L18.43 19.86L19.86 21.29L21.29 19.86L19.86 18.43L22 16.29L20.57 14.86Z" fill="#0284C7"/>
+  </svg>
+);
+
+const SVGIconMind = () => (
+  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 3C7.5 3 3.7 6.4 3.1 10.8C2.3 11.2 1.8 12.1 1.8 13C1.8 14.1 2.5 14.9 3.5 15.1C3.8 18.9 7 21.9 11 21.9C15.8 21.9 19.8 18.2 20.2 13.5C21.2 13.1 21.8 12.1 21.8 11C21.8 9.6 20.5 8.4 19.1 8.8C18.1 5.4 15.3 3 12 3ZM12 5.5C14.2 5.5 16.1 7.1 16.8 9.3C15.4 9.1 14.1 9.8 13.5 11C12.9 12.2 13.1 13.7 14 14.6C13.5 15.8 12.3 16.5 11 16.5C9.3 16.5 8 15.2 8 13.5C8 12.5 8.5 11.6 9.3 11C8.2 10.4 7.5 9.3 7.5 8C7.5 6.6 8.6 5.5 10 5.5C10.7 5.5 11.4 5.8 11.9 6.3C12 6.3 12 6.3 12 6.3C12.1 6.3 12.1 6.3 12.2 6.3C12.6 5.8 13.3 5.5 14 5.5H12Z" fill="#10B981"/>
+    <circle cx="12" cy="11.5" r="2" fill="#0284C7"/>
+  </svg>
+);
+
+const SVGIconReminders = () => (
+  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M17 12C17 14.76 14.76 17 12 17C9.24 17 7 14.76 7 12C7 9.24 9.24 7 12 7C14.76 7 17 9.24 17 12Z" fill="#10B981"/>
+    <path d="M12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2ZM12 20C7.6 20 4 16.4 4 12C4 7.6 7.6 4 12 4C16.4 4 20 7.6 20 12C20 16.4 16.4 20 12 20ZM12.5 7H11V13L16.2 16.2L17 15L12.5 12.3V7Z" fill="#0284C7"/>
+  </svg>
+);
 
 export default function LandingPage({
   onStartOnboarding,
@@ -51,152 +80,138 @@ export default function LandingPage({
     show: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1,
+        staggerChildren: 0.08,
         delayChildren: 0.05
       }
     }
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 25 },
+    hidden: { opacity: 0, y: 15 },
     show: { 
       opacity: 1, 
       y: 0,
       transition: {
         type: "spring",
-        stiffness: 100,
-        damping: 15
+        stiffness: 120,
+        damping: 18
       }
     }
   };
 
   return (
     <div className="w-full min-h-[calc(100vh-4rem)] flex flex-col justify-between bg-bg-deep text-text-body relative overflow-hidden">
-      {/* Immersive 3D floating background glows */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
-        <motion.div 
-          animate={{
-            x: [0, 60, -40, 0],
-            y: [0, -80, 50, 0],
-            scale: [1, 1.2, 0.9, 1]
-          }}
-          transition={{
-            duration: 25,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-          className="absolute top-[10%] left-[15%] w-72 h-72 bg-gold-primary/5 rounded-full filter blur-[100px]"
-        />
-        <motion.div 
-          animate={{
-            x: [0, -50, 70, 0],
-            y: [0, 90, -60, 0],
-            scale: [1, 0.85, 1.15, 1]
-          }}
-          transition={{
-            duration: 28,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 2
-          }}
-          className="absolute bottom-[20%] right-[10%] w-[400px] h-[400px] bg-gold-primary/[0.04] rounded-full filter blur-[120px]"
-        />
-      </div>
+      {/* Immersive sky-blue gradient background glow */}
+      <div className="absolute top-0 left-0 w-full h-[550px] bg-gradient-to-b from-purple-100/40 via-transparent to-transparent pointer-events-none z-0" />
+      <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[600px] h-[350px] bg-purple-200/15 rounded-full filter blur-[120px] pointer-events-none z-0" />
 
-      {/* Hero Section */}
+      {/* Main Container */}
       <motion.div 
         variants={containerVariants}
         initial="hidden"
         animate="show"
-        className="max-w-4xl mx-auto px-4 py-12 text-center flex-grow flex flex-col justify-center relative z-10"
+        className="max-w-5xl mx-auto px-4 md:px-8 py-8 md:py-16 text-center flex-grow flex flex-col justify-center relative z-10"
       >
-        {/* Dynamic Slogan Badge */}
+        {/* Slogan Banner */}
         <motion.div 
           variants={itemVariants}
-          className="inline-flex items-center self-center px-4 py-2 rounded-full bg-gold-primary/10 border border-gold-primary/20 mb-8"
+          className="inline-flex items-center self-center px-4 py-1.5 rounded-full bg-purple-50 border border-purple-100 mb-6 shadow-sm"
         >
-          <Sparkles className="w-4 h-4 text-gold-primary mr-2 animate-pulse" />
+          <Sparkles className="w-3.5 h-3.5 text-purple-600 mr-2 animate-pulse shrink-0" />
           <AnimatePresence mode="wait">
             <motion.span 
               key={sloganIndex}
-              initial={{ opacity: 0, y: 5 }}
+              initial={{ opacity: 0, y: 4 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -5 }}
-              transition={{ duration: 0.25 }}
-              className="text-xs md:text-sm font-sans font-medium text-text-gold"
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.2 }}
+              className="text-[11px] md:text-xs font-sans font-semibold text-purple-700 tracking-tight"
             >
               {SLOGANS[sloganIndex]}
             </motion.span>
           </AnimatePresence>
         </motion.div>
 
+        {/* Hero Content */}
         <motion.h1 
           variants={itemVariants}
-          className="text-4xl md:text-6xl font-sans font-extrabold tracking-tight text-text-headline mb-4"
+          className="text-4xl md:text-6xl font-sans font-extrabold tracking-tight text-text-headline mb-4 leading-tight"
         >
           Your Health. <span className="text-gradient-purple">Your Way.</span>
         </motion.h1>
         
         <motion.p 
           variants={itemVariants}
-          className="text-lg md:text-xl font-sans font-medium text-text-headline max-w-2xl mx-auto mb-6"
+          className="text-lg md:text-xl font-sans font-semibold text-text-headline max-w-2xl mx-auto mb-4"
         >
           Take Care of Your Health — The Smart Way
         </motion.p>
         
         <motion.p 
           variants={itemVariants}
-          className="text-sm md:text-md text-text-body max-w-xl mx-auto mb-10 leading-relaxed"
+          className="text-xs md:text-sm text-text-body max-w-xl mx-auto mb-8 leading-relaxed"
         >
           Get your food plan, workout routine, and mental health support — all in one free app. Specifically customized for traditional diets and lifestyle.
         </motion.p>
 
-        {/* Call to Actions */}
+        {/* CTA Actions */}
         <motion.div 
           variants={itemVariants}
-          className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12"
+          className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-10 w-full sm:w-auto self-center"
         >
           <motion.button
-            whileTap={{ scale: 0.98 }}
+            whileTap={{ scale: 0.97 }}
             onClick={onStartOnboarding}
-            className="w-full sm:w-auto px-8 py-4 rounded-xl text-sm font-extrabold text-purple-50 btn-3d-purple uppercase tracking-wider"
+            className="w-full sm:w-auto px-8 py-3.5 rounded-xl text-xs font-bold text-white btn-3d-purple uppercase tracking-wider flex items-center justify-center space-x-1.5"
             id="cta-get-started"
           >
-            Get Started Free →
+            <span>Find Your Custom Strategy in 1-Min →</span>
           </motion.button>
           <motion.button
-            whileTap={{ scale: 0.98 }}
+            whileTap={{ scale: 0.97 }}
             onClick={() => setIsLoginModalOpen(true)}
-            className="w-full sm:w-auto px-8 py-4 rounded-xl text-sm font-extrabold text-text-headline btn-3d-slate uppercase tracking-wider"
+            className="w-full sm:w-auto px-8 py-3.5 rounded-xl text-xs font-bold text-text-headline btn-3d-slate uppercase tracking-wider"
             id="cta-login"
           >
             Already registered? Log In
           </motion.button>
         </motion.div>
 
+        {/* Hero Responsive Mockup Graphic Integration */}
+        <motion.div
+          variants={itemVariants}
+          className="w-full max-w-3xl mx-auto mt-2 mb-12 rounded-2xl overflow-hidden border border-slate-100 shadow-xl shadow-sky-500/[0.04] bg-white p-2"
+        >
+          <img
+            src="/hero_mockup.png"
+            alt="Health Care Hub Dashboard Phone Mockup surrounded by Fresh Healthy Ingredients"
+            className="w-full h-auto rounded-xl object-cover"
+          />
+        </motion.div>
+
         {/* Social Proof */}
         <motion.div 
           variants={itemVariants}
-          className="flex items-center justify-center space-x-6 text-xs md:text-sm text-text-muted font-mono mb-12 border-y border-white/[0.04] py-4 max-w-lg mx-auto"
+          className="flex items-center justify-center space-x-6 text-[10px] md:text-xs text-text-muted font-mono mb-12 border-y border-slate-200/50 py-3.5 max-w-md mx-auto"
         >
           <span>⚡ 10,000+ Users</span>
-          <span className="text-white/20">|</span>
+          <span className="text-slate-200">•</span>
           <span>🎁 100% Free</span>
-          <span className="text-white/20">|</span>
+          <span className="text-slate-200">•</span>
           <span>🛠️ 3 Tools in 1</span>
         </motion.div>
 
-        {/* Guest Mode Banner */}
+        {/* Guest Mode Banner Card */}
         <motion.div 
           variants={itemVariants}
-          whileHover={{ y: -4 }}
+          whileHover={{ y: -2 }}
           transition={{ type: "spring", stiffness: 300, damping: 20 }}
-          className="w-full max-w-2xl mx-auto p-6 rounded-xl bg-bg-card border border-purple-500/25 shadow-deep mb-16 text-left relative overflow-hidden"
+          className="w-full max-w-2xl mx-auto p-5 rounded-2xl bg-white border border-purple-100 shadow-md shadow-purple-500/[0.02] mb-16 text-left relative overflow-hidden"
         >
-          <div className="absolute right-[-20px] top-[-20px] w-24 h-24 bg-purple-500/5 rounded-full blur-xl"></div>
+          <div className="absolute right-[-20px] top-[-20px] w-24 h-24 bg-purple-500/[0.02] rounded-full blur-xl"></div>
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-start space-x-3">
-              <div className="p-2.5 rounded-lg bg-purple-500/15 border border-purple-500/25 text-purple-400 mt-1 sm:mt-0">
+            <div className="flex items-start space-x-3.5">
+              <div className="p-2.5 rounded-xl bg-purple-50 border border-purple-100 text-purple-600 mt-1 sm:mt-0 shrink-0">
                 <ShieldAlert className="w-5 h-5" />
               </div>
               <div>
@@ -204,66 +219,97 @@ export default function LandingPage({
                   Try Before You Sign Up (Guest Mode)
                 </h3>
                 <p className="text-xs text-text-body">
-                  Explore every single helper inside Health Care Hub instantly. Use full app free for 3 days with local save!
+                  Explore every helper inside Health Care Hub instantly. Use the full app free for 3 days with local data save!
                 </p>
               </div>
             </div>
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={onStartGuest}
-              className="w-full sm:w-auto px-6 py-3 rounded-xl text-xs font-extrabold btn-3d-purple font-mono shrink-0 uppercase tracking-wider"
+              className="w-full sm:w-auto px-5 py-3 rounded-xl text-xs font-bold btn-3d-purple shrink-0 uppercase tracking-wider font-mono"
             >
               Try as Guest →
             </motion.button>
           </div>
         </motion.div>
 
-        {/* What's Included Grid */}
-        <div className="text-left max-w-4xl mx-auto mb-16">
+        {/* Feature Grid ("What's Included") */}
+        <div className="text-left w-full mb-16">
           <motion.h2 
             variants={itemVariants}
-            className="text-xs font-bold uppercase tracking-widest text-text-gold font-mono text-center mb-8"
+            className="text-xs font-bold uppercase tracking-widest text-purple-600 font-mono text-center mb-8"
           >
-            WHAT'S INCLUDED: Everything You Need to Stay Healthy
+            ✦ WHAT'S INCLUDED: THREE INTEGRATED CLINICAL LAYERS ✦
           </motion.h2>
+          
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <TiltCard>
-              <div className="p-6 rounded-xl bg-bg-card border border-white/[0.04] hover:border-gold-primary/20 transition-all duration-300 h-full flex flex-col justify-between">
+              <div className="p-6 rounded-2xl bg-white border border-emerald-100 shadow-md shadow-emerald-500/[0.01] hover:border-emerald-300 transition-all duration-300 h-full flex flex-col justify-between">
                 <div>
-                  <div className="w-10 h-10 rounded-lg bg-gold-primary/10 flex items-center justify-center text-gold-primary mb-4">
-                    <Flame className="w-5 h-5" />
+                  {/* High Quality Portion Plate Image */}
+                  <div className="w-full h-36 rounded-xl overflow-hidden mb-4 bg-slate-50 border border-slate-100">
+                    <img 
+                      src="/nutrition_plate.png" 
+                      alt="Healthy portion sized chicken breast salad flatbread" 
+                      className="w-full h-full object-cover" 
+                    />
                   </div>
-                  <h3 className="text-sm font-bold text-text-headline mb-2">🥗 Food Plan</h3>
+                  <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4 border border-emerald-100">
+                    <SVGIconNutrition />
+                  </div>
+                  <h3 className="text-sm font-bold text-text-headline mb-2 flex items-center gap-1.5">
+                    🥗 Nutrition Kitchen
+                  </h3>
                   <p className="text-xs text-text-body leading-relaxed">
-                    Balanced recipes calculated exactly to fit your daily calories, with heart-safe and sugar-safe guidelines built-in.
+                    Custom recipes calculated to fit your exact daily metabolic values, featuring local food tables, healthy alternatives, and heart/sugar safety filters.
                   </p>
                 </div>
               </div>
             </TiltCard>
 
             <TiltCard>
-              <div className="p-6 rounded-xl bg-bg-card border border-white/[0.04] hover:border-gold-primary/20 transition-all duration-300 h-full flex flex-col justify-between">
+              <div className="p-6 rounded-2xl bg-white border border-sky-100 shadow-md shadow-sky-500/[0.01] hover:border-sky-300 transition-all duration-300 h-full flex flex-col justify-between">
                 <div>
-                  <div className="w-10 h-10 rounded-lg bg-gold-primary/10 flex items-center justify-center text-gold-primary mb-4">
-                    <Activity className="w-5 h-5" />
+                  {/* High Quality Fitness Squat Illustration */}
+                  <div className="w-full h-36 rounded-xl overflow-hidden mb-4 bg-slate-50 border border-slate-100">
+                    <img 
+                      src="/fitness_workout.png" 
+                      alt="Minimalist joint safe squat exercise illustration" 
+                      className="w-full h-full object-cover" 
+                    />
                   </div>
-                  <h3 className="text-sm font-bold text-text-headline mb-2">🏃 Easy Workouts</h3>
+                  <div className="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center mb-4 border border-sky-100">
+                    <SVGIconFitness />
+                  </div>
+                  <h3 className="text-sm font-bold text-text-headline mb-2 flex items-center gap-1.5">
+                    🏃 Knee-Safe Fitness
+                  </h3>
                   <p className="text-xs text-text-body leading-relaxed">
-                    Simple knee-safe, back-safe bodyweight workouts with clear visual timers. Beginner-locked for heart conditions.
+                    Joint-safe, cardio, and resistance moves with interactive visual guides and sound cues. Automatically restricts difficulty levels for chronic conditions.
                   </p>
                 </div>
               </div>
             </TiltCard>
 
             <TiltCard>
-              <div className="p-6 rounded-xl bg-bg-card border border-purple-500/15 hover:border-purple-500/30 transition-all duration-300 h-full flex flex-col justify-between card-3d-purple">
+              <div className="p-6 rounded-2xl bg-white border border-purple-100 shadow-md shadow-purple-500/[0.01] hover:border-purple-300 transition-all duration-300 h-full flex flex-col justify-between">
                 <div>
-                  <div className="w-10 h-10 rounded-lg bg-purple-500/15 flex items-center justify-center text-purple-400 mb-4">
-                    <Heart className="w-5 h-5" />
+                  {/* High Quality Calm Mind Illustration */}
+                  <div className="w-full h-36 rounded-xl overflow-hidden mb-4 bg-slate-50 border border-slate-100">
+                    <img 
+                      src="/mental_relaxation.png" 
+                      alt="Abstract soft meditation bubble breathing illustration" 
+                      className="w-full h-full object-cover" 
+                    />
                   </div>
-                  <h3 className="text-sm font-bold text-text-headline mb-2">🧠 Mental Relaxation</h3>
+                  <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center mb-4 border border-purple-100">
+                    <SVGIconMind />
+                  </div>
+                  <h3 className="text-sm font-bold text-text-headline mb-2 flex items-center gap-1.5">
+                    🧠 Supportive Mind
+                  </h3>
                   <p className="text-xs text-text-body leading-relaxed">
-                    Mindful breathing models like 4-7-8 and Sleep Prep to naturally relieve day-to-day stress, headache, and fatigue.
+                    Private stress pacing, gratitude logs, and respiratory metronomes (like 4-7-8 and sleep prep cycles) to quickly ease day-end stress and headaches.
                   </p>
                 </div>
               </div>
@@ -271,51 +317,51 @@ export default function LandingPage({
           </div>
         </div>
 
-        {/* INTERACTIVE FEATURE EXPLORER SHOWCASE */}
-        <div className="text-left max-w-4xl mx-auto mb-16 border-t border-white/[0.04] pt-12">
+        {/* INTERACTIVE CAPABILITIES DISCOVERY MOCKUP */}
+        <div className="text-left w-full mb-16 border-t border-slate-200/50 pt-12">
           <motion.h2 
             variants={itemVariants}
-            className="text-xs font-bold uppercase tracking-widest text-text-gold font-mono text-center mb-2"
+            className="text-xs font-bold uppercase tracking-widest text-purple-600 font-mono text-center mb-2"
           >
-            ✦ INTERACTIVE CAPABILITIES DISCOVERY ✦
+            ✦ INTERACTIVE CAPABILITIES PREVIEW ✦
           </motion.h2>
           <motion.p
             variants={itemVariants}
-            className="text-center text-xs text-text-muted mb-8 max-w-lg mx-auto"
+            className="text-center text-xs text-text-muted mb-8 max-w-md mx-auto"
           >
-            Explore how Health Care Hub guides your lifestyle decisions. Click any category below to preview how it works:
+            Select a feature tab below to preview our real-time guidance tools inside a simulated web app dashboard environment.
           </motion.p>
 
-          {/* Tabs Selector */}
-          <div className="flex flex-wrap justify-center gap-2 mb-8 bg-white/[0.02] border border-white/[0.05] p-1.5 rounded-xl max-w-2xl mx-auto">
+          {/* Active Tab Selector (Pills) */}
+          <div className="flex flex-wrap justify-center gap-2 mb-8 bg-slate-100/80 border border-slate-200/50 p-1.5 rounded-xl max-w-2xl mx-auto">
             <button
               onClick={() => setActiveFeatureTab('nutrition')}
-              className={`flex items-center space-x-2 px-4 py-2.5 rounded-lg text-xs font-bold transition ${
+              className={`flex items-center space-x-1.5 px-4 py-2.5 rounded-lg text-xs font-bold transition ${
                 activeFeatureTab === 'nutrition'
-                  ? 'bg-purple-600 text-purple-50 shadow-lg shadow-purple-500/20'
-                  : 'text-text-body hover:bg-white/[0.03] hover:text-text-headline'
+                  ? 'bg-purple-600 text-white shadow-md shadow-purple-500/10'
+                  : 'text-text-body hover:bg-slate-200/50 hover:text-text-headline'
               }`}
             >
-              <Flame className="w-3.5 h-3.5" />
-              <span>Nutrition Kitchen</span>
+              <Soup className="w-3.5 h-3.5" />
+              <span>Nutrition</span>
             </button>
             <button
               onClick={() => setActiveFeatureTab('fitness')}
-              className={`flex items-center space-x-2 px-4 py-2.5 rounded-lg text-xs font-bold transition ${
+              className={`flex items-center space-x-1.5 px-4 py-2.5 rounded-lg text-xs font-bold transition ${
                 activeFeatureTab === 'fitness'
-                  ? 'bg-purple-600 text-purple-50 shadow-lg shadow-purple-500/20'
-                  : 'text-text-body hover:bg-white/[0.03] hover:text-text-headline'
+                  ? 'bg-purple-600 text-white shadow-md shadow-purple-500/10'
+                  : 'text-text-body hover:bg-slate-200/50 hover:text-text-headline'
               }`}
             >
-              <Activity className="w-3.5 h-3.5" />
-              <span>Fitness Training</span>
+              <Dumbbell className="w-3.5 h-3.5" />
+              <span>Fitness</span>
             </button>
             <button
               onClick={() => setActiveFeatureTab('mind')}
-              className={`flex items-center space-x-2 px-4 py-2.5 rounded-lg text-xs font-bold transition ${
+              className={`flex items-center space-x-1.5 px-4 py-2.5 rounded-lg text-xs font-bold transition ${
                 activeFeatureTab === 'mind'
-                  ? 'bg-purple-600 text-purple-50 shadow-lg shadow-purple-500/20'
-                  : 'text-text-body hover:bg-white/[0.03] hover:text-text-headline'
+                  ? 'bg-purple-600 text-white shadow-md shadow-purple-500/10'
+                  : 'text-text-body hover:bg-slate-200/50 hover:text-text-headline'
               }`}
             >
               <Smile className="w-3.5 h-3.5" />
@@ -323,313 +369,409 @@ export default function LandingPage({
             </button>
             <button
               onClick={() => setActiveFeatureTab('reminders')}
-              className={`flex items-center space-x-2 px-4 py-2.5 rounded-lg text-xs font-bold transition ${
+              className={`flex items-center space-x-1.5 px-4 py-2.5 rounded-lg text-xs font-bold transition ${
                 activeFeatureTab === 'reminders'
-                  ? 'bg-purple-600 text-purple-50 shadow-lg shadow-purple-500/20'
-                  : 'text-text-body hover:bg-white/[0.03] hover:text-text-headline'
+                  ? 'bg-purple-600 text-white shadow-md shadow-purple-500/10'
+                  : 'text-text-body hover:bg-slate-200/50 hover:text-text-headline'
               }`}
             >
               <Clock className="w-3.5 h-3.5" />
-              <span>Wellness Reminders</span>
+              <span>Ledger Hub</span>
             </button>
           </div>
 
-          {/* Active Tab Content Render */}
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeFeatureTab}
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
-              transition={{ duration: 0.25 }}
-              className="bg-bg-card border border-white/[0.06] rounded-2xl p-6 md:p-8 shadow-deep flex flex-col md:flex-row gap-8 items-center"
-            >
-              {/* Left Column: Visual Mockup representation of the dashboard tool */}
-              <div className="w-full md:w-1/2 space-y-4">
-                {activeFeatureTab === 'nutrition' && (
-                  <div className="p-5 rounded-xl bg-bg-surface border border-white/[0.04] space-y-3 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-2 text-[10px] font-mono text-emerald-400 bg-emerald-400/10 rounded-bl-lg font-bold">HEALTHY PORTIONS</div>
-                    <div className="flex justify-between items-center border-b border-white/[0.04] pb-2">
-                      <span className="text-xs font-bold text-text-headline">Weekly Diet Sheet</span>
-                      <span className="text-[10px] font-mono text-gold-primary font-bold">Target: 2,100 kcal</span>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center text-[11px] p-2 bg-white/[0.02] rounded border border-white/[0.03]">
-                        <span>🌅 Breakfast: Bran Flatbread + Egg</span>
-                        <span className="text-text-gold font-mono font-bold">310 kcal</span>
-                      </div>
-                      <div className="flex justify-between items-center text-[11px] p-2 bg-white/[0.02] rounded border border-white/[0.03]">
-                        <span>☀️ Lunch: Lentils Soup + Salad</span>
-                        <span className="text-text-gold font-mono font-bold">420 kcal</span>
-                      </div>
-                      <div className="flex justify-between items-center text-[11px] p-2 bg-white/[0.02] rounded border border-white/[0.03]">
-                        <span>🌙 Dinner: Grilled Lean Protein + Greens</span>
-                        <span className="text-text-gold font-mono font-bold">540 kcal</span>
-                      </div>
-                    </div>
-                    <div className="pt-2 border-t border-white/[0.04] flex items-center justify-between text-[10px] font-mono text-text-muted">
-                      <span>Carbs: 180g</span>
-                      <span>Protein: 120g</span>
-                      <span>Fat: 55g</span>
-                    </div>
-                  </div>
-                )}
-
-                {activeFeatureTab === 'fitness' && (
-                  <div className="p-5 rounded-xl bg-bg-surface border border-white/[0.04] space-y-3 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-2 text-[10px] font-mono text-yellow-500 bg-yellow-500/10 rounded-bl-lg font-bold">KNEE & HEART SAFE</div>
-                    <div className="flex justify-between items-center border-b border-white/[0.04] pb-2">
-                      <span className="text-xs font-bold text-text-headline">Active Exercise Timer</span>
-                      <span className="px-2 py-0.5 bg-gold-primary/10 text-gold-primary text-[9px] rounded font-mono font-bold uppercase">BEGINNER PROGRAM</span>
-                    </div>
-                    <div className="py-4 text-center space-y-2">
-                      <div className="text-2xl font-mono font-bold tracking-tight text-text-headline">01:45</div>
-                      <div className="text-[10px] text-text-gold font-mono uppercase tracking-wider">NEXT: CHAIR WALL SQUAT (30s REST)</div>
-                    </div>
-                    <div className="w-full bg-white/5 h-1 rounded-full overflow-hidden">
-                      <div className="bg-gold-primary h-full w-[65%]" />
-                    </div>
-                    <div className="flex justify-between text-[9px] font-mono text-text-muted pt-1">
-                      <span>ELAPSED: 4 MIN</span>
-                      <span>TOTAL: 12 MIN</span>
-                    </div>
-                  </div>
-                )}
-
-                {activeFeatureTab === 'mind' && (
-                  <div className="p-5 rounded-xl bg-purple-950/40 border border-purple-500/25 space-y-3 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-2 text-[10px] font-mono text-purple-300 bg-purple-500/15 rounded-bl-lg font-bold">CONFIDENTIAL</div>
-                    <div className="flex justify-between items-center border-b border-purple-500/15 pb-2">
-                      <span className="text-xs font-bold text-text-headline">Stress Counsel Logs</span>
-                      <span className="text-[10px] font-mono text-purple-300 font-bold">3 Active Targets</span>
-                    </div>
-                    <div className="space-y-2 text-[11px] leading-relaxed">
-                      <div className="p-2.5 rounded bg-purple-500/5 border border-purple-500/15 text-text-muted">
-                        <strong className="text-purple-300 text-[10px] block font-mono uppercase mb-0.5">HEALTH STRATEGY IDENTIFIED:</strong>
-                        "Avoid fast hydration; take tiny sips and practice muscle relaxation to alleviate day-end headaches."
-                      </div>
-                      <div className="p-2 bg-white/[0.01] text-[10px] text-text-muted italic border-l-2 border-purple-400/30 pl-2">
-                        Reflection: "Feeling lighter after pacing my breath. Ready to sleep early today."
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {activeFeatureTab === 'reminders' && (
-                  <div className="p-5 rounded-xl bg-bg-surface border border-white/[0.04] space-y-3 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-2 text-[10px] font-mono text-blue-400 bg-blue-400/10 rounded-bl-lg font-bold">LIVE METRICS</div>
-                    <div className="flex justify-between items-center border-b border-white/[0.04] pb-2">
-                      <span className="text-xs font-bold text-text-headline">My Daily Ledger Tracker</span>
-                      <span className="text-[10px] font-mono text-blue-400 font-bold">80% Hydrated</span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2 text-center text-[11px]">
-                      <div className="p-2.5 bg-white/[0.02] rounded border border-white/[0.03]">
-                        <span className="block text-[9px] font-mono text-text-muted uppercase">WATER LOG</span>
-                        <strong className="text-blue-400 text-xs">2.4 / 3.0 Liters</strong>
-                      </div>
-                      <div className="p-2.5 bg-white/[0.02] rounded border border-white/[0.03]">
-                        <span className="block text-[9px] font-mono text-text-muted uppercase">STEP COUNTER</span>
-                        <strong className="text-emerald-400 text-xs">7,200 / 8,000 steps</strong>
-                      </div>
-                      <div className="p-2.5 bg-white/[0.02] rounded border border-white/[0.03]">
-                        <span className="block text-[9px] font-mono text-text-muted uppercase">SLEEP LEDGER</span>
-                        <strong className="text-purple-400 text-xs">7.5 / 8 Hours</strong>
-                      </div>
-                      <div className="p-2.5 bg-white/[0.02] rounded border border-white/[0.03]">
-                        <span className="block text-[9px] font-mono text-text-muted uppercase">FASTING CYCLE</span>
-                        <strong className="text-amber-400 text-[10px]">Active Pre-Dawn</strong>
-                      </div>
-                    </div>
-                  </div>
-                )}
+          {/* Simulated Mobile Dashboard Frame */}
+          <div className="max-w-4xl mx-auto flex flex-col lg:flex-row gap-8 items-center bg-white border border-slate-100 rounded-3xl p-6 shadow-md shadow-slate-400/[0.02]">
+            
+            {/* Phone Screen Mockup */}
+            <div className="w-full md:w-[320px] shrink-0 bg-slate-800 rounded-[36px] p-3 shadow-2xl border-4 border-slate-700 relative mx-auto">
+              {/* Notch */}
+              <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-28 h-4.5 bg-slate-800 rounded-full z-20 flex items-center justify-center">
+                <div className="w-3 h-1 bg-slate-900 rounded-full"></div>
               </div>
+              
+              {/* Phone Screen Contents */}
+              <div className="bg-bg-deep rounded-[26px] overflow-hidden border border-slate-900 min-h-[380px] flex flex-col justify-between text-left relative text-text-body select-none">
+                {/* Mock Status Bar */}
+                <div className="flex justify-between items-center px-6 pt-5 pb-2 text-[9px] font-mono text-slate-400 font-bold bg-white border-b border-slate-50">
+                  <span>9:41 AM</span>
+                  <div className="flex items-center space-x-1">
+                    <span>📶</span>
+                    <span>🔋</span>
+                  </div>
+                </div>
 
-              {/* Right Column: Descriptions & Detailed Benefits list */}
-              <div className="w-full md:w-1/2 space-y-4">
-                {activeFeatureTab === 'nutrition' && (
-                  <>
-                    <h3 className="text-base font-bold text-text-headline flex items-center">
-                      <Flame className="w-4 h-4 text-gold-primary mr-2" /> Personalized Wellness Kitchen
-                    </h3>
-                    <p className="text-xs text-text-body leading-relaxed">
-                      Enjoy a tailored, metabolic-approved eating regime that features local, accessible foods. Say goodbye to strict, unpalatable constraints and replace ingredients with healthy, heart-safe varieties.
-                    </p>
-                    <ul className="space-y-2 pt-2">
-                      <li className="flex items-start text-xs text-text-body">
-                        <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0 mr-2.5 mt-0.5" />
-                        <span><strong>Automatic Calories Allocation</strong>: Tailors carbs, fats, and protein precisely to fit your exact bio-onboarding specs.</span>
-                      </li>
-                      <li className="flex items-start text-xs text-text-body">
-                        <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0 mr-2.5 mt-0.5" />
-                        <span><strong>Comprehensive Search Ledger</strong>: Instant food macro analysis spanning traditional recipes and daily snacks.</span>
-                      </li>
-                      <li className="flex items-start text-xs text-text-body">
-                        <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0 mr-2.5 mt-0.5" />
-                        <span><strong>Local Kitchen Swapper</strong>: Replace high-oil or refined-wheat items with healthy low-sodium/lower-cholesterol equivalents.</span>
-                      </li>
-                      <li className="flex items-start text-xs text-text-body">
-                        <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0 mr-2.5 mt-0.5" />
-                        <span><strong>Snapshot Analyzer</strong>: Estimate food plates, portion densities, and overall values via our static image calculator.</span>
-                      </li>
-                    </ul>
-                  </>
-                )}
+                {/* Mock Inner Card Frame Body */}
+                <div className="p-4 flex-grow space-y-3 overflow-y-auto">
+                  <AnimatePresence mode="wait">
+                    {activeFeatureTab === 'nutrition' && (
+                      <motion.div
+                        key="mock-nutrition"
+                        initial={{ opacity: 0, scale: 0.98 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="space-y-3"
+                      >
+                        <div className="flex justify-between items-center pb-1 border-b border-slate-100">
+                          <span className="text-[11px] font-bold text-text-headline">Macro Balance Kitchen</span>
+                          <span className="text-[9px] font-mono text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded font-bold">1,800 kcal Target</span>
+                        </div>
+                        
+                        {/* Interactive SVG Calorie Ring Progress Bar */}
+                        <div className="flex items-center space-x-3.5 p-3 bg-white rounded-xl border border-slate-100 shadow-sm">
+                          <div className="relative w-16 h-16 shrink-0 flex items-center justify-center">
+                            <svg className="w-full h-full transform -rotate-90">
+                              <circle
+                                cx="32"
+                                cy="32"
+                                r="26"
+                                className="stroke-slate-100"
+                                strokeWidth="5.5"
+                                fill="transparent"
+                              />
+                              <circle
+                                cx="32"
+                                cy="32"
+                                r="26"
+                                className="stroke-emerald-500 transition-all duration-1000 ease-out"
+                                strokeWidth="5.5"
+                                fill="transparent"
+                                strokeDasharray="163.3"
+                                strokeDashoffset={163.3 - (163.3 * 1070) / 1800}
+                                strokeLinecap="round"
+                              />
+                            </svg>
+                            <div className="absolute inset-0 flex flex-col items-center justify-center">
+                              <span className="text-[9px] font-extrabold text-text-headline">1,070</span>
+                              <span className="text-[6px] text-text-muted font-bold font-mono">/ 1,800</span>
+                            </div>
+                          </div>
+                          <div className="flex-grow space-y-1 text-[9px]">
+                            <div className="flex justify-between font-bold text-text-headline">
+                              <span>Consumed</span>
+                              <span className="text-emerald-600 font-mono">59%</span>
+                            </div>
+                            <div className="w-full bg-slate-100 h-1 rounded-full overflow-hidden">
+                              <div className="bg-emerald-500 h-full w-[59%]"></div>
+                            </div>
+                            <span className="text-[7.5px] text-text-muted font-bold block">Remaining: 730 kcal</span>
+                                       <div className="space-y-1.5">
+                          <div className="flex justify-between items-center text-[9px] p-2 bg-white rounded-lg border border-slate-100 shadow-sm">
+                            <span>🍳 Breakfast: Multigrain Roti with Soft Poached Egg</span>
+                            <span className="text-emerald-650 font-mono font-bold">290 kcal</span>
+                          </div>
+                          <div className="flex justify-between items-center text-[9px] p-2 bg-white rounded-lg border border-slate-100 shadow-sm">
+                            <span>🍲 Lunch: Traditional Moong Daal Soup + Garden Kachi Salad</span>
+                            <span className="text-emerald-655 font-mono font-bold">390 kcal</span>
+                          </div>
+                          <div className="flex justify-between items-center text-[9px] p-2 bg-white rounded-lg border border-slate-100 shadow-sm">
+                            <span>🍢 Dinner: Grilled Skinless Chicken Kebab</span>
+                            <span className="text-emerald-660 font-mono font-bold">390 kcal</span>
+                          </div>
+                        </div>                       </div>
+                        </div>
+                      </motion.div>
+                    )}
 
-                {activeFeatureTab === 'fitness' && (
-                  <>
-                    <h3 className="text-base font-bold text-text-headline flex items-center">
-                      <Activity className="w-4 h-4 text-gold-primary mr-2" /> Knee-Safe & Goal-Focused Training
-                    </h3>
-                    <p className="text-xs text-text-body leading-relaxed">
-                      Execute simple, joint-safe workouts at home with no heavy equipment required. The platform respects your chronic parameters and heart history, dynamically locking advanced exertion levels to protect you.
-                    </p>
-                    <ul className="space-y-2 pt-2">
-                      <li className="flex items-start text-xs text-text-body">
-                        <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0 mr-2.5 mt-0.5" />
-                        <span><strong>Live Activity Timer</strong>: Follow clear high-contrast step-by-step guides with rest metronomes and simple sound aids.</span>
-                      </li>
-                      <li className="flex items-start text-xs text-text-body">
-                        <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0 mr-2.5 mt-0.5" />
-                        <span><strong>Chronic Safety Adjuster</strong>: Restricts high-impact, intense cardio if user flags history of heart or knee complications.</span>
-                      </li>
-                      <li className="flex items-start text-xs text-text-body">
-                        <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0 mr-2.5 mt-0.5" />
-                        <span><strong>Permanent Workout Archive</strong>: Log durations, exertion scales, and category counts to maintain structured streaks.</span>
-                      </li>
-                      <li className="flex items-start text-xs text-text-body">
-                        <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0 mr-2.5 mt-0.5" />
-                        <span><strong>Beginner Cardio Splits</strong>: Body weight workouts designed to optimize cardiovascular health safely and gently.</span>
-                      </li>
-                    </ul>
-                  </>
-                )}
+                    {activeFeatureTab === 'fitness' && (
+                      <motion.div
+                        key="mock-fitness"
+                        initial={{ opacity: 0, scale: 0.98 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="space-y-3"
+                      >
+                        <div className="flex justify-between items-center pb-1 border-b border-slate-100">
+                          <span className="text-[11px] font-bold text-text-headline">Chair Wall Squats</span>
+                          <span className="text-[9px] font-mono text-sky-600 bg-sky-50 px-1.5 py-0.5 rounded font-bold">Rest Timer</span>
+                        </div>
+                        <div className="py-4 text-center space-y-1.5 bg-white rounded-xl border border-slate-100 shadow-sm">
+                          <div className="text-3xl font-mono font-extrabold tracking-tight text-text-headline">00:45</div>
+                          <div className="text-[8px] text-sky-600 font-mono uppercase tracking-wider">Breathing In / Out</div>
+                        </div>
+                        <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                          <div className="bg-sky-600 h-full w-[60%]" />
+                        </div>
+                      </motion.div>
+                    )}
 
-                {activeFeatureTab === 'mind' && (
-                  <>
-                    <h3 className="text-base font-bold text-text-headline flex items-center">
-                      <Smile className="w-4 h-4 text-gold-primary mr-2" /> Mind Counselor & Cozy Pacing
-                    </h3>
-                    <p className="text-xs text-text-body leading-relaxed">
-                      Soothe day-end anxiety or insomnia. Connect with a private counseling companion, write gratitude checklists, or breathe with custom metronomes to slow down your heart rate.
-                    </p>
-                    <ul className="space-y-2 pt-2">
-                      <li className="flex items-start text-xs text-text-body">
-                        <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0 mr-2.5 mt-0.5" />
-                        <span><strong>Non-Judgmental Conversation</strong>: Share life stresses, work pressure, or routine blockages inside a secure environment.</span>
-                      </li>
-                      <li className="flex items-start text-xs text-text-body">
-                        <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0 mr-2.5 mt-0.5" />
-                        <span><strong>Smart Auto-Notes Synthesis</strong>: Chat summaries automatically register daily hurdles and active strategies on your board.</span>
-                      </li>
-                      <li className="flex items-start text-xs text-text-body">
-                        <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0 mr-2.5 mt-0.5" />
-                        <span><strong>Dynamic Metronomes</strong>: Follow 4-7-8, Deep Sleep Prep, or custom breathing timers with interactive visual expansions.</span>
-                      </li>
-                      <li className="flex items-start text-xs text-text-body">
-                        <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0 mr-2.5 mt-0.5" />
-                        <span><strong>Gratitude Log</strong>: Build a repository of warm, positive memories to review during challenging moments.</span>
-                      </li>
-                    </ul>
-                  </>
-                )}
+                    {activeFeatureTab === 'mind' && (
+                      <motion.div
+                        key="mock-mind"
+                        initial={{ opacity: 0, scale: 0.98 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="space-y-3"
+                      >
+                        <div className="flex justify-between items-center pb-1 border-b border-slate-100">
+                          <span className="text-[11px] font-bold text-text-headline">Breathing Metronome</span>
+                          <span className="text-[9px] font-mono text-purple-600 bg-purple-50 px-1.5 py-0.5 rounded font-bold">4-7-8 Pace</span>
+                        </div>
+                        <div className="p-3 bg-white border border-purple-100 rounded-xl space-y-2">
+                          <div className="flex items-center justify-center h-16">
+                            <div className="w-12 h-12 rounded-full bg-purple-500/10 border border-purple-500/25 flex items-center justify-center animate-ping">
+                              <Smile className="w-5 h-5 text-purple-600" />
+                            </div>
+                          </div>
+                          <p className="text-[9px] text-center text-text-muted italic">"Inhale deeply through nose (4s)"</p>
+                        </div>
+                      </motion.div>
+                    )}
 
-                {activeFeatureTab === 'reminders' && (
-                  <>
-                    <h3 className="text-base font-bold text-text-headline flex items-center">
-                      <Clock className="w-4 h-4 text-gold-primary mr-2" /> Unified Wellness Ledger & Alerts
-                    </h3>
-                    <p className="text-xs text-text-body leading-relaxed">
-                      Organize your hydration targets, step goals, sleep habits, and fasting timelines. View automated trend breakdowns and clinical scientific rationales that help you understand your metrics.
-                    </p>
-                    <ul className="space-y-2 pt-2">
-                      <li className="flex items-start text-xs text-text-body">
-                        <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0 mr-2.5 mt-0.5" />
-                        <span><strong>Interactive Water Gauge</strong>: Click custom cups to fill your digital bottle, monitoring target hydration percentages.</span>
-                      </li>
-                      <li className="flex items-start text-xs text-text-body">
-                        <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0 mr-2.5 mt-0.5" />
-                        <span><strong>Daily Sleep & Step Logs</strong>: Maintain structured records of steps taken and rest duration inside local storage.</span>
-                      </li>
-                      <li className="flex items-start text-xs text-text-body">
-                        <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0 mr-2.5 mt-0.5" />
-                        <span><strong>Scientific Highlight Audits</strong>: Real clinical rationales detailing nutritional and physical targets on your active dashboard.</span>
-                      </li>
-                      <li className="flex items-start text-xs text-text-body">
-                        <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0 mr-2.5 mt-0.5" />
-                        <span><strong>Fasting Assistance Module</strong>: Tracks Sehri/Iftari windows with automated sunrise and sunset schedule helpers.</span>
-                      </li>
-                    </ul>
-                  </>
-                )}
+                    {activeFeatureTab === 'reminders' && (
+                      <motion.div
+                        key="mock-reminders"
+                        initial={{ opacity: 0, scale: 0.98 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="space-y-3.5"
+                      >
+                        <div className="flex justify-between items-center pb-1 border-b border-slate-100">
+                          <span className="text-[11px] font-bold text-text-headline">Hydration Ledger</span>
+                          <span className="text-[9px] font-mono text-sky-600 bg-sky-50 px-1.5 py-0.5 rounded font-bold">75% Achieved</span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 text-center">
+                          <div className="p-2 bg-white rounded-lg border border-slate-100 shadow-sm">
+                            <span className="block text-[8px] font-mono text-text-muted uppercase">WATER LOG</span>
+                            <strong className="text-sky-600 text-[10px]">2.2 / 3.0 L</strong>
+                          </div>
+                          <div className="p-2 bg-white rounded-lg border border-slate-100 shadow-sm">
+                            <span className="block text-[8px] font-mono text-text-muted uppercase">STEP TRACKER</span>
+                            <strong className="text-emerald-600 text-[10px]">6,100 steps</strong>
+                          </div>
+                          <div className="p-2 bg-white rounded-lg border border-slate-100 shadow-sm col-span-2">
+                            <span className="block text-[8px] font-mono text-text-muted uppercase">FASTING CYCLE</span>
+                            <strong className="text-amber-600 text-[10px]">Sehri Ended / Iftari in 5 hrs</strong>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                {/* Mock App Bottom Bar with Custom Premium SVGs */}
+                <div className="grid grid-cols-4 border-t border-slate-100 bg-white px-2 py-2 text-center text-[7.5px] font-mono font-bold text-slate-400">
+                  <div className={`flex flex-col items-center ${activeFeatureTab === 'nutrition' ? 'text-purple-600' : ''}`}>
+                    <SVGIconNutrition />
+                    <span>Food</span>
+                  </div>
+                  <div className={`flex flex-col items-center ${activeFeatureTab === 'fitness' ? 'text-purple-600' : ''}`}>
+                    <SVGIconFitness />
+                    <span>Fit</span>
+                  </div>
+                  <div className={`flex flex-col items-center ${activeFeatureTab === 'mind' ? 'text-purple-600' : ''}`}>
+                    <SVGIconMind />
+                    <span>Mind</span>
+                  </div>
+                  <div className={`flex flex-col items-center ${activeFeatureTab === 'reminders' ? 'text-purple-600' : ''}`}>
+                    <SVGIconReminders />
+                    <span>Log</span>
+                  </div>
+                </div>
               </div>
-            </motion.div>
-          </AnimatePresence>
+            </div>
+
+            {/* Description Column */}
+            <div className="flex-grow text-left space-y-4">
+              {activeFeatureTab === 'nutrition' && (
+                <div className="space-y-3">
+                  <h3 className="text-base font-bold text-text-headline flex items-center">
+                    <span className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center mr-2 border border-emerald-100"><SVGIconNutrition /></span>
+                    Macro Portion Calculations
+                  </h3>
+                  <p className="text-xs text-text-body leading-relaxed">
+                    Enjoy eating meals tailored exactly to your bio-onboarding specifications. We provide a customized menu based on ingredients that are accessible locally in Pakistan.
+                  </p>
+                  <ul className="space-y-2 pt-1.5">
+                    <li className="flex items-start text-xs text-text-body">
+                      <CheckCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0 mr-2 mt-0.5" />
+                      <span><strong>Automatic Macro Splits</strong>: Carbs, fats, and protein are calculated based on your target weight goals.</span>
+                    </li>
+                    <li className="flex items-start text-xs text-text-body">
+                      <CheckCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0 mr-2 mt-0.5" />
+                      <span><strong>Traditional Swapper</strong>: Substitute high-oil ingredients with healthy lower-cholesterol alternatives.</span>
+                    </li>
+                  </ul>
+                </div>
+              )}
+
+              {activeFeatureTab === 'fitness' && (
+                <div className="space-y-3">
+                  <h3 className="text-base font-bold text-text-headline flex items-center">
+                    <span className="w-8 h-8 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center mr-2 border border-sky-100"><SVGIconFitness /></span>
+                    Beginner Knee & Heart-Safe Moves
+                  </h3>
+                  <p className="text-xs text-text-body leading-relaxed">
+                    No gym equipment required. Work out safely with our custom routines. If you have joint pain or high blood pressure, the system locks advanced moves.
+                  </p>
+                  <ul className="space-y-2 pt-1.5">
+                    <li className="flex items-start text-xs text-text-body">
+                      <CheckCircle className="w-3.5 h-3.5 text-sky-500 shrink-0 mr-2 mt-0.5" />
+                      <span><strong>Active Rest Timer</strong>: Clear indicators let you perform intervals with structured rest times.</span>
+                    </li>
+                    <li className="flex items-start text-xs text-text-body">
+                      <CheckCircle className="w-3.5 h-3.5 text-sky-500 shrink-0 mr-2 mt-0.5" />
+                      <span><strong>Restriction Shield</strong>: Protects user cardiovascular systems by filtering high-impact moves automatically.</span>
+                    </li>
+                  </ul>
+                </div>
+              )}
+
+              {activeFeatureTab === 'mind' && (
+                <div className="space-y-3">
+                  <h3 className="text-base font-bold text-text-headline flex items-center">
+                    <span className="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center mr-2 border border-purple-100"><SVGIconMind /></span>
+                    Stress Counsel & Breath Pacing
+                  </h3>
+                  <p className="text-xs text-text-body leading-relaxed">
+                    Ease day-end physical fatigue, anxiety, and headaches. Log cozy reminders, write gratitude lists, or breathe with custom pacing bubbles.
+                  </p>
+                  <ul className="space-y-2 pt-1.5">
+                    <li className="flex items-start text-xs text-text-body">
+                      <CheckCircle className="w-3.5 h-3.5 text-purple-500 shrink-0 mr-2 mt-0.5" />
+                      <span><strong>Mental Pacing Metronome</strong>: Follow visual inhalation guides to reduce heart rate and lower stress.</span>
+                    </li>
+                    <li className="flex items-start text-xs text-text-body">
+                      <CheckCircle className="w-3.5 h-3.5 text-purple-500 shrink-0 mr-2 mt-0.5" />
+                      <span><strong>Journal Ledger</strong>: A private dashboard to record warm memories and track mental energy.</span>
+                    </li>
+                  </ul>
+                </div>
+              )}
+
+              {activeFeatureTab === 'reminders' && (
+                <div className="space-y-3">
+                  <h3 className="text-base font-bold text-text-headline flex items-center">
+                    <span className="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center mr-2 border border-slate-200"><SVGIconReminders /></span>
+                    Hydration & Fasting Tracker
+                  </h3>
+                  <p className="text-xs text-text-body leading-relaxed">
+                    Maintain structured records of water cups, steps taken, and rest cycles. Includes Ramadan fasting windows (Sehri and Iftari) automatically.
+                  </p>
+                  <ul className="space-y-2 pt-1.5">
+                    <li className="flex items-start text-xs text-text-body">
+                      <CheckCircle className="w-3.5 h-3.5 text-slate-500 shrink-0 mr-2 mt-0.5" />
+                      <span><strong>Cups Ledger Gauge</strong>: Tap to log standard glasses of water and monitor daily hydration targets.</span>
+                    </li>
+                    <li className="flex items-start text-xs text-text-body">
+                      <CheckCircle className="w-3.5 h-3.5 text-slate-500 shrink-0 mr-2 mt-0.5" />
+                      <span><strong>Fasting Timetable</strong>: Tracks sunrise/sunset limits based on local time zones.</span>
+                    </li>
+                  </ul>
+                </div>
+              )}
+            </div>
+
+          </div>
         </div>
 
-        {/* HOW HEALTH CARE HUB WORKS - STEP BY STEP */}
-        <div className="text-left max-w-4xl mx-auto mb-16 border-t border-white/[0.04] pt-12">
+        {/* 3-STEP WELLNESS BLUEPRINT (Responsive Timeline) */}
+        <div className="text-left w-full mb-16 border-t border-slate-200/50 pt-12">
           <motion.h2 
             variants={itemVariants}
-            className="text-xs font-bold uppercase tracking-widest text-text-gold font-mono text-center mb-8"
+            className="text-xs font-bold uppercase tracking-widest text-purple-600 font-mono text-center mb-8"
           >
             ✦ THE 3-STEP WELLNESS BLUEPRINT ✦
           </motion.h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
-            <div className="space-y-3 relative p-5 bg-bg-card border border-white/[0.04] rounded-xl">
-              <span className="text-3xl font-mono font-extrabold text-gold-primary/30 block">01</span>
-              <h4 className="text-sm font-bold text-text-headline">Build Bio-Profile</h4>
+          {/* Desktop view: Horizontal Layout */}
+          <div className="hidden md:grid grid-cols-3 gap-6 relative">
+            <div className="p-6 bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden">
+              <span className="text-4xl font-mono font-extrabold text-purple-100 block mb-2">01</span>
+              <h4 className="text-sm font-bold text-text-headline mb-2">Build Bio-Profile</h4>
               <p className="text-xs text-text-body leading-relaxed">
                 Take our 1-minute onboarding survey. Input physical metrics, dietary interests, activity levels, and custom cardiovascular/joint concerns.
               </p>
             </div>
 
-            <div className="space-y-3 relative p-5 bg-bg-card border border-white/[0.04] rounded-xl">
-              <span className="text-3xl font-mono font-extrabold text-gold-primary/30 block">02</span>
-              <h4 className="text-sm font-bold text-text-headline">Follow Tailored Directives</h4>
+            <div className="p-6 bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden">
+              <span className="text-4xl font-mono font-extrabold text-purple-100 block mb-2">02</span>
+              <h4 className="text-sm font-bold text-text-headline mb-2">Follow Tailored Directives</h4>
               <p className="text-xs text-text-body leading-relaxed">
                 Use our automated food charts, joint-safe physical workouts with live audio rest-timers, and mindful breathing cycles to stabilize stress.
               </p>
             </div>
 
-            <div className="space-y-3 relative p-5 bg-bg-card border border-white/[0.04] rounded-xl">
-              <span className="text-3xl font-mono font-extrabold text-gold-primary/30 block">03</span>
-              <h4 className="text-sm font-bold text-text-headline">Log Progress & Save History</h4>
+            <div className="p-6 bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden">
+              <span className="text-4xl font-mono font-extrabold text-purple-100 block mb-2">03</span>
+              <h4 className="text-sm font-bold text-text-headline mb-2">Log Daily Ledger</h4>
               <p className="text-xs text-text-body leading-relaxed">
                 Log daily steps, cups of water, calories, and sleep. Use guest mode or register a free account to back up and preserve your history.
               </p>
             </div>
           </div>
+
+          {/* Mobile view: Elegant Interactive Vertical Timeline */}
+          <div className="md:hidden relative border-l-2 border-slate-200 ml-4 pl-8 space-y-8">
+            <div className="relative">
+              {/* Dot */}
+              <div className="absolute -left-[43px] top-1.5 w-7 h-7 rounded-full bg-purple-600 text-white flex items-center justify-center text-[10px] font-bold border-4 border-bg-deep ring-2 ring-purple-100 shadow-sm">
+                01
+              </div>
+              <div className="p-5 bg-white border border-slate-100 rounded-2xl shadow-sm">
+                <h4 className="text-sm font-bold text-text-headline mb-1.5">Build Bio-Profile</h4>
+                <p className="text-xs text-text-body leading-relaxed">
+                  Take our 1-minute onboarding survey. Input physical metrics, dietary interests, activity levels, and custom cardiovascular/joint concerns.
+                </p>
+              </div>
+            </div>
+
+            <div className="relative">
+              {/* Dot */}
+              <div className="absolute -left-[43px] top-1.5 w-7 h-7 rounded-full bg-purple-600 text-white flex items-center justify-center text-[10px] font-bold border-4 border-bg-deep ring-2 ring-purple-100 shadow-sm">
+                02
+              </div>
+              <div className="p-5 bg-white border border-slate-100 rounded-2xl shadow-sm">
+                <h4 className="text-sm font-bold text-text-headline mb-1.5">Follow Tailored Directives</h4>
+                <p className="text-xs text-text-body leading-relaxed">
+                  Use our automated food charts, joint-safe physical workouts with live audio rest-timers, and mindful breathing cycles to stabilize stress.
+                </p>
+              </div>
+            </div>
+
+            <div className="relative">
+              {/* Dot */}
+              <div className="absolute -left-[43px] top-1.5 w-7 h-7 rounded-full bg-purple-600 text-white flex items-center justify-center text-[10px] font-bold border-4 border-bg-deep ring-2 ring-purple-100 shadow-sm">
+                03
+              </div>
+              <div className="p-5 bg-white border border-slate-100 rounded-2xl shadow-sm">
+                <h4 className="text-sm font-bold text-text-headline mb-1.5">Log Daily Ledger</h4>
+                <p className="text-xs text-text-body leading-relaxed">
+                  Log daily steps, cups of water, calories, and sleep. Use guest mode or register a free account to back up and preserve your history.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Testimonials Quote Section */}
-        <div className="text-left max-w-4xl mx-auto mb-16 border-t border-white/[0.04] pt-12">
+        <div className="text-left w-full mb-16 border-t border-slate-200/50 pt-12">
           <motion.h2 
             variants={itemVariants}
-            className="text-xs font-bold uppercase tracking-widest text-text-gold font-mono text-center mb-8"
+            className="text-xs font-bold uppercase tracking-widest text-purple-600 font-mono text-center mb-8"
           >
             ✦ PERSONAL STORIES FROM OUR MEMBERS ✦
           </motion.h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <TiltCard>
-              <div className="p-6 rounded-xl bg-bg-card border border-white/[0.04] shadow-card relative h-full">
-                <span className="text-3xl text-gold-primary/20 font-serif absolute top-3 left-4">“</span>
-                <p className="text-sm md:text-md font-serif italic text-text-headline leading-relaxed mb-4 pl-4">
+              <div className="p-6 rounded-2xl bg-white border border-slate-100 shadow-sm relative h-full hover:shadow-md transition-all duration-300">
+                <span className="text-3xl text-purple-600/10 font-serif absolute top-3 left-4">“</span>
+                <p className="text-xs md:text-sm font-serif italic text-text-headline leading-relaxed mb-4 pl-4 pt-1">
                   This app helped me walk more. My knees do not hurt anymore.
                 </p>
-                <div className="text-[11px] font-mono text-text-muted pl-4">
+                <div className="text-[10px] font-mono text-text-muted pl-4">
                   — BILAL, LAHORE
                 </div>
               </div>
             </TiltCard>
 
             <TiltCard>
-              <div className="p-6 rounded-xl bg-bg-card border border-white/[0.04] shadow-card relative h-full">
-                <span className="text-3xl text-gold-primary/20 font-serif absolute top-3 left-4">“</span>
-                <p className="text-sm md:text-md font-serif italic text-text-headline leading-relaxed mb-4 pl-4">
+              <div className="p-6 rounded-2xl bg-white border border-slate-100 shadow-sm relative h-full hover:shadow-md transition-all duration-300">
+                <span className="text-3xl text-purple-600/10 font-serif absolute top-3 left-4">“</span>
+                <p className="text-xs md:text-sm font-serif italic text-text-headline leading-relaxed mb-4 pl-4 pt-1">
                   I love the low-oil recipes. They taste good and keep my sugar safe.
                 </p>
-                <div className="text-[11px] font-mono text-text-muted pl-4">
+                <div className="text-[10px] font-mono text-text-muted pl-4">
                   — AMINA, KARACHI
                 </div>
               </div>
@@ -640,40 +782,45 @@ export default function LandingPage({
       </motion.div>
 
       {/* Footer */}
-      <footer className="w-full py-6 border-t border-white/[0.04] px-4 md:px-8 text-xs text-text-muted text-center flex flex-col sm:flex-row items-center justify-between gap-4 max-w-7xl mx-auto relative z-10">
-        <div className="flex items-center space-x-4">
-          <button onClick={onStartOnboarding} className="hover:text-text-gold transition">Features</button>
-          <span>•</span>
-          <button onClick={() => setIsLoginModalOpen(true)} className="hover:text-text-gold transition">Log In</button>
-          <span>•</span>
-          <button onClick={onStartGuest} className="hover:text-text-gold transition">Try as Guest</button>
+      <footer className="w-full py-8 border-t border-slate-200/50 px-4 md:px-8 text-xs text-text-muted text-center flex flex-col items-center gap-6 max-w-5xl mx-auto relative z-10">
+        <div className="flex flex-col sm:flex-row items-center justify-between w-full gap-4">
+          <div className="flex items-center space-x-4">
+            <button onClick={onStartOnboarding} className="hover:text-purple-600 transition">Features</button>
+            <span>•</span>
+            <button onClick={() => setIsLoginModalOpen(true)} className="hover:text-purple-600 transition">Log In</button>
+            <span>•</span>
+            <button onClick={onStartGuest} className="hover:text-purple-600 transition">Try as Guest</button>
+          </div>
+          <div>
+            © 2026 Health Care Hub (HCH)
+          </div>
         </div>
-        <div>
-          © 2026 Health Care Hub (HH)
-        </div>
+        <p className="text-[10px] text-text-muted/80 leading-relaxed text-center sm:text-left border-t border-slate-200/40 pt-4 w-full">
+          Disclaimer: Health Care Hub (HCH) provides nutritional, breathing, and physical fitness guidelines for informational purposes only. It is not medical advice. If you suffer from underlying cardiovascular, metabolic, or joint conditions, consult a physician before using these programs.
+        </p>
       </footer>
 
-      {/* Simple Login Modal */}
+      {/* Login Modal */}
       <AnimatePresence>
         {isLoginModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-bg-deep/80 backdrop-blur-sm">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
             <motion.div 
-              initial={{ opacity: 0, scale: 0.9, y: 15 }}
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 15 }}
-              transition={{ type: "spring", damping: 22, stiffness: 220 }}
-              className="w-full max-w-md p-6 rounded-xl bg-bg-surface border border-white/[0.08] shadow-deep"
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              transition={{ type: "spring", damping: 25, stiffness: 220 }}
+              className="w-full max-w-md p-6 rounded-2xl bg-white border border-slate-100 shadow-2xl"
             >
-              <h2 className="text-lg font-bold text-text-headline mb-2 flex items-center">
-                <LogIn className="w-5 h-5 text-gold-primary mr-2" /> Log In to Your Health Care Hub
+              <h2 className="text-base font-bold text-text-headline mb-1 flex items-center">
+                <LogIn className="w-5 h-5 text-purple-600 mr-2 shrink-0" /> Log In to Your Account
               </h2>
-              <p className="text-xs text-text-body mb-6">
+              <p className="text-xs text-text-body mb-5">
                 Enter your name to access your previous session and synchronized metrics instantly.
               </p>
 
               <form onSubmit={handleLoginSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-[11px] font-bold text-text-muted uppercase tracking-wider mb-2">
+                  <label className="block text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1.5">
                     Full Name
                   </label>
                   <input
@@ -682,38 +829,38 @@ export default function LandingPage({
                     placeholder="e.g. Bilal Ahmed"
                     value={usernameInput}
                     onChange={(e) => setUsernameInput(e.target.value)}
-                    className="w-full bg-bg-card border border-white/[0.08] focus:border-gold-primary focus:ring-1 focus:ring-gold-primary outline-none rounded-lg p-3 text-text-headline placeholder-text-muted text-sm"
+                    className="w-full bg-slate-50 border border-slate-200 focus:border-purple-600 focus:ring-1 focus:ring-purple-600 outline-none rounded-lg p-2.5 text-text-headline placeholder-text-muted text-xs transition"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-text-muted uppercase tracking-wider mb-2">
-                    Password (Optional for Demo)
+                  <label className="block text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1.5">
+                    Password (Optional)
                   </label>
                   <input
                     type="password"
                     placeholder="Leave empty or enter any password"
                     value={passwordInput}
                     onChange={(e) => setPasswordInput(e.target.value)}
-                    className="w-full bg-bg-card border border-white/[0.08] focus:border-gold-primary focus:ring-1 focus:ring-gold-primary outline-none rounded-lg p-3 text-text-headline placeholder-text-muted text-sm"
+                    className="w-full bg-slate-50 border border-slate-200 focus:border-purple-600 focus:ring-1 focus:ring-purple-600 outline-none rounded-lg p-2.5 text-text-headline placeholder-text-muted text-xs transition"
                   />
                 </div>
 
                 {loginError && (
-                  <p className="text-xs text-red-400 font-mono">{loginError}</p>
+                  <p className="text-xs text-red-650 font-mono">{loginError}</p>
                 )}
 
                 <div className="flex space-x-3 pt-2">
                   <button
                     type="button"
                     onClick={() => setIsLoginModalOpen(false)}
-                    className="w-1/2 py-2.5 rounded-lg text-xs font-bold text-text-body bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.08] transition"
+                    className="w-1/2 py-2 rounded-lg text-xs font-bold text-text-body bg-slate-100 hover:bg-slate-200 border border-slate-200/50 transition active:scale-95"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="w-1/2 py-2.5 rounded-lg text-xs font-bold text-bg-deep bg-gold-primary hover:bg-gold-light transition"
+                    className="w-1/2 py-2 rounded-lg text-xs font-bold text-white bg-purple-600 hover:bg-purple-500 transition active:scale-95 shadow-sm shadow-purple-500/10"
                   >
                     Log In
                   </button>
@@ -726,4 +873,3 @@ export default function LandingPage({
     </div>
   );
 }
-

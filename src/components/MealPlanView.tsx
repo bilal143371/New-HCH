@@ -1405,97 +1405,176 @@ export default function MealPlanView({
       {activeTab === 'photo' && !secondaryTab && (
         <div className="space-y-6 animate-fade-in">
           
-          <div className="border-b border-white/[0.06] pb-3">
+          <div className="border-b border-slate-200/80 pb-3">
             <h3 className="text-md font-bold text-text-headline flex items-center">
-              <Camera className="w-5 h-5 mr-2 text-gold-primary" /> Take Food Photo
+              <Camera className="w-5 h-5 mr-2 text-purple-600" /> AI Food Snap Scanner
             </h3>
             <p className="text-xs text-text-muted mt-1 leading-relaxed">
-              Take a snapshot of your local food plate. Our smart scanner will automatically estimate calories and protein.
+              Verify your portion targets. Tap any of the preloaded food card placeholders below to simulate our instant green laser AI nutritional scanning.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             
-            {/* Left Column: Mock camera uploader */}
-            <div className="p-6 rounded-2xl bg-bg-card border border-white/[0.06] flex flex-col items-center justify-center text-center space-y-4">
-              <div className="w-16 h-16 rounded-full bg-white/[0.03] flex items-center justify-center text-text-muted border border-white/[0.06]">
-                <Camera className="w-8 h-8" />
-              </div>
-              <div className="space-y-1">
-                <h4 className="text-xs font-bold text-text-headline">No Camera Connected</h4>
-                <p className="text-[10px] text-text-muted">
-                  Use the quick-click items below to try photo scanning!
-                </p>
+            {/* Left Column: Interactive AI Scan Console */}
+            <div className="p-6 rounded-2xl bg-white border border-slate-100 shadow-sm flex flex-col justify-between min-h-[320px] relative overflow-hidden">
+              {/* Scan Screen Frame */}
+              <div className="relative w-full h-48 bg-slate-50 border border-slate-200/60 rounded-xl overflow-hidden flex items-center justify-center">
+                {scanningPhoto ? (
+                  <>
+                    {/* Active Scan Laser Effect */}
+                    <div className="absolute inset-0 bg-emerald-500/5 z-10"></div>
+                    <div className="absolute left-0 right-0 h-1.5 bg-emerald-500 shadow-[0_0_12px_#10B981] z-20 animate-laser-scan"></div>
+                    <div className="text-center z-10 space-y-2">
+                      <div className="w-10 h-10 rounded-full border-4 border-emerald-100 border-t-emerald-500 animate-spin mx-auto"></div>
+                      <span className="text-[10px] font-bold text-emerald-600 block uppercase tracking-wider font-mono">Analyzing Food Matrix...</span>
+                    </div>
+                  </>
+                ) : scannedResult ? (
+                  <div className="w-full h-full flex flex-col items-center justify-center p-4 bg-emerald-500/[0.01]">
+                    <CheckCircle className="w-8 h-8 text-emerald-600 mb-2 animate-bounce" />
+                    <span className="text-[10px] font-mono bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-md font-bold">Analysis Complete</span>
+                    <strong className="text-xs text-text-headline mt-1.5">{scannedResult.name}</strong>
+                    <span className="text-[10px] text-emerald-650 font-bold font-mono mt-0.5">{scannedResult.calories} kcal</span>
+                  </div>
+                ) : (
+                  <div className="text-center p-4 space-y-2">
+                    <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-text-muted border border-slate-200/55 mx-auto">
+                      <Camera className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-bold text-text-headline">No Meal Selected</h4>
+                      <p className="text-[10px] text-text-muted">
+                        Select one of the three food placeholders on the right to start a simulated scan.
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
 
-              <div className="w-full bg-bg-surface border border-dashed border-white/[0.1] rounded-xl p-4 text-[10px] text-text-muted font-mono">
-                [ Select local food image or drop file here ]
+              {/* Status footer inside console */}
+              <div className="border-t border-slate-100 pt-3 mt-4 text-[10px] text-text-muted text-center leading-normal">
+                {scanningPhoto ? (
+                  <span className="font-mono text-emerald-600 animate-pulse font-bold">Status: Calibrating density matrices...</span>
+                ) : scannedResult ? (
+                  <span className="text-emerald-700 font-bold flex items-center justify-center"><Check className="w-3.5 h-3.5 mr-1" /> Logged values updated in dashboard!</span>
+                ) : (
+                  <span>Select a meal from the presets to run the AI food scanner.</span>
+                )}
               </div>
             </div>
 
-            {/* Right Column: Demo items to simulate scan */}
-            <div className="space-y-4">
-              <span className="text-[11px] font-bold text-text-muted uppercase tracking-wider block font-mono">Tap a Demo Item to Scan:</span>
+            {/* Right Column: Clickable Food Card Placeholders */}
+            <div className="space-y-4 text-left">
+              <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider block font-mono">Tap a Placeholder to Scan:</span>
               
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {[
-                  { name: "Egg Paratha & Tea Plate", calories: 420, protein: 12, carbs: 45, fat: 18 },
-                  { name: "Chicken Biryani Portion", calories: 550, protein: 26, carbs: 68, fat: 16 },
-                  { name: "Moong Daal with Roti", calories: 290, protein: 10, carbs: 42, fat: 5 }
-                ].map((demo, i) => (
-                  <button
-                    key={i}
-                    onClick={() => simulatePhotoScan(demo)}
-                    className="w-full p-3.5 rounded-xl bg-bg-card border border-white/[0.06] hover:border-gold-primary/30 transition text-left flex justify-between items-center"
-                  >
-                    <div>
-                      <h4 className="text-xs font-bold text-text-headline">{demo.name}</h4>
-                      <span className="text-[9px] text-text-muted font-mono">Estimated: {demo.calories} kcal · {demo.protein}g Protein</span>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-text-muted" />
-                  </button>
-                ))}
+                  {
+                    key: "lentil",
+                    name: "Lentil Soup",
+                    fullName: "Traditional Moong Daal Soup + Garden Kachi Salad",
+                    calories: 320,
+                    protein: 14,
+                    carbs: 42,
+                    fat: 6,
+                    desc: "Moong Daal & Salad portion.",
+                    notes: "Traditional Moong Daal Soup + Garden Kachi Salad. Rich in soluble fibers and plant protein. Very low oil impact."
+                  },
+                  {
+                    key: "oats",
+                    name: "Oats & Fruits",
+                    fullName: "Multigrain Oats with Apples and Honey",
+                    calories: 290,
+                    protein: 9,
+                    carbs: 54,
+                    fat: 4,
+                    desc: "Rich in beta-glucan grain fiber.",
+                    notes: "High in oat beta-glucan fiber which helps stabilize morning blood sugar levels."
+                  },
+                  {
+                    key: "chicken",
+                    name: "Tandoori Chicken Salad",
+                    fullName: "Grilled Skinless Chicken Kebab Salad",
+                    calories: 410,
+                    protein: 32,
+                    carbs: 18,
+                    fat: 12,
+                    desc: "High protein muscle rebuild meal.",
+                    notes: "Grilled Skinless Chicken Kebab. High protein, moderate fat. Excellent muscle conditioning meal."
+                  }
+                ].map((demo) => {
+                  const isSelected = scannedResult?.name === demo.fullName;
+                  return (
+                    <button
+                      key={demo.key}
+                      onClick={() => {
+                        setScanningPhoto(true);
+                        setScannedResult(null);
+                        setTimeout(() => {
+                          setScanningPhoto(false);
+                          setScannedResult({
+                            name: demo.fullName,
+                            calories: demo.calories,
+                            protein: demo.protein,
+                            carbs: demo.carbs,
+                            fat: demo.fat,
+                            notes: demo.notes
+                          });
+                        }, 1800);
+                      }}
+                      className={`w-full p-3.5 rounded-2xl border text-left flex justify-between items-center transition active:scale-[0.98] ${
+                        isSelected
+                          ? 'border-purple-500 bg-purple-50/20 shadow-sm'
+                          : 'border-slate-100 bg-white hover:border-slate-350'
+                      }`}
+                      disabled={scanningPhoto}
+                    >
+                      <div>
+                        <h4 className="text-xs font-bold text-text-headline flex items-center gap-1.5">
+                          {demo.name}
+                          <span className="text-[8px] font-mono text-purple-700 bg-purple-100/60 px-1.5 py-0.25 rounded font-bold">{demo.calories} kcal</span>
+                        </h4>
+                        <p className="text-[10px] text-text-body mt-0.5">{demo.fullName}</p>
+                        <span className="text-[8.5px] text-text-muted font-mono block mt-1">Prot: {demo.protein}g · Carbs: {demo.carbs}g · Fats: {demo.fat}g</span>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-text-muted shrink-0 ml-2" />
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
           </div>
 
           {/* Scan Results Screen */}
-          {scanningPhoto && (
-            <div className="p-8 rounded-xl bg-bg-card border border-gold-primary/10 text-center space-y-4">
-              <RefreshCw className="w-8 h-8 animate-spin text-gold-primary mx-auto" />
-              <h4 className="text-xs font-bold text-text-headline">Image Scanning Action...</h4>
-              <p className="text-[11px] text-text-muted font-mono">Reading food contours, portion size, and oil density...</p>
-            </div>
-          )}
-
           {scannedResult && !scanningPhoto && (
-            <div className="p-5 rounded-2xl bg-bg-card border border-gold-primary/30 shadow-gold space-y-4 animate-fade-in">
-              <div className="flex justify-between items-start border-b border-white/[0.06] pb-3">
+            <div className="p-5 rounded-2xl bg-white border border-slate-200/65 shadow-md space-y-4 animate-fade-in text-left">
+              <div className="flex justify-between items-start border-b border-slate-100 pb-3">
                 <div>
-                  <span className="text-[9px] font-mono bg-gold-primary/10 text-text-gold px-2 py-0.5 rounded-md">Scan Successful</span>
+                  <span className="text-[9px] font-mono bg-emerald-50 text-emerald-700 border border-emerald-100 px-2 py-0.5 rounded-md font-bold">Analysis Confirmed</span>
                   <h4 className="text-sm font-bold text-text-headline mt-1.5">{scannedResult.name}</h4>
                 </div>
-                <span className="text-md font-mono font-bold text-text-gold">{scannedResult.calories} kcal</span>
+                <span className="text-base font-mono font-bold text-purple-700">{scannedResult.calories} kcal</span>
               </div>
 
-              <div className="grid grid-cols-3 gap-2 text-center">
-                <div className="p-2.5 rounded-xl bg-bg-surface border border-white/[0.04]">
+              <div className="grid grid-cols-3 gap-2.5 text-center">
+                <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
                   <span className="text-[9px] text-text-muted uppercase tracking-wider block font-mono">Protein</span>
                   <span className="text-xs font-bold text-text-headline font-mono">{scannedResult.protein}g</span>
                 </div>
-                <div className="p-2.5 rounded-xl bg-bg-surface border border-white/[0.04]">
+                <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
                   <span className="text-[9px] text-text-muted uppercase tracking-wider block font-mono">Carbs</span>
                   <span className="text-xs font-bold text-text-headline font-mono">{scannedResult.carbs}g</span>
                 </div>
-                <div className="p-2.5 rounded-xl bg-bg-surface border border-white/[0.04]">
+                <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
                   <span className="text-[9px] text-text-muted uppercase tracking-wider block font-mono">Fats</span>
                   <span className="text-xs font-bold text-text-headline font-mono">{scannedResult.fat}g</span>
                 </div>
               </div>
 
-              <div className="flex items-start space-x-2 bg-white/[0.02] p-3 rounded-xl border border-white/[0.04]">
-                <Info className="w-4 h-4 text-text-muted mt-0.5 shrink-0" />
+              <div className="flex items-start space-x-2 bg-slate-50/50 p-3 rounded-xl border border-slate-100">
+                <Info className="w-4 h-4 text-purple-650 mt-0.5 shrink-0" />
                 <p className="text-[11px] text-text-body leading-relaxed">
                   {scannedResult.notes}
                 </p>
@@ -1503,7 +1582,7 @@ export default function MealPlanView({
 
               <button
                 onClick={() => handleLogMealCalories(scannedResult.name, scannedResult.calories, scannedResult.protein)}
-                className="w-full py-2.5 bg-gold-primary hover:bg-gold-light text-bg-deep font-bold text-xs rounded-xl transition flex items-center justify-center space-x-1"
+                className="w-full py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs rounded-xl transition flex items-center justify-center space-x-1 shadow-sm active:scale-95"
               >
                 <Flame className="w-3.5 h-3.5" />
                 <span>Log to Daily Totals</span>

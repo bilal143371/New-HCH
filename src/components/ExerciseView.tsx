@@ -151,6 +151,7 @@ export default function ExerciseView({
   const [selectedExercisePresetId, setSelectedExercisePresetId] = useState<string>('fat-burn-cardio');
 
   const [generatingStep, setGeneratingStep] = useState(0);
+  const [isGeneratingPlan, setIsGeneratingPlan] = useState(false);
 
   const [selectedBurnFood, setSelectedBurnFood] = useState('samosa');
   const getBurnFoodCalories = () => {

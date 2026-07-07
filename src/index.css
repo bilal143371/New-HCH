@@ -1,10 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&family=Playfair+Display:ital@0;1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
-  --font-serif: "Playfair Display", ui-serif, Georgia, serif;
 
   --color-bg-deep: var(--bg-deep);
   --color-bg-base: var(--bg-base);
@@ -30,267 +29,304 @@
   --border-gold: var(--border-gold);
   --border-purple: var(--border-purple);
   --border-mid: var(--border-mid);
+
+  /* Overriding Tailwind's standard purple color palette to dynamically point to our Sky Blue accents */
+  --color-purple-50: #f0f9ff;
+  --color-purple-100: #e0f2fe;
+  --color-purple-200: #bae6fd;
+  --color-purple-300: var(--purple-light);
+  --color-purple-400: var(--purple-light);
+  --color-purple-500: var(--purple-light);
+  --color-purple-600: var(--purple-primary);
+  --color-purple-700: var(--purple-dark);
+  --color-purple-800: var(--purple-dark);
+  --color-purple-900: var(--purple-dark);
+  --color-purple-950: var(--purple-dark);
 }
 
 :root {
-  --bg-deep: #0A0E1A;
-  --bg-base: #0C1019;
-  --bg-nav: #071327;
-  --bg-card: #0C132D;
-  --bg-surface: #131A35;
+  /* Primary Background: Slate-White, Cards/Nav: Pure White, Input: Light Slate */
+  --bg-deep: #F8FAFC;
+  --bg-base: #F8FAFC;
+  --bg-nav: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --bg-surface: #F1F5F9;
 
-  --gold-primary: #F4A220;
-  --gold-light: #F8C78A;
-  --gold-dark: #C07A08;
-  --gold-glow: rgba(244, 162, 32, 0.30);
+  /* Secondary Accent: Mint Green / Emerald (#10B981) */
+  --gold-primary: #10B981;
+  --gold-light: #34D399;
+  --gold-dark: #047857;
+  --gold-glow: rgba(16, 185, 129, 0.08);
 
-  --purple-primary: #7C3AED;
-  --purple-light: #A78BFA;
-  --purple-dark: #4C1D95;
-  --purple-glow: rgba(124, 58, 237, 0.30);
+  /* Primary Accent: Sky Blue / Deep Sky (#0284C7) */
+  --purple-primary: #0284C7;
+  --purple-light: #0EA5E9;
+  --purple-dark: #0369A1;
+  --purple-glow: rgba(2, 132, 199, 0.08);
 
-  --text-headline: #F6E4CC;
-  --text-body: #A7A7AF;
-  --text-muted: #848B9B;
-  --text-gold: #F4A220;
-  --text-purple: #A78BFA;
+  /* Headings: Deep Slate (#1E293B), Body: Slate Gray (#475569) */
+  --text-headline: #1E293B;
+  --text-body: #475569;
+  --text-muted: #64748B;
+  --text-gold: #10B981;
+  --text-purple: #0284C7;
 
-  --border-subtle: rgba(255, 255, 255, 0.06);
-  --border-gold: rgba(244, 162, 32, 0.20);
-  --border-purple: rgba(124, 58, 237, 0.25);
-  --border-mid: rgba(255, 255, 255, 0.10);
+  /* Borders & Dividers: Soft Gray (#E2E8F0) */
+  --border-subtle: #E2E8F0;
+  --border-gold: rgba(16, 185, 129, 0.20);
+  --border-purple: rgba(2, 132, 199, 0.20);
+  --border-mid: #E2E8F0;
 
-  --shadow-gold: 0 0 32px rgba(244, 162, 32, 0.25);
-  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.40);
-  --shadow-deep: 0 8px 48px rgba(0, 0, 0, 0.60);
+  /* Soft premium drop shadows with subtle tints */
+  --shadow-gold: 0 4px 6px -1px rgba(16, 185, 129, 0.03);
+  --shadow-card: 0 4px 6px -1px rgba(14, 165, 233, 0.04), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --shadow-deep: 0 10px 15px -3px rgba(14, 165, 233, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
 }
 
-/* Midnight OLED Theme (Pink/Magenta Accents, True Black background) */
+/* Light Rose Theme Variation (Previously Midnight OLED) */
 :root.theme-midnight {
-  --bg-deep: #000000;
-  --bg-base: #000000;
-  --bg-nav: #000000;
-  --bg-card: #0A0A0A;
-  --bg-surface: #121212;
+  --bg-deep: #FAF7F9;
+  --bg-base: #FAF7F9;
+  --bg-nav: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --bg-surface: #F5EEF2;
 
-  --purple-primary: #EC4899; /* Hot Pink */
-  --purple-light: #FBCFE8;
-  --purple-dark: #9D174D;
-  --purple-glow: rgba(236, 72, 153, 0.30);
+  --purple-primary: #DB2777;
+  --purple-light: #F43F5E;
+  --purple-dark: #BE185D;
+  --purple-glow: rgba(219, 39, 119, 0.08);
 
-  --text-headline: #FFFFFF;
-  --text-body: #CCCCCC;
-  --text-muted: #666666;
-  --text-purple: #FBCFE8;
+  --text-headline: #3F2E3E;
+  --text-body: #6B5B6B;
+  --text-muted: #8E7E8E;
+  --text-purple: #DB2777;
 
-  --border-subtle: rgba(255, 255, 255, 0.04);
-  --border-purple: rgba(236, 72, 153, 0.25);
-  --border-mid: rgba(255, 255, 255, 0.08);
+  --border-subtle: #F1E4EC;
+  --border-purple: rgba(219, 39, 119, 0.20);
+  --border-mid: #F1E4EC;
+
+  --shadow-card: 0 4px 6px -1px rgba(219, 39, 119, 0.04), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --shadow-deep: 0 10px 15px -3px rgba(219, 39, 119, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
 }
 
-/* Forest Zen Theme (Emerald green accents for calm, mental wellness) */
+/* Light Forest Zen Theme Variation */
 :root.theme-forest {
-  --bg-deep: #030806;
-  --bg-base: #050E0B;
-  --bg-nav: #020605;
-  --bg-card: #061510;
-  --bg-surface: #0B251D;
+  --bg-deep: #F4F9F6;
+  --bg-base: #F4F9F6;
+  --bg-nav: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --bg-surface: #E8F3ED;
 
-  --purple-primary: #10B981; /* Emerald Green */
-  --purple-light: #A7F3D0;
-  --purple-dark: #064E3B;
-  --purple-glow: rgba(16, 185, 129, 0.30);
+  --purple-primary: #059669;
+  --purple-light: #10B981;
+  --purple-dark: #047857;
+  --purple-glow: rgba(5, 150, 105, 0.08);
 
-  --text-headline: #D1FAE5;
-  --text-body: #99F6E4;
-  --text-muted: #4B5563;
-  --text-purple: #A7F3D0;
+  --text-headline: #0F2D24;
+  --text-body: #3A564E;
+  --text-muted: #6B8B80;
+  --text-purple: #059669;
 
-  --border-subtle: rgba(255, 255, 255, 0.05);
-  --border-purple: rgba(16, 185, 129, 0.25);
-  --border-mid: rgba(255, 255, 255, 0.08);
+  --border-subtle: #E6F2EC;
+  --border-purple: rgba(5, 150, 105, 0.20);
+  --border-mid: #E6F2EC;
+
+  --shadow-card: 0 4px 6px -1px rgba(5, 150, 105, 0.04), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --shadow-deep: 0 10px 15px -3px rgba(5, 150, 105, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
 }
 
-/* Sunrise Gold Theme (Amber gold theme) */
+/* Light Sunrise Gold Theme Variation */
 :root.theme-sunrise {
-  --bg-deep: #0C0702;
-  --bg-base: #140C03;
-  --bg-nav: #080501;
-  --bg-card: #180D04;
-  --bg-surface: #261607;
+  --bg-deep: #FAF8F5;
+  --bg-base: #FAF8F5;
+  --bg-nav: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --bg-surface: #F3EFE9;
 
-  --purple-primary: #F59E0B; /* Amber Gold */
-  --purple-light: #FDE68A;
-  --purple-dark: #78350F;
-  --purple-glow: rgba(245, 158, 11, 0.30);
+  --purple-primary: #D97706;
+  --purple-light: #F59E0B;
+  --purple-dark: #B45309;
+  --purple-glow: rgba(217, 119, 6, 0.08);
 
-  --text-headline: #FEF3C7;
-  --text-body: #FCD34D;
-  --text-muted: #78350F;
-  --text-purple: #FDE68A;
+  --text-headline: #2D200F;
+  --text-body: #5C4E3C;
+  --text-muted: #8C7D6B;
+  --text-purple: #D97706;
 
-  --border-subtle: rgba(255, 255, 255, 0.05);
-  --border-purple: rgba(245, 158, 11, 0.25);
-  --border-mid: rgba(255, 255, 255, 0.08);
+  --border-subtle: #F3EFE9;
+  --border-purple: rgba(217, 119, 6, 0.20);
+  --border-mid: #F3EFE9;
+
+  --shadow-card: 0 4px 6px -1px rgba(217, 119, 6, 0.04), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --shadow-deep: 0 10px 15px -3px rgba(217, 119, 6, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
 }
 
 body {
   background-color: var(--bg-deep);
   color: var(--text-body);
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: "Plus Jakarta Sans", "Inter", system-ui, sans-serif;
   margin: 0;
   padding: 0;
+  line-height: 1.625; /* leading-relaxed */
+  letter-spacing: -0.01em; /* crisp letter spacing */
 }
 
 .text-gradient-gold {
-  background: linear-gradient(135deg, #F4A220 0%, #F8C78A 60%, #F4A220 100%);
+  background: linear-gradient(135deg, #10B981 0%, #34D399 60%, #10B981 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .text-gradient-purple {
-  background: linear-gradient(135deg, #7C3AED 0%, #A78BFA 60%, #7C3AED 100%);
+  background: linear-gradient(135deg, #0284C7 0%, #0EA5E9 60%, #0284C7 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .border-gold-glow {
-  border-color: rgba(244, 162, 32, 0.20);
-  box-shadow: 0 0 32px rgba(244, 162, 32, 0.25);
+  border-color: rgba(16, 185, 129, 0.15);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.08);
 }
 
 .border-purple-glow {
-  border-color: rgba(124, 58, 237, 0.25);
-  box-shadow: 0 0 32px rgba(124, 58, 237, 0.20);
+  border-color: rgba(2, 132, 199, 0.15);
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.08);
 }
 
-/* ========================
-   CUSTOM 3D TACTILE BUTTONS
-   Purple = Primary, Gold = Accent
-======================== */
+/* ==========================================
+   REFACTORED SLEEK MEDICAL-GRADE COMPONENTS
+   ========================================== */
 
 .btn-3d-gold {
   position: relative;
-  background: linear-gradient(135deg, #b8770a 0%, #F4A220 50%, #e8991f 100%) !important;
-  color: #0a0a0f !important;
-  border-bottom: 4px solid #7a4f06 !important;
-  transition: transform 0.1s ease, border-bottom-width 0.1s ease, filter 0.2s ease !important;
+  background: linear-gradient(135deg, #10B981 0%, #34D399 100%) !important;
+  color: #FFFFFF !important;
+  border-bottom: 2px solid #047857 !important;
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
   cursor: pointer;
-  box-shadow: 0 0 14px rgba(244, 162, 32, 0.15) !important;
+  box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.04) !important;
 }
 .btn-3d-gold:hover {
-  filter: brightness(1.08);
+  filter: brightness(1.05);
   transform: translateY(-1px);
-  border-bottom-width: 5px !important;
-  box-shadow: 0 0 20px rgba(244, 162, 32, 0.22) !important;
+  box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
 }
 .btn-3d-gold:active {
-  transform: translateY(3px) !important;
-  border-bottom-width: 1px !important;
+  transform: translateY(1px) !important;
+  border-bottom-width: 0px !important;
 }
 
 .btn-3d-purple {
   position: relative;
-  background: linear-gradient(135deg, #5b21b6 0%, #7C3AED 50%, #9333ea 100%) !important;
-  color: #f3e8ff !important;
-  border-bottom: 4px solid #3b0764 !important;
-  transition: transform 0.1s ease, border-bottom-width 0.1s ease, filter 0.2s ease !important;
+  background: linear-gradient(135deg, #0284C7 0%, #0EA5E9 100%) !important;
+  color: #FFFFFF !important;
+  border-bottom: 2px solid #0369A1 !important;
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
   cursor: pointer;
-  box-shadow: 0 0 20px rgba(124, 58, 237, 0.20) !important;
+  box-shadow: 0 4px 6px -1px rgba(2, 132, 199, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.04) !important;
 }
 .btn-3d-purple:hover {
-  filter: brightness(1.1);
+  filter: brightness(1.05);
   transform: translateY(-1px);
-  border-bottom-width: 5px !important;
-  box-shadow: 0 0 28px rgba(124, 58, 237, 0.30) !important;
+  box-shadow: 0 10px 15px -3px rgba(2, 132, 199, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
 }
 .btn-3d-purple:active {
-  transform: translateY(3px) !important;
-  border-bottom-width: 1px !important;
+  transform: translateY(1px) !important;
+  border-bottom-width: 0px !important;
 }
 
 /* Soft purple variant: for subtle accent tags, chips, badges */
 .badge-purple {
-  background: rgba(124, 58, 237, 0.12);
-  border: 1px solid rgba(124, 58, 237, 0.25);
-  color: #A78BFA;
+  background: rgba(2, 132, 199, 0.08);
+  border: 1px solid rgba(2, 132, 199, 0.15);
+  color: #0284C7;
 }
 
 /* Purple card hover state */
 .card-purple-hover {
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .card-purple-hover:hover {
-  border-color: rgba(124, 58, 237, 0.30) !important;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 18px rgba(124, 58, 237, 0.08) !important;
+  border-color: rgba(2, 132, 199, 0.25) !important;
+  box-shadow: 0 10px 15px -3px rgba(2, 132, 199, 0.06), 0 4px 6px -2px rgba(0, 0, 0, 0.03) !important;
 }
 
 .btn-3d-slate {
   position: relative;
-  background: linear-gradient(135deg, #1e293b 0%, #334155 100%) !important;
-  color: #f8fafc !important;
-  border-bottom: 4px solid #0f172a !important;
-  transition: transform 0.1s ease, border-bottom-width 0.1s ease, filter 0.2s ease !important;
+  background: linear-gradient(135deg, #475569 0%, #64748B 100%) !important;
+  color: #FFFFFF !important;
+  border-bottom: 2px solid #334155 !important;
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
   cursor: pointer;
+  box-shadow: 0 4px 6px -1px rgba(71, 85, 105, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.04) !important;
 }
 .btn-3d-slate:hover {
-  filter: brightness(1.08);
+  filter: brightness(1.05);
   transform: translateY(-1px);
-  border-bottom-width: 5px !important;
+  box-shadow: 0 10px 15px -3px rgba(71, 85, 105, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
 }
 .btn-3d-slate:active {
-  transform: translateY(3px) !important;
-  border-bottom-width: 1px !important;
+  transform: translateY(1px) !important;
+  border-bottom-width: 0px !important;
 }
 
 .btn-3d-red {
   position: relative;
-  background: linear-gradient(135deg, #991b1b 0%, #dc2626 100%) !important;
-  color: #fef2f2 !important;
-  border-bottom: 4px solid #7f1d1d !important;
-  transition: transform 0.1s ease, border-bottom-width 0.1s ease, filter 0.2s ease !important;
+  background: linear-gradient(135deg, #EF4444 0%, #F87171 100%) !important;
+  color: #FFFFFF !important;
+  border-bottom: 2px solid #B91C1C !important;
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
   cursor: pointer;
+  box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.04) !important;
 }
 .btn-3d-red:hover {
-  filter: brightness(1.08);
+  filter: brightness(1.05);
   transform: translateY(-1px);
-  border-bottom-width: 5px !important;
+  box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
 }
 .btn-3d-red:active {
-  transform: translateY(3px) !important;
-  border-bottom-width: 1px !important;
+  transform: translateY(1px) !important;
+  border-bottom-width: 0px !important;
 }
 
-/* 3D Bento Grid Cards */
+/* Sleek modern floating cards (replaces heavy dark borders) */
 .card-3d {
   position: relative;
-  transform-style: preserve-3d;
-  perspective: 1000px;
+  border-radius: 16px !important;
+  border: 1px solid #E2E8F0 !important;
+  background-color: #FFFFFF !important;
   transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease, border-color 0.3s ease;
-  border-bottom: 4px solid rgba(255, 255, 255, 0.04) !important;
+  box-shadow: 0 4px 6px -1px rgba(14, 165, 233, 0.03), 0 2px 4px -1px rgba(0, 0, 0, 0.02) !important;
 }
 .card-3d:hover {
-  transform: translateY(-4px) rotateX(1.5deg) rotateY(-1.5deg);
-  border-color: rgba(244, 162, 32, 0.2) !important;
-  border-bottom-color: rgba(244, 162, 32, 0.3) !important;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 20px rgba(244, 162, 32, 0.05) !important;
+  transform: translateY(-3px);
+  border-color: rgba(2, 132, 199, 0.2) !important;
+  box-shadow: 0 10px 15px -3px rgba(14, 165, 233, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.03) !important;
 }
 
 /* Purple 3D card variant for mind/sleep/mental features */
 .card-3d-purple {
   position: relative;
-  transform-style: preserve-3d;
-  perspective: 1000px;
+  border-radius: 16px !important;
+  border: 1px solid #E2E8F0 !important;
+  background-color: #FFFFFF !important;
   transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease, border-color 0.3s ease;
-  border-bottom: 4px solid rgba(124, 58, 237, 0.10) !important;
+  box-shadow: 0 4px 6px -1px rgba(14, 165, 233, 0.03), 0 2px 4px -1px rgba(0, 0, 0, 0.02) !important;
 }
 .card-3d-purple:hover {
-  transform: translateY(-4px) rotateX(1.5deg) rotateY(-1.5deg);
-  border-color: rgba(124, 58, 237, 0.25) !important;
-  border-bottom-color: rgba(124, 58, 237, 0.35) !important;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 20px rgba(124, 58, 237, 0.08) !important;
+  transform: translateY(-3px);
+  border-color: rgba(2, 132, 199, 0.25) !important;
+  box-shadow: 0 10px 15px -3px rgba(14, 165, 233, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.03) !important;
 }
 
 /* Custom scrollbar for horizontal pills */
@@ -300,4 +336,14 @@ body {
 .no-scrollbar {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
+}
+
+/* Custom laser-scan keyframe animation */
+@keyframes laser-scan {
+  0% { top: 0%; }
+  50% { top: 100%; }
+  100% { top: 0%; }
+}
+.animate-laser-scan {
+  animation: laser-scan 2s infinite linear;
 }
