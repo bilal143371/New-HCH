@@ -113,6 +113,17 @@ export default function App() {
   const [metrics, setMetrics] = useState<UserMetrics | null>(null);
   const [sessionType, setSessionType] = useState<'guest' | 'registered' | null>(null);
   const [currentTab, setCurrentTab] = useState<string>('dashboard');
+  const [simpleMode, setSimpleMode] = useState<boolean>(() => {
+    return localStorage.getItem('hub_simple_mode') === 'true';
+  });
+
+  const handleToggleSimpleMode = () => {
+    setSimpleMode(prev => {
+      const next = !prev;
+      localStorage.setItem('hub_simple_mode', String(next));
+      return next;
+    });
+  };
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
   const [isLoadingScreen, setIsLoadingScreen] = useState(false);
   const [loadingUser, setLoadingUser] = useState<string>('');
@@ -631,6 +642,8 @@ export default function App() {
         setCurrentTab={handleTabChange}
         onSimulateExpiration={handleSimulateExpiration}
         onStartOnboarding={handleStartOnboardingFlow}
+        simpleMode={simpleMode}
+        onToggleSimpleMode={handleToggleSimpleMode}
       />
 
       {/* Main Core Router View */}
@@ -658,20 +671,29 @@ export default function App() {
                   </div>
                 </div>
                 
-                <div className="border-t border-slate-100 pt-3.5 space-y-2">
-                  <div className="flex justify-between text-[11px]">
-                    <span className="text-text-muted">Target Calories</span>
-                    <strong className="text-text-headline">{metrics.calories} kcal</strong>
+                {simpleMode ? (
+                  <div className="border-t border-slate-100 pt-3.5 space-y-2 text-[11px]">
+                    <div className="flex justify-between">
+                      <span className="text-text-muted">Daily Goal</span>
+                      <strong className="text-emerald-600 font-bold">Stay Active 🏃</strong>
+                    </div>
                   </div>
-                  <div className="flex justify-between text-[11px]">
-                    <span className="text-text-muted">Body Mass Index</span>
-                    <strong className="text-text-headline">{metrics.bmi} BMI</strong>
+                ) : (
+                  <div className="border-t border-slate-100 pt-3.5 space-y-2">
+                    <div className="flex justify-between text-[11px]">
+                      <span className="text-text-muted">Target Calories</span>
+                      <strong className="text-text-headline">{metrics.calories} kcal</strong>
+                    </div>
+                    <div className="flex justify-between text-[11px]">
+                      <span className="text-text-muted">Body Mass Index</span>
+                      <strong className="text-text-headline">{metrics.bmi} BMI</strong>
+                    </div>
+                    <div className="flex justify-between text-[11px]">
+                      <span className="text-text-muted">Category</span>
+                      <span className="text-purple-700 bg-purple-100/60 px-1.5 py-0.25 rounded text-[10px] font-bold">{metrics.bmiCategory}</span>
+                    </div>
                   </div>
-                  <div className="flex justify-between text-[11px]">
-                    <span className="text-text-muted">Category</span>
-                    <span className="text-purple-700 bg-purple-100/60 px-1.5 py-0.25 rounded text-[10px] font-bold">{metrics.bmiCategory}</span>
-                  </div>
-                </div>
+                )}
               </div>
 
               {/* Sidebar Navigation Menu */}
@@ -775,6 +797,7 @@ export default function App() {
                       loggedSteps={loggedSteps}
                       loggedSleep={loggedSleep}
                       onUpdateLogs={handleUpdateLogs}
+                      simpleMode={simpleMode}
                     />
                   </motion.div>
                 )}

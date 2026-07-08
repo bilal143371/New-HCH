@@ -12,6 +12,8 @@ export interface NavbarProps {
   setCurrentTab: (tab: string) => void;
   onSimulateExpiration?: () => void;
   onStartOnboarding?: () => void;
+  simpleMode?: boolean;
+  onToggleSimpleMode?: () => void;
 }
 
 export default function Navbar({
@@ -23,7 +25,9 @@ export default function Navbar({
   currentTab,
   setCurrentTab,
   onSimulateExpiration,
-  onStartOnboarding
+  onStartOnboarding,
+  simpleMode = false,
+  onToggleSimpleMode
 }: NavbarProps) {
   const isGuest = sessionType === 'guest';
 
@@ -128,6 +132,19 @@ export default function Navbar({
                   Upgrade Free ✦
                 </button>
               </div>
+            )}
+
+            {profile && onToggleSimpleMode && (
+              <button
+                onClick={onToggleSimpleMode}
+                className={`px-3 py-1.5 rounded-xl border text-[10px] font-extrabold transition active:scale-95 flex items-center space-x-1.5 shrink-0 ${
+                  simpleMode
+                    ? 'bg-emerald-50 border-emerald-250 text-emerald-700 font-extrabold'
+                    : 'bg-slate-100/80 border-slate-200/50 text-text-muted hover:text-text-body'
+                }`}
+              >
+                <span>{simpleMode ? 'Simple Mode (سادہ موڈ) 🟢' : 'Advanced Mode'}</span>
+              </button>
             )}
 
             {/* Custom Theme Switcher Widget */}

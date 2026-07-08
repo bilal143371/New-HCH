@@ -43,20 +43,21 @@ interface DashboardProps {
     steps?: number;
     sleep?: number;
   }) => void;
+  simpleMode?: boolean;
 }
 
 const HEALTH_TIPS = [
   {
     title: "Midday Salad",
-    description: "Add sliced cucumbers, tomatoes, and half a lemon to your bowl of daal or sabzi. This adds bulk to your lunch without extra oil.",
-    tag: "LOCAL CUCUMBER & LEMON",
-    benefit: "Keeps you full longer"
+    description: "Add freshly chopped cucumbers, mint leaves, and tomatoes to your midday lunch curry plate. This controls glycemic spikes and supports liver detoxification.",
+    tag: "VEGETABLE PORTIONING",
+    benefit: "Reduces post-meal sluggishness"
   },
   {
-    title: "Nimbu Pani",
-    description: "Drink a fresh glass of lemon water with a pinch of black salt (kala namak) instead of sweet carbonated drinks. Great for hot Pakistani summers!",
-    tag: "ZERO SUGAR REFRESHER",
-    benefit: "Beats summer fatigue"
+    title: "Mustard Oil Cooking",
+    description: "Prepare family meals in cold-pressed mustard oil (Sarson ka tel) or olive oil rather than refined vegetable ghee. This is excellent for heart safety.",
+    tag: "FAT SOURCE SWAP",
+    benefit: "Saves 100+ kcal daily"
   },
   {
     title: "Smart Chai",
@@ -88,7 +89,8 @@ export default function Dashboard({
   loggedWater,
   loggedSteps,
   loggedSleep,
-  onUpdateLogs
+  onUpdateLogs,
+  simpleMode = false
 }: DashboardProps) {
   
   // Local input values
@@ -419,63 +421,119 @@ export default function Dashboard({
         
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {/* Gauge 1: Steps */}
-          <div className="flex flex-col items-center justify-center p-4 bg-slate-50/50 border border-slate-100/50 rounded-2xl">
-            <div className="relative w-24 h-24 flex items-center justify-center">
-              <svg className="w-full h-full transform -rotate-90">
-                <circle cx="48" cy="48" r="38" className="stroke-slate-200" strokeWidth="6" fill="transparent" />
-                <circle cx="48" cy="48" r="38" className="stroke-emerald-500 transition-all duration-1000 ease-out" strokeWidth="6" fill="transparent" strokeDasharray="238.7" strokeDashoffset={238.7 - (238.7 * Math.min(loggedSteps, metrics.steps)) / metrics.steps} strokeLinecap="round" />
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-xs font-bold text-text-headline">{loggedSteps.toLocaleString()}</span>
-                <span className="text-[8px] text-text-muted font-bold uppercase tracking-wider font-mono">Steps</span>
+          <div className="flex flex-col items-center justify-center p-4 bg-slate-50/50 border border-slate-100/50 rounded-2xl min-h-[160px]">
+            {simpleMode ? (
+              <div className="flex flex-col items-center justify-center text-center space-y-3 py-2">
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center text-lg ${loggedSteps >= metrics.steps ? 'bg-emerald-100 text-emerald-600 border border-emerald-350' : 'bg-slate-100 text-slate-500'}`}>
+                  {loggedSteps >= metrics.steps ? '✓' : '🚶'}
+                </div>
+                <span className="text-[11px] font-extrabold text-text-headline leading-tight">
+                  {loggedSteps >= metrics.steps ? 'Walk Completed\n(چہل قدمی مکمل)' : 'Keep Walking\n(چلتے رہیں)'}
+                </span>
+                <span className="text-[9px] font-bold text-text-muted font-mono">Status check</span>
               </div>
-            </div>
-            <span className="text-[10px] font-bold text-text-muted mt-2 font-mono">{metrics.steps.toLocaleString()} Target</span>
+            ) : (
+              <>
+                <div className="relative w-24 h-24 flex items-center justify-center">
+                  <svg className="w-full h-full transform -rotate-90">
+                    <circle cx="48" cy="48" r="38" className="stroke-slate-200" strokeWidth="6" fill="transparent" />
+                    <circle cx="48" cy="48" r="38" className="stroke-emerald-500 transition-all duration-1000 ease-out" strokeWidth="6" fill="transparent" strokeDasharray="238.7" strokeDashoffset={238.7 - (238.7 * Math.min(loggedSteps, metrics.steps)) / metrics.steps} strokeLinecap="round" />
+                  </svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className="text-xs font-bold text-text-headline">{loggedSteps.toLocaleString()}</span>
+                    <span className="text-[8px] text-text-muted font-bold uppercase tracking-wider font-mono">Steps</span>
+                  </div>
+                </div>
+                <span className="text-[10px] font-bold text-text-muted mt-2 font-mono">{metrics.steps.toLocaleString()} Target</span>
+              </>
+            )}
           </div>
 
           {/* Gauge 2: Water */}
-          <div className="flex flex-col items-center justify-center p-4 bg-slate-50/50 border border-slate-100/50 rounded-2xl">
-            <div className="relative w-24 h-24 flex items-center justify-center">
-              <svg className="w-full h-full transform -rotate-90">
-                <circle cx="48" cy="48" r="38" className="stroke-slate-200" strokeWidth="6" fill="transparent" />
-                <circle cx="48" cy="48" r="38" className="stroke-sky-500 transition-all duration-1000 ease-out" strokeWidth="6" fill="transparent" strokeDasharray="238.7" strokeDashoffset={238.7 - (238.7 * Math.min(loggedWater, metrics.water)) / metrics.water} strokeLinecap="round" />
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-xs font-bold text-text-headline">{Math.round(loggedWater * 1000)}ml</span>
-                <span className="text-[8px] text-text-muted font-bold uppercase tracking-wider font-mono">Water</span>
+          <div className="flex flex-col items-center justify-center p-4 bg-slate-50/50 border border-slate-100/50 rounded-2xl min-h-[160px]">
+            {simpleMode ? (
+              <div className="flex flex-col items-center justify-center text-center space-y-3 py-2">
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center text-lg ${loggedWater >= metrics.water ? 'bg-emerald-100 text-emerald-600 border border-emerald-350' : 'bg-slate-100 text-slate-500'}`}>
+                  {loggedWater >= metrics.water ? '✓' : '🥛'}
+                </div>
+                <span className="text-[11px] font-extrabold text-text-headline leading-tight">
+                  {loggedWater >= metrics.water ? 'Good Hydration\n(پانی مکمل)' : 'Drink Water\n(پانی پییں)'}
+                </span>
+                <span className="text-[9px] font-bold text-text-muted font-mono">Status check</span>
               </div>
-            </div>
-            <span className="text-[10px] font-bold text-text-muted mt-2 font-mono">{Math.round(metrics.water * 1000)}ml Target</span>
+            ) : (
+              <>
+                <div className="relative w-24 h-24 flex items-center justify-center">
+                  <svg className="w-full h-full transform -rotate-90">
+                    <circle cx="48" cy="48" r="38" className="stroke-slate-200" strokeWidth="6" fill="transparent" />
+                    <circle cx="48" cy="48" r="38" className="stroke-sky-500 transition-all duration-1000 ease-out" strokeWidth="6" fill="transparent" strokeDasharray="238.7" strokeDashoffset={238.7 - (238.7 * Math.min(loggedWater, metrics.water)) / metrics.water} strokeLinecap="round" />
+                  </svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className="text-xs font-bold text-text-headline">{Math.round(loggedWater * 1000)}ml</span>
+                    <span className="text-[8px] text-text-muted font-bold uppercase tracking-wider font-mono">Water</span>
+                  </div>
+                </div>
+                <span className="text-[10px] font-bold text-text-muted mt-2 font-mono">{Math.round(metrics.water * 1000)}ml Target</span>
+              </>
+            )}
           </div>
 
           {/* Gauge 3: Sleep */}
-          <div className="flex flex-col items-center justify-center p-4 bg-slate-50/50 border border-slate-100/50 rounded-2xl">
-            <div className="relative w-24 h-24 flex items-center justify-center">
-              <svg className="w-full h-full transform -rotate-90">
-                <circle cx="48" cy="48" r="38" className="stroke-slate-200" strokeWidth="6" fill="transparent" />
-                <circle cx="48" cy="48" r="38" className="stroke-purple-600 transition-all duration-1000 ease-out" strokeWidth="6" fill="transparent" strokeDasharray="238.7" strokeDashoffset={238.7 - (238.7 * Math.min(loggedSleep, metrics.sleep)) / metrics.sleep} strokeLinecap="round" />
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-xs font-bold text-text-headline">{loggedSleep} hrs</span>
-                <span className="text-[8px] text-text-muted font-bold uppercase tracking-wider font-mono">Sleep</span>
+          <div className="flex flex-col items-center justify-center p-4 bg-slate-50/50 border border-slate-100/50 rounded-2xl min-h-[160px]">
+            {simpleMode ? (
+              <div className="flex flex-col items-center justify-center text-center space-y-3 py-2">
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center text-lg ${loggedSleep >= metrics.sleep ? 'bg-emerald-100 text-emerald-600 border border-emerald-350' : 'bg-slate-100 text-slate-500'}`}>
+                  {loggedSleep >= metrics.sleep ? '✓' : '⏰'}
+                </div>
+                <span className="text-[11px] font-extrabold text-text-headline leading-tight">
+                  {loggedSleep >= metrics.sleep ? 'Rest Well\n(سکون کی نیند)' : 'Resting\n(آرام کریں)'}
+                </span>
+                <span className="text-[9px] font-bold text-text-muted font-mono">Status check</span>
               </div>
-            </div>
-            <span className="text-[10px] font-bold text-text-muted mt-2 font-mono">{metrics.sleep} hrs Target</span>
+            ) : (
+              <>
+                <div className="relative w-24 h-24 flex items-center justify-center">
+                  <svg className="w-full h-full transform -rotate-90">
+                    <circle cx="48" cy="48" r="38" className="stroke-slate-200" strokeWidth="6" fill="transparent" />
+                    <circle cx="48" cy="48" r="38" className="stroke-purple-600 transition-all duration-1000 ease-out" strokeWidth="6" fill="transparent" strokeDasharray="238.7" strokeDashoffset={238.7 - (238.7 * Math.min(loggedSleep, metrics.sleep)) / metrics.sleep} strokeLinecap="round" />
+                  </svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className="text-xs font-bold text-text-headline">{loggedSleep} hrs</span>
+                    <span className="text-[8px] text-text-muted font-bold uppercase tracking-wider font-mono">Sleep</span>
+                  </div>
+                </div>
+                <span className="text-[10px] font-bold text-text-muted mt-2 font-mono">{metrics.sleep} hrs Target</span>
+              </>
+            )}
           </div>
 
-          {/* Gauge 4: Active Heart Rate */}
-          <div className="flex flex-col items-center justify-center p-4 bg-slate-50/50 border border-slate-100/50 rounded-2xl">
-            <div className="relative w-24 h-24 flex items-center justify-center">
-              <svg className="w-full h-full transform -rotate-90">
-                <circle cx="48" cy="48" r="38" className="stroke-slate-200" strokeWidth="6" fill="transparent" />
-                <circle cx="48" cy="48" r="38" className="stroke-rose-500 animate-pulse" strokeWidth="6" fill="transparent" strokeDasharray="238.7" strokeDashoffset="50" strokeLinecap="round" />
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-xs font-bold text-text-headline animate-pulse">72</span>
-                <span className="text-[8px] text-rose-500 font-bold uppercase tracking-wider font-mono">BPM</span>
+          {/* Gauge 4: Diet check (Heart-Resting Vitals replacement in Simple Mode) */}
+          <div className="flex flex-col items-center justify-center p-4 bg-slate-50/50 border border-slate-100/50 rounded-2xl min-h-[160px]">
+            {simpleMode ? (
+              <div className="flex flex-col items-center justify-center text-center space-y-3 py-2">
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center text-lg ${loggedCalories <= metrics.calories && loggedCalories > 0 ? 'bg-emerald-100 text-emerald-600 border border-emerald-350' : loggedCalories === 0 ? 'bg-slate-100 text-slate-500' : 'bg-red-100 text-red-500 border border-red-300'}`}>
+                  {loggedCalories <= metrics.calories && loggedCalories > 0 ? '✓' : loggedCalories === 0 ? '🍽️' : '⚠️'}
+                </div>
+                <span className="text-[11px] font-extrabold text-text-headline leading-tight">
+                  {loggedCalories <= metrics.calories && loggedCalories > 0 ? 'Good Diet\n(اچھی خوراک)' : loggedCalories === 0 ? 'Eat Healthy\n(اچھا کھائیں)' : 'Limit Exceeded\n(حد سے تجاوز)'}
+                </span>
+                <span className="text-[9px] font-bold text-text-muted font-mono">Status check</span>
               </div>
-            </div>
-            <span className="text-[10px] font-bold text-text-muted mt-2 font-mono">Resting Vitals</span>
+            ) : (
+              <>
+                <div className="relative w-24 h-24 flex items-center justify-center">
+                  <svg className="w-full h-full transform -rotate-90">
+                    <circle cx="48" cy="48" r="38" className="stroke-slate-200" strokeWidth="6" fill="transparent" />
+                    <circle cx="48" cy="48" r="38" className="stroke-rose-500 animate-pulse" strokeWidth="6" fill="transparent" strokeDasharray="238.7" strokeDashoffset="50" strokeLinecap="round" />
+                  </svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className="text-xs font-bold text-text-headline animate-pulse">72</span>
+                    <span className="text-[8px] text-rose-500 font-bold uppercase tracking-wider font-mono">BPM</span>
+                  </div>
+                </div>
+                <span className="text-[10px] font-bold text-text-muted mt-2 font-mono">Resting Vitals</span>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -511,112 +569,128 @@ export default function Dashboard({
       )}
 
       {/* METRIC TARGETS CARD GRID (6 Cards) */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        {/* Card 1: Daily Calorie */}
-        <div className="p-4 rounded-xl bg-bg-card border border-purple-500/15 hover:border-purple-500/35 shadow-card transition duration-200">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider font-mono">Daily Calorie</span>
-            <Flame className="w-3.5 h-3.5 text-purple-400" />
+      {!simpleMode && (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          {/* Card 1: Daily Calorie */}
+          <div className="p-4 rounded-xl bg-bg-card border border-purple-500/15 hover:border-purple-500/35 shadow-card transition duration-200">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider font-mono">Daily Calorie</span>
+              <Flame className="w-3.5 h-3.5 text-purple-400" />
+            </div>
+            <div className="text-lg font-bold text-text-headline font-mono">{metrics.calories}</div>
+            <div className="text-[10px] text-text-muted mt-0.5">kcal / day</div>
           </div>
-          <div className="text-lg font-bold text-text-headline font-mono">{metrics.calories}</div>
-          <div className="text-[10px] text-text-muted mt-0.5">kcal / day</div>
-        </div>
 
-        {/* Card 2: Protein Target */}
-        <div className="p-4 rounded-xl bg-bg-card border border-purple-500/15 hover:border-purple-500/35 shadow-card transition duration-200">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider font-mono">Protein Target</span>
-            <Scale className="w-3.5 h-3.5 text-purple-400" />
+          {/* Card 2: Protein Target */}
+          <div className="p-4 rounded-xl bg-bg-card border border-purple-500/15 hover:border-purple-500/35 shadow-card transition duration-200">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider font-mono">Protein Target</span>
+              <Scale className="w-3.5 h-3.5 text-purple-400" />
+            </div>
+            <div className="text-lg font-bold text-text-headline font-mono">{metrics.protein}</div>
+            <div className="text-[10px] text-text-muted mt-0.5">g / day</div>
           </div>
-          <div className="text-lg font-bold text-text-headline font-mono">{metrics.protein}</div>
-          <div className="text-[10px] text-text-muted mt-0.5">g / day</div>
-        </div>
 
-        {/* Card 3: Water Goal */}
-        <div className="p-4 rounded-xl bg-bg-card border border-purple-500/15 hover:border-purple-500/35 shadow-card transition duration-200">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider font-mono">Water Goal</span>
-            <Droplet className="w-3.5 h-3.5 text-purple-400" />
+          {/* Card 3: Water Goal */}
+          <div className="p-4 rounded-xl bg-bg-card border border-purple-500/15 hover:border-purple-500/35 shadow-card transition duration-200">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider font-mono">Water Goal</span>
+              <Droplet className="w-3.5 h-3.5 text-purple-400" />
+            </div>
+            <div className="text-lg font-bold text-text-headline font-mono">{metrics.water}</div>
+            <div className="text-[10px] text-text-muted mt-0.5">L / day</div>
           </div>
-          <div className="text-lg font-bold text-text-headline font-mono">{metrics.water}</div>
-          <div className="text-[10px] text-text-muted mt-0.5">L / day</div>
-        </div>
 
-        {/* Card 4: Daily Steps */}
-        <div className="p-4 rounded-xl bg-bg-card border border-purple-500/15 hover:border-purple-500/35 shadow-card transition duration-200">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider font-mono">Daily Steps</span>
-            <Footprints className="w-3.5 h-3.5 text-purple-400" />
+          {/* Card 4: Daily Steps */}
+          <div className="p-4 rounded-xl bg-bg-card border border-purple-500/15 hover:border-purple-500/35 shadow-card transition duration-200">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider font-mono">Daily Steps</span>
+              <Footprints className="w-3.5 h-3.5 text-purple-400" />
+            </div>
+            <div className="text-lg font-bold text-text-headline font-mono">{metrics.steps.toLocaleString()}</div>
+            <div className="text-[10px] text-text-muted mt-0.5">steps / day</div>
           </div>
-          <div className="text-lg font-bold text-text-headline font-mono">{metrics.steps.toLocaleString()}</div>
-          <div className="text-[10px] text-text-muted mt-0.5">steps / day</div>
-        </div>
 
-        {/* Card 5: Sleep Target */}
-        <div className="p-4 rounded-xl bg-bg-card border border-purple-500/20 hover:border-purple-500/40 shadow-card transition duration-200 card-purple-hover">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-bold text-purple-300/70 uppercase tracking-wider font-mono">Sleep Target</span>
-            <Moon className="w-3.5 h-3.5 text-purple-400" />
+          {/* Card 5: Sleep Target */}
+          <div className="p-4 rounded-xl bg-bg-card border border-purple-500/20 hover:border-purple-500/40 shadow-card transition duration-200 card-purple-hover">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] font-bold text-purple-300/70 uppercase tracking-wider font-mono">Sleep Target</span>
+              <Moon className="w-3.5 h-3.5 text-purple-400" />
+            </div>
+            <div className="text-lg font-bold text-text-headline font-mono">{metrics.sleep}</div>
+            <div className="text-[10px] text-purple-300/60 mt-0.5">hrs / night</div>
           </div>
-          <div className="text-lg font-bold text-text-headline font-mono">{metrics.sleep}</div>
-          <div className="text-[10px] text-purple-300/60 mt-0.5">hrs / night</div>
-        </div>
 
-        {/* Card 6: BMI Index */}
-        <div className="p-4 rounded-xl bg-bg-card border border-white/[0.06] hover:border-gold-primary/20 shadow-card transition duration-200">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider font-mono">BMI Index</span>
-            <TrendingUp className="w-3.5 h-3.5 text-gold-primary" />
+          {/* Card 6: BMI Index */}
+          <div className="p-4 rounded-xl bg-bg-card border border-white/[0.06] hover:border-gold-primary/20 shadow-card transition duration-200">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider font-mono">BMI Index</span>
+              <TrendingUp className="w-3.5 h-3.5 text-gold-primary" />
+            </div>
+            <div className="text-lg font-bold text-text-headline font-mono">{metrics.bmi}</div>
+            <div className="text-[10px] text-purple-300/70 font-bold mt-0.5 font-mono">{metrics.bmiCategory}</div>
           </div>
-          <div className="text-lg font-bold text-text-headline font-mono">{metrics.bmi}</div>
-          <div className="text-[10px] text-purple-300/70 font-bold mt-0.5 font-mono">{metrics.bmiCategory}</div>
         </div>
-      </div>
+      )}
 
       {/* CALORIE BREAKDOWN PROGRESS METER & DIET INFO BANNER */}
       <div className="space-y-4">
-        <div className="p-5 rounded-xl bg-bg-card border border-white/[0.06] shadow-card">
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <span className="text-[11px] font-bold text-text-muted uppercase tracking-widest font-mono">Calorie Breakdown</span>
-              <h3 className="text-xl font-bold text-text-headline mt-0.5">Total: {metrics.calories} kcal</h3>
+        {simpleMode ? (
+          <div className="p-5 rounded-3xl bg-white/80 backdrop-blur-md border border-slate-100 shadow-xl shadow-slate-100/50 text-left">
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest font-mono block">Diet Overview (سادہ خوراک)</span>
+                <h3 className="text-sm font-bold text-text-headline mt-1">Status: {loggedCalories <= metrics.calories ? 'Good Diet (اچھی خوراک) 🟢' : 'Limit Exceeded (حد سے زیادہ)'}</h3>
+              </div>
+              <span className="px-3 py-1 bg-emerald-50 border border-emerald-250 rounded-full text-[10px] font-bold text-emerald-700 uppercase tracking-wider font-mono">
+                {formattedGoalLabel}
+              </span>
             </div>
-            <span className="px-3 py-1 bg-gold-primary/10 border border-gold-primary/30 rounded-full text-[10px] font-bold text-text-gold uppercase tracking-wider font-mono">
-              {formattedGoalLabel}
-            </span>
           </div>
+        ) : (
+          <div className="p-5 rounded-xl bg-bg-card border border-white/[0.06] shadow-card">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <span className="text-[11px] font-bold text-text-muted uppercase tracking-widest font-mono">Calorie Breakdown</span>
+                <h3 className="text-xl font-bold text-text-headline mt-0.5">Total: {metrics.calories} kcal</h3>
+              </div>
+              <span className="px-3 py-1 bg-gold-primary/10 border border-gold-primary/30 rounded-full text-[10px] font-bold text-text-gold uppercase tracking-wider font-mono">
+                {formattedGoalLabel}
+              </span>
+            </div>
 
-          {/* Three Segment Bar */}
-          <div className="w-full h-4 bg-white/[0.04] rounded-full overflow-hidden flex mb-4">
-            <div className="bg-[#F4A220]" style={{ width: '35%' }} title="Protein (35%)"></div>
-            <div className="bg-[#F8C78A]" style={{ width: '40%' }} title="Carbs (40%)"></div>
-            <div className="bg-[#C07A08]" style={{ width: '25%' }} title="Fat (25%)"></div>
-          </div>
+            {/* Three Segment Bar */}
+            <div className="w-full h-4 bg-white/[0.04] rounded-full overflow-hidden flex mb-4">
+              <div className="bg-[#F4A220]" style={{ width: '35%' }} title="Protein (35%)"></div>
+              <div className="bg-[#F8C78A]" style={{ width: '40%' }} title="Carbs (40%)"></div>
+              <div className="bg-[#C07A08]" style={{ width: '25%' }} title="Fat (25%)"></div>
+            </div>
 
-          <div className="grid grid-cols-3 gap-2 text-center text-xs pt-1">
-            <div className="flex flex-col items-center">
-              <span className="flex items-center text-[11px] font-semibold text-text-headline">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#F4A220] mr-1.5 shrink-0"></span>
-                Protein (35%)
-              </span>
-              <span className="text-[11px] text-text-muted font-mono mt-0.5">{Math.round((metrics.calories * 0.35) / 4)}g / {metrics.protein}g</span>
-            </div>
-            <div className="flex flex-col items-center border-x border-white/[0.04]">
-              <span className="flex items-center text-[11px] font-semibold text-text-headline">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#F8C78A] mr-1.5 shrink-0"></span>
-                Carbs (40%)
-              </span>
-              <span className="text-[11px] text-text-muted font-mono mt-0.5">{carbTarget}g</span>
-            </div>
-            <div className="flex flex-col items-center">
-              <span className="flex items-center text-[11px] font-semibold text-text-headline">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#C07A08] mr-1.5 shrink-0"></span>
-                Fat (25%)
-              </span>
-              <span className="text-[11px] text-text-muted font-mono mt-0.5">{fatTarget}g</span>
+            <div className="grid grid-cols-3 gap-2 text-center text-xs pt-1">
+              <div className="flex flex-col items-center">
+                <span className="flex items-center text-[11px] font-semibold text-text-headline">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#F4A220] mr-1.5 shrink-0"></span>
+                  Protein (35%)
+                </span>
+                <span className="text-[11px] text-text-muted font-mono mt-0.5">{Math.round((metrics.calories * 0.35) / 4)}g / {metrics.protein}g</span>
+              </div>
+              <div className="flex flex-col items-center border-x border-white/[0.04]">
+                <span className="flex items-center text-[11px] font-semibold text-text-headline">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#F8C78A] mr-1.5 shrink-0"></span>
+                  Carbs (40%)
+                </span>
+                <span className="text-[11px] text-text-muted font-mono mt-0.5">{carbTarget}g</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <span className="flex items-center text-[11px] font-semibold text-text-headline">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#C07A08] mr-1.5 shrink-0"></span>
+                  Fat (25%)
+                </span>
+                <span className="text-[11px] text-text-muted font-mono mt-0.5">{fatTarget}g</span>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Personalized Diet Plan Alert Bar */}
         <div className="p-3 px-4 rounded-xl bg-white/[0.02] border border-white/[0.06] flex items-center justify-between text-xs">
@@ -927,112 +1001,114 @@ export default function Dashboard({
           </div>
           <div className="border-t border-bg-deep/10 pt-2 flex justify-between items-center text-[11px] font-bold font-mono text-bg-deep/75">
             <span>INTAKE TARGET</span>
-            <span>{metrics.calories} KCAL</span>
+            <span>{simpleMode ? 'Simple Mode' : `${metrics.calories} KCAL`}</span>
           </div>
         </div>
 
         {/* 5-DIMENSION WELLNESS RADAR CHART */}
-        <div className="bg-bg-card border border-purple-500/15 p-5 rounded-xl shadow-card flex flex-col justify-between min-h-[160px] hover:border-purple-500/35 transition duration-200 card-purple-hover">
-          <div className="flex justify-between items-start">
-            <span className="text-[10px] font-bold text-purple-300/70 uppercase tracking-widest font-mono">Wellness Balance</span>
-            <span className="text-[9px] font-mono text-purple-400 font-bold">5-D Radar</span>
-          </div>
+        {!simpleMode && (
+          <div className="bg-bg-card border border-purple-500/15 p-5 rounded-xl shadow-card flex flex-col justify-between min-h-[160px] hover:border-purple-500/35 transition duration-200 card-purple-hover">
+            <div className="flex justify-between items-start">
+              <span className="text-[10px] font-bold text-purple-300/70 uppercase tracking-widest font-mono">Wellness Balance</span>
+              <span className="text-[9px] font-mono text-purple-400 font-bold">5-D Radar</span>
+            </div>
 
-          <div className="flex items-center justify-center py-1">
-            <svg viewBox="0 0 200 200" className="w-28 h-28">
-              {/* Pentagon concentric grids */}
-              {[20, 40, 60, 80, 100].map((percent) => {
-                const r = 70 * (percent / 100);
-                const points = Array.from({ length: 5 }).map((_, i) => {
+            <div className="flex items-center justify-center py-1">
+              <svg viewBox="0 0 200 200" className="w-28 h-28">
+                {/* Pentagon concentric grids */}
+                {[20, 40, 60, 80, 100].map((percent) => {
+                  const r = 70 * (percent / 100);
+                  const points = Array.from({ length: 5 }).map((_, i) => {
+                    const angle = -Math.PI / 2 + (i * 2 * Math.PI) / 5;
+                    const x = 100 + Math.cos(angle) * r;
+                    const y = 100 + Math.sin(angle) * r;
+                    return `${x},${y}`;
+                  }).join(" ");
+                  return (
+                    <polygon
+                      key={percent}
+                      points={points}
+                      className="fill-none stroke-white/[0.04] stroke-[1]"
+                    />
+                  );
+                })}
+
+                {/* Pentagon axis lines */}
+                {Array.from({ length: 5 }).map((_, i) => {
                   const angle = -Math.PI / 2 + (i * 2 * Math.PI) / 5;
-                  const x = 100 + Math.cos(angle) * r;
-                  const y = 100 + Math.sin(angle) * r;
-                  return `${x},${y}`;
-                }).join(" ");
-                return (
-                  <polygon
-                    key={percent}
-                    points={points}
-                    className="fill-none stroke-white/[0.04] stroke-[1]"
-                  />
-                );
-              })}
+                  const x = 100 + Math.cos(angle) * 70;
+                  const y = 100 + Math.sin(angle) * 70;
+                  return (
+                    <line
+                      key={i}
+                      x1="100"
+                      y1="100"
+                      x2={x}
+                      y2={y}
+                      className="stroke-white/[0.04] stroke-[1]"
+                    />
+                  );
+                })}
 
-              {/* Pentagon axis lines */}
-              {Array.from({ length: 5 }).map((_, i) => {
-                const angle = -Math.PI / 2 + (i * 2 * Math.PI) / 5;
-                const x = 100 + Math.cos(angle) * 70;
-                const y = 100 + Math.sin(angle) * 70;
-                return (
-                  <line
-                    key={i}
-                    x1="100"
-                    y1="100"
-                    x2={x}
-                    y2={y}
-                    className="stroke-white/[0.04] stroke-[1]"
-                  />
-                );
-              })}
+                {/* Dynamic filled radar polygon */}
+                <polygon
+                  points={(() => {
+                    const values = [waterPercent, stepsPercent, sleepPercent, calPercent, protPercent];
+                    return values.map((val, i) => {
+                      const angle = -Math.PI / 2 + (i * 2 * Math.PI) / 5;
+                      const r = 70 * (Math.max(10, Math.min(100, val)) / 100);
+                      const x = 100 + Math.cos(angle) * r;
+                      const y = 100 + Math.sin(angle) * r;
+                      return `${x},${y}`;
+                    }).join(" ");
+                  })()}
+                  className="fill-purple-500/20 stroke-purple-500 stroke-[2] transition-all duration-300"
+                />
 
-              {/* Dynamic filled radar polygon */}
-              <polygon
-                points={(() => {
+                {/* Small dots on vertices */}
+                {(() => {
                   const values = [waterPercent, stepsPercent, sleepPercent, calPercent, protPercent];
                   return values.map((val, i) => {
                     const angle = -Math.PI / 2 + (i * 2 * Math.PI) / 5;
                     const r = 70 * (Math.max(10, Math.min(100, val)) / 100);
                     const x = 100 + Math.cos(angle) * r;
                     const y = 100 + Math.sin(angle) * r;
-                    return `${x},${y}`;
-                  }).join(" ");
+                    return (
+                      <circle
+                        key={i}
+                        cx={x}
+                        cy={y}
+                        r="3.5"
+                        className="fill-purple-300 stroke-purple-600 stroke-[1]"
+                      />
+                    );
+                  });
                 })()}
-                className="fill-purple-500/20 stroke-purple-500 stroke-[2] transition-all duration-300"
-              />
 
-              {/* Small dots on vertices */}
-              {(() => {
-                const values = [waterPercent, stepsPercent, sleepPercent, calPercent, protPercent];
-                return values.map((val, i) => {
+                {/* Small labels on outer vertices */}
+                {['H2O', 'Walk', 'Rest', 'Kcal', 'Prot'].map((lbl, i) => {
                   const angle = -Math.PI / 2 + (i * 2 * Math.PI) / 5;
-                  const r = 70 * (Math.max(10, Math.min(100, val)) / 100);
-                  const x = 100 + Math.cos(angle) * r;
-                  const y = 100 + Math.sin(angle) * r;
+                  const offset = 85;
+                  const x = 100 + Math.cos(angle) * offset;
+                  const y = 100 + Math.sin(angle) * offset;
                   return (
-                    <circle
-                      key={i}
-                      cx={x}
-                      cy={y}
-                      r="3.5"
-                      className="fill-purple-300 stroke-purple-600 stroke-[1]"
-                    />
+                    <text
+                      key={lbl}
+                      x={x}
+                      y={y + 3}
+                      textAnchor="middle"
+                      className="fill-text-muted text-[8px] font-mono font-bold"
+                    >
+                      {lbl}
+                    </text>
                   );
-                });
-              })()}
+                })}
+              </svg>
+            </div>
 
-              {/* Small labels on outer vertices */}
-              {['H2O', 'Walk', 'Rest', 'Kcal', 'Prot'].map((lbl, i) => {
-                const angle = -Math.PI / 2 + (i * 2 * Math.PI) / 5;
-                const offset = 85;
-                const x = 100 + Math.cos(angle) * offset;
-                const y = 100 + Math.sin(angle) * offset;
-                return (
-                  <text
-                    key={lbl}
-                    x={x}
-                    y={y + 3}
-                    textAnchor="middle"
-                    className="fill-text-muted text-[8px] font-mono font-bold"
-                  >
-                    {lbl}
-                  </text>
-                );
-              })}
-            </svg>
+            <p className="text-[8px] font-mono text-text-muted text-center mt-1">Balanced day = perfect pentagon</p>
           </div>
-
-          <p className="text-[8px] font-mono text-text-muted text-center mt-1">Balanced day = perfect pentagon</p>
-        </div>
+        )}
 
         {/* QUICK HEALTH UPDATES CARD */}
         <div className="bg-bg-card border border-white/[0.06] p-5 rounded-xl shadow-card flex flex-col justify-between min-h-[160px] hover:border-gold-primary/20 transition duration-200">
@@ -1059,53 +1135,57 @@ export default function Dashboard({
             </div>
           </div>
 
-          <div className="border-t border-white/[0.04] pt-2 flex justify-between text-[11px] font-mono text-text-muted">
-            <span>Steps: {loggedSteps.toLocaleString()}</span>
-            <span>Fluid: {Math.round(loggedWater * 1000)} ml</span>
-          </div>
+          {!simpleMode && (
+            <div className="border-t border-white/[0.04] pt-2 flex justify-between text-[11px] font-mono text-text-muted">
+              <span>Steps: {loggedSteps.toLocaleString()}</span>
+              <span>Fluid: {Math.round(loggedWater * 1000)} ml</span>
+            </div>
+          )}
         </div>
 
         {/* MACROS CARD (Protein, Carbs & Fat detailed progress) */}
-        <div className="bg-bg-card border border-white/[0.06] p-5 rounded-xl shadow-card flex flex-col justify-between hover:border-gold-primary/20 transition duration-200">
-          <div>
-            <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest font-mono block mb-3">Protein, Carbs & Fat</span>
-            <div className="space-y-3">
-              {/* Protein Row */}
-              <div className="space-y-0.5">
-                <div className="flex justify-between text-[11px]">
-                  <span className="font-semibold text-text-headline">Protein</span>
-                  <span className="text-text-muted font-mono">{loggedProtein}g / {metrics.protein}g</span>
+        {!simpleMode && (
+          <div className="bg-bg-card border border-white/[0.06] p-5 rounded-xl shadow-card flex flex-col justify-between hover:border-gold-primary/20 transition duration-200">
+            <div>
+              <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest font-mono block mb-3">Protein, Carbs & Fat</span>
+              <div className="space-y-3">
+                {/* Protein Row */}
+                <div className="space-y-0.5">
+                  <div className="flex justify-between text-[11px]">
+                    <span className="font-semibold text-text-headline">Protein</span>
+                    <span className="text-text-muted font-mono">{loggedProtein}g / {metrics.protein}g</span>
+                  </div>
+                  <div className="w-full h-1.5 bg-white/[0.04] rounded-full overflow-hidden">
+                    <div className="h-full bg-purple-500 transition-all duration-300" style={{ width: `${protPercent}%` }}></div>
+                  </div>
                 </div>
-                <div className="w-full h-1.5 bg-white/[0.04] rounded-full overflow-hidden">
-            <div className="h-full bg-purple-500 transition-all duration-300" style={{ width: `${protPercent}%` }}></div>
-                </div>
-              </div>
 
-              {/* Carbs Row */}
-              <div className="space-y-0.5">
-                <div className="flex justify-between text-[11px]">
-                  <span className="font-semibold text-text-headline">Carbohydrates</span>
-                  <span className="text-text-muted font-mono">{consumedCarbs}g / {carbTarget}g</span>
+                {/* Carbs Row */}
+                <div className="space-y-0.5">
+                  <div className="flex justify-between text-[11px]">
+                    <span className="font-semibold text-text-headline">Carbohydrates</span>
+                    <span className="text-text-muted font-mono">{consumedCarbs}g / {carbTarget}g</span>
+                  </div>
+                  <div className="w-full h-1.5 bg-white/[0.04] rounded-full overflow-hidden">
+                    <div className="h-full bg-[#F8C78A] transition-all duration-300" style={{ width: `${carbPercent}%` }}></div>
+                  </div>
                 </div>
-                <div className="w-full h-1.5 bg-white/[0.04] rounded-full overflow-hidden">
-                  <div className="h-full bg-[#F8C78A] transition-all duration-300" style={{ width: `${carbPercent}%` }}></div>
-                </div>
-              </div>
 
-              {/* Fat Row */}
-              <div className="space-y-0.5">
-                <div className="flex justify-between text-[11px]">
-                  <span className="font-semibold text-text-headline">Healthy Fats</span>
-                  <span className="text-text-muted font-mono">{consumedFat}g / {fatTarget}g</span>
-                </div>
-                <div className="w-full h-1.5 bg-white/[0.04] rounded-full overflow-hidden">
-                  <div className="h-full bg-gold-dark transition-all duration-300" style={{ width: `${fatPercent}%` }}></div>
+                {/* Fat Row */}
+                <div className="space-y-0.5">
+                  <div className="flex justify-between text-[11px]">
+                    <span className="font-semibold text-text-headline">Healthy Fats</span>
+                    <span className="text-text-muted font-mono">{consumedFat}g / {fatTarget}g</span>
+                  </div>
+                  <div className="w-full h-1.5 bg-white/[0.04] rounded-full overflow-hidden">
+                    <div className="h-full bg-gold-dark transition-all duration-300" style={{ width: `${fatPercent}%` }}></div>
+                  </div>
                 </div>
               </div>
             </div>
+            <p className="text-[9px] font-mono text-text-muted mt-2">Helpful for tracking your body's power</p>
           </div>
-          <p className="text-[9px] font-mono text-text-muted mt-2">Helpful for tracking your body's power</p>
-        </div>
+        )}
 
       </div>
 
