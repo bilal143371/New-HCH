@@ -1392,14 +1392,14 @@ export default function Dashboard({
       </div>
 
       {/* DAILY HABITS INTERACTIVE LIST */}
-      <div className="bg-bg-card border border-white/[0.06] p-5 rounded-xl shadow-card space-y-4">
+      <div className="bg-white border border-slate-100 p-6 rounded-3xl shadow-sm space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest font-mono block">Your Daily Habits</span>
-            <p className="text-xs text-text-body mt-0.5">Check things off as you do them!</p>
+            <span className="text-[10px] font-bold text-[#64748B] uppercase tracking-widest font-mono block">Daily Habits (Rozana ki Aadaat)</span>
+            <p className="text-xs text-text-body mt-0.5">Tick the boxes as you complete them throughout the day!</p>
           </div>
-          <span className="px-2.5 py-1 badge-purple rounded-full text-[10px] font-bold font-mono flex items-center">
-            <Check className="w-3 h-3 mr-1" /> {habitsCountDone} / 3 Habits Done
+          <span className="px-2.5 py-1 bg-purple-50 text-purple-700 rounded-full text-[10px] font-bold font-mono flex items-center">
+            <Check className="w-3 h-3 mr-1" /> {habitsCountDone} / 3 Complete
           </span>
         </div>
 
@@ -1407,25 +1407,24 @@ export default function Dashboard({
           {/* Habit 1: Water */}
           <button
             onClick={() => setHabitsChecked(p => ({ ...p, water: !p.water }))}
-            className={`w-full p-3.5 rounded-xl border flex items-center justify-between text-left transition-all ${
+            className={`w-full p-3.5 rounded-2xl border flex items-center justify-between text-left transition-all active:scale-[0.98] ${
               habitsChecked.water 
-                ? 'bg-purple-950/40 border-purple-500/30 shadow shadow-purple-500/10' 
-                : 'bg-bg-surface border-white/[0.06] hover:border-purple-500/20'
+                ? 'bg-purple-50/50 border-purple-250 shadow-sm' 
+                : 'bg-slate-50/50 border-slate-100 hover:border-purple-200'
             }`}
+            style={{ minHeight: '48px' }}
           >
             <div className="flex items-center space-x-3">
-              <div className={`p-2 rounded-lg ${habitsChecked.water ? 'bg-purple-500/15 text-purple-400' : 'bg-white/[0.03] text-text-muted'}`}>
-                <Droplet className="w-4 h-4" />
-              </div>
+              <span className="text-xl">🥛</span>
               <div>
-                <h4 className={`text-xs font-bold ${habitsChecked.water ? 'text-purple-300' : 'text-text-headline'}`}>My Water Goal</h4>
-                <p className="text-[10px] text-text-muted font-mono mt-0.5">Drink plenty of water today ({Math.round(loggedWater * 1000)}ml / {Math.round(metrics.water * 1000)}ml)</p>
+                <h4 className="text-xs font-bold text-text-headline">Water Cup (Paani ka Glass)</h4>
+                <p className="text-[10.5px] text-text-body mt-0.5">Paani pina sehat ke liye zaroori hai. Drink water to stay active! ({Math.round(loggedWater * 1000)}ml logged)</p>
               </div>
             </div>
-            <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors shrink-0 ${
+            <div className={`w-5 h-5 rounded border flex items-center justify-center transition shrink-0 ${
               habitsChecked.water 
                 ? 'bg-purple-600 border-purple-500 text-white' 
-                : 'border-white/[0.2] hover:border-purple-500/40'
+                : 'border-slate-300 hover:border-purple-400'
             }`}>
               {habitsChecked.water && <Check className="w-3.5 h-3.5 stroke-[3]" />}
             </div>
@@ -1434,25 +1433,24 @@ export default function Dashboard({
           {/* Habit 2: Steps */}
           <button
             onClick={() => setHabitsChecked(p => ({ ...p, steps: !p.steps }))}
-            className={`w-full p-3.5 rounded-xl border flex items-center justify-between text-left transition-all ${
+            className={`w-full p-3.5 rounded-2xl border flex items-center justify-between text-left transition-all active:scale-[0.98] ${
               habitsChecked.steps 
-                ? 'bg-purple-950/40 border-purple-500/30 shadow shadow-purple-500/10' 
-                : 'bg-bg-surface border-white/[0.06] hover:border-purple-500/20'
+                ? 'bg-purple-50/50 border-purple-250 shadow-sm' 
+                : 'bg-slate-50/50 border-slate-100 hover:border-purple-200'
             }`}
+            style={{ minHeight: '48px' }}
           >
             <div className="flex items-center space-x-3">
-              <div className={`p-2 rounded-lg ${habitsChecked.steps ? 'bg-purple-500/15 text-purple-400' : 'bg-white/[0.03] text-text-muted'}`}>
-                <Footprints className="w-4 h-4" />
-              </div>
+              <span className="text-xl">👟</span>
               <div>
-                <h4 className={`text-xs font-bold ${habitsChecked.steps ? 'text-purple-300' : 'text-text-headline'}`}>Moving Around</h4>
-                <p className="text-[10px] text-text-muted font-mono mt-0.5">Walk or do easy home exercise ({loggedSteps.toLocaleString()} steps / {metrics.steps.toLocaleString()} steps)</p>
+                <h4 className="text-xs font-bold text-text-headline">Step Shoe (Qadamo ki Chahal Qadmi)</h4>
+                <p className="text-[10.5px] text-text-body mt-0.5">Rozana chalne se jism chust rehta hai. Walk at your own pace! ({loggedSteps.toLocaleString()} steps logged)</p>
               </div>
             </div>
-            <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors shrink-0 ${
+            <div className={`w-5 h-5 rounded border flex items-center justify-center transition shrink-0 ${
               habitsChecked.steps 
                 ? 'bg-purple-600 border-purple-500 text-white' 
-                : 'border-white/[0.2] hover:border-purple-500/40'
+                : 'border-slate-300 hover:border-purple-400'
             }`}>
               {habitsChecked.steps && <Check className="w-3.5 h-3.5 stroke-[3]" />}
             </div>
@@ -1461,25 +1459,24 @@ export default function Dashboard({
           {/* Habit 3: Sleep */}
           <button
             onClick={() => setHabitsChecked(p => ({ ...p, sleep: !p.sleep }))}
-            className={`w-full p-3.5 rounded-xl border flex items-center justify-between text-left transition-all ${
+            className={`w-full p-3.5 rounded-2xl border flex items-center justify-between text-left transition-all active:scale-[0.98] ${
               habitsChecked.sleep 
-                ? 'bg-purple-950/40 border-purple-500/30 shadow shadow-purple-500/10' 
-                : 'bg-bg-surface border-white/[0.06] hover:border-purple-500/20'
+                ? 'bg-purple-50/50 border-purple-250 shadow-sm' 
+                : 'bg-slate-50/50 border-slate-100 hover:border-purple-200'
             }`}
+            style={{ minHeight: '48px' }}
           >
             <div className="flex items-center space-x-3">
-              <div className={`p-2 rounded-lg ${habitsChecked.sleep ? 'bg-purple-500/15 text-purple-400' : 'bg-white/[0.03] text-text-muted'}`}>
-                <Moon className="w-4 h-4" />
-              </div>
+              <span className="text-xl">⏰</span>
               <div>
-                <h4 className={`text-xs font-bold ${habitsChecked.sleep ? 'text-purple-300' : 'text-text-headline'}`}>Good Sleep</h4>
-                <p className="text-[10px] text-text-muted font-mono mt-0.5">Sleep for {metrics.sleep} hours last night</p>
+                <h4 className="text-xs font-bold text-text-headline">Sleep Clock (Soney ka Waqt)</h4>
+                <p className="text-[10.5px] text-text-body mt-0.5">Sakoon ki neend aap ke dimaag ko fresh rakhti hai. Sleep well tonight! ({metrics.sleep} hours target)</p>
               </div>
             </div>
-            <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors shrink-0 ${
+            <div className={`w-5 h-5 rounded border flex items-center justify-center transition shrink-0 ${
               habitsChecked.sleep 
                 ? 'bg-purple-600 border-purple-500 text-white' 
-                : 'border-white/[0.2] hover:border-purple-500/40'
+                : 'border-slate-300 hover:border-purple-400'
             }`}>
               {habitsChecked.sleep && <Check className="w-3.5 h-3.5 stroke-[3]" />}
             </div>
@@ -1492,83 +1489,50 @@ export default function Dashboard({
         </div>
       </div>
 
-      {/* WEEKLY EXERCISE CSS BAR CHART */}
-      <div className="bg-bg-card border border-white/[0.06] p-5 rounded-xl shadow-card space-y-4 text-left">
-        <div className="flex justify-between items-center">
+      {/* Project Development Team credits attribution (Phase 8 - Mobile & Desktop visibility) */}
+      <div className="bg-white border border-slate-100 p-6 rounded-3xl shadow-sm text-left grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <h4 className="text-[10px] font-mono font-bold uppercase tracking-widest text-purple-650">✦ Project Development Team</h4>
+          <p className="text-[11px] text-text-body mt-1.5 leading-relaxed">
+            This project is proudly designed and developed by:
+          </p>
+          <ol className="list-decimal list-inside text-[11px] text-text-headline font-semibold space-y-0.5 mt-2">
+            <li>Muhammad Jamal</li>
+            <li>Zainab Irfan</li>
+            <li>Laiba Khan</li>
+            <li>Aqsa Haider</li>
+            <li>Ujala Ashraf</li>
+          </ol>
+        </div>
+        <div className="flex flex-col justify-between items-start sm:items-end text-left sm:text-right">
           <div>
-            <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest font-mono block">My Exercise This Week</span>
-            <p className="text-xs text-text-body mt-0.5">See your workouts and active minutes.</p>
+            <span className="text-[9px] font-mono text-text-muted uppercase tracking-wider block">Official Submission Contact</span>
+            <strong className="text-xs text-purple-750 block mt-1">Support Helpline: +92 309 4530756</strong>
           </div>
-          <span className="px-2.5 py-1 bg-gold-primary/10 border border-gold-primary/20 rounded-full text-[10px] font-bold text-text-gold font-mono flex items-center">
-            <Check className="w-3 h-3 mr-1" /> Active
-          </span>
-        </div>
-
-        {/* CSS Chart Representation */}
-        <div className="relative pt-6">
-          <div className="h-40 flex items-end justify-between px-2 sm:px-6 relative">
-            
-            {/* Grid Line lines */}
-            <div className="absolute inset-x-0 bottom-0 h-full flex flex-col justify-between pointer-events-none">
-              <div className="border-b border-white/[0.04] w-full text-[9px] font-mono text-text-muted flex justify-between pb-0.5"><span>4</span><span>------------------------------------------------------------------------------------------------------------------------</span></div>
-              <div className="border-b border-white/[0.04] w-full text-[9px] font-mono text-text-muted flex justify-between pb-0.5"><span>3</span><span>------------------------------------------------------------------------------------------------------------------------</span></div>
-              <div className="border-b border-white/[0.04] w-full text-[9px] font-mono text-text-muted flex justify-between pb-0.5"><span>2</span><span>------------------------------------------------------------------------------------------------------------------------</span></div>
-              <div className="border-b border-white/[0.04] w-full text-[9px] font-mono text-text-muted flex justify-between pb-0.5"><span>1</span><span>------------------------------------------------------------------------------------------------------------------------</span></div>
-              <div className="w-full text-[9px] font-mono text-text-muted flex justify-between pb-0.5"><span>0</span><span>------------------------------------------------------------------------------------------------------------------------</span></div>
-            </div>
-
-            {/* Bars for Mon - Sun */}
-            {[
-              { day: 'Mon', h: 'h-4 bg-white/[0.04] hover:bg-purple-500/30' },
-              { day: 'Tue', h: 'h-14 bg-purple-600/70 hover:bg-purple-500' },
-              { day: 'Wed', h: 'h-6 bg-white/[0.04] hover:bg-purple-500/30' },
-              { day: 'Thu', h: 'h-14 bg-purple-600/70 hover:bg-purple-500' },
-              { day: 'Fri', h: 'h-4 bg-white/[0.04] hover:bg-purple-500/30' },
-              { day: 'Sat', h: 'h-14 bg-purple-600/70 hover:bg-purple-500' },
-              { day: 'Sun', h: 'h-8 bg-white/[0.04] hover:bg-purple-500/30' }
-            ].map((bar, idx) => (
-              <div key={idx} className="flex flex-col items-center w-8 group z-10">
-                <div className={`${bar.h} w-4 rounded-t transition-all duration-300 relative`}>
-                  {/* Tooltip on hover */}
-                  <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-bg-surface border border-white/[0.08] text-[9px] font-bold text-text-gold py-0.5 px-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20 pointer-events-none">
-                    Active
-                  </div>
-                </div>
-                <span className="text-[10px] font-mono text-text-muted mt-2">{bar.day}</span>
-              </div>
-            ))}
-
-          </div>
-        </div>
-
-        <div className="border-t border-white/[0.04] pt-3 flex justify-between text-[10px] font-mono text-text-muted">
-          <span>Wellness hours tracked this cycle</span>
-          <span className="text-text-gold font-bold">8 mins total</span>
+          <span className="text-[9.5px] text-text-muted font-mono mt-3 sm:mt-0">Health Care Hub Regional Welfare Pilot System</span>
         </div>
       </div>
 
-
-
       {/* 5-SECOND UNDO TOAST NOTIFICATION */}
       {showUndoToast && (
-        <div className="fixed bottom-6 right-6 z-50 p-4 rounded-xl bg-[#131A35] border border-gold-primary/30 shadow-deep max-w-sm w-[90vw] flex flex-col space-y-3 animate-fade-in">
+        <div className="fixed bottom-6 right-6 z-50 p-4 rounded-xl bg-slate-900 border border-purple-200/90 shadow-lg max-w-sm w-[90vw] flex flex-col space-y-3 animate-fade-in text-white">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center space-x-2">
-              <span className="text-xs font-semibold text-text-headline">
+              <span className="text-xs font-semibold">
                 {undoMessage}
               </span>
             </div>
             <button
               onClick={handleUndo}
-              className="px-3 py-1 bg-gold-primary hover:bg-gold-light text-bg-deep font-extrabold text-[10px] rounded transition flex items-center shrink-0 active:scale-95 shadow-md"
+              className="px-3 py-1 bg-purple-600 hover:bg-purple-500 text-white font-extrabold text-[10px] rounded transition flex items-center shrink-0 active:scale-95 shadow"
             >
               <RotateCcw className="w-3 h-3 mr-1" /> Undo ({undoTimer}s)
             </button>
           </div>
           {/* Countdown animated progress bar */}
-          <div className="w-full h-1 bg-white/[0.04] rounded-full overflow-hidden">
+          <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
             <div 
-              className="h-full bg-gold-primary transition-all duration-1000 ease-linear" 
+              className="h-full bg-purple-500 transition-all duration-1000 ease-linear" 
               style={{ width: `${(undoTimer / 5) * 100}%` }}
             ></div>
           </div>

@@ -246,11 +246,11 @@ export default function LandingPage({
             <TiltCard>
               <div className="p-6 rounded-2xl bg-white border border-emerald-100 shadow-md shadow-emerald-500/[0.01] hover:border-emerald-300 transition-all duration-300 h-full flex flex-col justify-between">
                 <div>
-                  {/* High Quality Portion Plate Image */}
+                  {/* High Quality Male Meal Prep Image */}
                   <div className="w-full h-36 rounded-xl overflow-hidden mb-4 bg-slate-50 border border-slate-100">
                     <img 
-                      src="/nutrition_plate.png" 
-                      alt="Healthy portion sized chicken breast salad flatbread" 
+                      src="/male_meal_prep.png" 
+                      alt="Male model prepping a healthy nutritious meal plate with fresh organic vegetables" 
                       className="w-full h-full object-cover" 
                     />
                   </div>
@@ -270,11 +270,11 @@ export default function LandingPage({
             <TiltCard>
               <div className="p-6 rounded-2xl bg-white border border-sky-100 shadow-md shadow-sky-500/[0.01] hover:border-sky-300 transition-all duration-300 h-full flex flex-col justify-between">
                 <div>
-                  {/* High Quality Fitness Squat Illustration */}
+                  {/* High Quality Male Fitness Workout Image */}
                   <div className="w-full h-36 rounded-xl overflow-hidden mb-4 bg-slate-50 border border-slate-100">
                     <img 
-                      src="/fitness_workout.png" 
-                      alt="Minimalist joint safe squat exercise illustration" 
+                      src="/male_workout.png" 
+                      alt="Male model doing a joint safe bodyweight stretch in home gym" 
                       className="w-full h-full object-cover" 
                     />
                   </div>
@@ -783,7 +783,32 @@ export default function LandingPage({
 
       {/* Footer */}
       <footer className="w-full py-8 border-t border-slate-200/50 px-4 md:px-8 text-xs text-text-muted text-center flex flex-col items-center gap-6 max-w-5xl mx-auto relative z-10">
-        <div className="flex flex-col sm:flex-row items-center justify-between w-full gap-4">
+        
+        {/* Project Development Team attribution section (Phase 8) */}
+        <div className="w-full bg-slate-50 border border-slate-100 rounded-3xl p-5 text-left grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <h4 className="text-[10px] font-mono font-bold uppercase tracking-widest text-purple-600">✦ Project Development Team</h4>
+            <p className="text-[11px] text-text-body mt-1.5 leading-relaxed">
+              This wellness portal is proudly designed and developed by:
+            </p>
+            <ol className="list-decimal list-inside text-[11px] text-text-headline font-semibold space-y-0.5 mt-2">
+              <li>Muhammad Jamal</li>
+              <li>Zainab Irfan</li>
+              <li>Laiba Khan</li>
+              <li>Aqsa Haider</li>
+              <li>Ujala Ashraf</li>
+            </ol>
+          </div>
+          <div className="flex flex-col justify-between items-start md:items-end">
+            <div className="text-left md:text-right">
+              <span className="text-[9px] font-mono text-text-muted uppercase tracking-wider block">Official Submission Contact</span>
+              <strong className="text-xs text-purple-750 block mt-1">Support Helpline: +92 309 4530756</strong>
+            </div>
+            <span className="text-[9.5px] text-text-muted font-mono mt-3 md:mt-0">Karachi & Lahore Regional Welfare Pilot System</span>
+          </div>
+        </div>
+
+        <div className="flex flex-col sm:flex-row items-center justify-between w-full gap-4 border-t border-slate-200/40 pt-4">
           <div className="flex items-center space-x-4">
             <button onClick={onStartOnboarding} className="hover:text-purple-600 transition">Features</button>
             <span>•</span>

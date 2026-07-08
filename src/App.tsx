@@ -652,6 +652,22 @@ export default function App() {
                 <LogOut className="w-4 h-4" />
                 <span>Sign Out Account</span>
               </button>
+
+              {/* Submission Team Attribution (Phase 8) */}
+              <div className="bg-white border border-slate-100 rounded-3xl p-5 shadow-sm text-left">
+                <span className="text-[9px] font-mono font-bold uppercase tracking-widest text-purple-650 block mb-2">★ HCH DEVELOPMENT TEAM</span>
+                <ol className="list-decimal list-inside text-[10.5px] text-text-headline font-semibold space-y-0.5 leading-normal">
+                  <li>Muhammad Jamal</li>
+                  <li>Zainab Irfan</li>
+                  <li>Laiba Khan</li>
+                  <li>Aqsa Haider</li>
+                  <li>Ujala Ashraf</li>
+                </ol>
+                <div className="border-t border-slate-100 pt-2.5 mt-2.5">
+                  <span className="text-[8.5px] text-text-muted font-mono block">Submission Contact</span>
+                  <strong className="text-[10px] text-purple-750 block mt-0.5">Helpline: +92 309 4530756</strong>
+                </div>
+              </div>
             </aside>
 
             {/* Column 2: Center View Module Component (Scrollable/Flexible) */}
