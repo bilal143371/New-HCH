@@ -156,17 +156,31 @@ export default function Navbar({
             </div>
 
             {profile && (
-              <button
-                onClick={() => handleTabChange('settings')}
-                className={`p-2 rounded-xl border transition shrink-0 flex items-center justify-center h-8.5 w-8.5 active:scale-95 lg:hidden ${
-                  currentTab === 'settings'
-                    ? 'bg-purple-50 border-purple-300 text-purple-700'
-                    : 'bg-slate-100/80 border-slate-200/50 text-text-muted hover:text-text-body'
-                }`}
-                title="Settings & Alerts"
-              >
-                <Settings className="w-4 h-4" />
-              </button>
+              <>
+                <button
+                  onClick={() => handleTabChange('about')}
+                  className={`p-2 rounded-xl border transition shrink-0 flex items-center justify-center h-8.5 w-8.5 active:scale-95 lg:hidden ${
+                    currentTab === 'about'
+                      ? 'bg-purple-50 border-purple-300 text-purple-700'
+                      : 'bg-slate-100/80 border-slate-200/50 text-text-muted hover:text-text-body'
+                  }`}
+                  title="About & Credits"
+                >
+                  <HelpCircle className="w-4 h-4" />
+                </button>
+
+                <button
+                  onClick={() => handleTabChange('settings')}
+                  className={`p-2 rounded-xl border transition shrink-0 flex items-center justify-center h-8.5 w-8.5 active:scale-95 lg:hidden ${
+                    currentTab === 'settings'
+                      ? 'bg-purple-50 border-purple-300 text-purple-700'
+                      : 'bg-slate-100/80 border-slate-200/50 text-text-muted hover:text-text-body'
+                  }`}
+                  title="Settings & Alerts"
+                >
+                  <Settings className="w-4 h-4" />
+                </button>
+              </>
             )}
 
             {profile ? (

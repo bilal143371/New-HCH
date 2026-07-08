@@ -110,84 +110,165 @@ export default function LandingPage({
         variants={containerVariants}
         initial="hidden"
         animate="show"
-        className="max-w-5xl mx-auto px-4 md:px-8 py-8 md:py-16 text-center flex-grow flex flex-col justify-center relative z-10"
+        className="max-w-7xl mx-auto px-6 lg:px-12 py-8 lg:py-16 text-center lg:text-left flex-grow flex flex-col justify-center relative z-10"
       >
-        {/* Slogan Banner */}
-        <motion.div 
-          variants={itemVariants}
-          className="inline-flex items-center self-center px-4 py-1.5 rounded-full bg-purple-50 border border-purple-100 mb-6 shadow-sm"
-        >
-          <Sparkles className="w-3.5 h-3.5 text-purple-600 mr-2 animate-pulse shrink-0" />
-          <AnimatePresence mode="wait">
-            <motion.span 
-              key={sloganIndex}
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
-              transition={{ duration: 0.2 }}
-              className="text-[11px] md:text-xs font-sans font-semibold text-purple-700 tracking-tight"
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center w-full">
+          
+          {/* Left Column (60% equivalent: col-span-7) */}
+          <div className="col-span-1 lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left">
+            {/* Slogan Banner */}
+            <motion.div 
+              variants={itemVariants}
+              className="inline-flex items-center px-4 py-1.5 rounded-full bg-purple-50 border border-purple-100 mb-6 shadow-sm self-center lg:self-start"
             >
-              {SLOGANS[sloganIndex]}
-            </motion.span>
-          </AnimatePresence>
-        </motion.div>
+              <Sparkles className="w-3.5 h-3.5 text-purple-600 mr-2 animate-pulse shrink-0" />
+              <AnimatePresence mode="wait">
+                <motion.span 
+                  key={sloganIndex}
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -4 }}
+                  transition={{ duration: 0.2 }}
+                  className="text-[11px] md:text-xs font-sans font-semibold text-purple-700 tracking-tight"
+                >
+                  {SLOGANS[sloganIndex]}
+                </motion.span>
+              </AnimatePresence>
+            </motion.div>
 
-        {/* Hero Content */}
-        <motion.h1 
-          variants={itemVariants}
-          className="text-4xl md:text-6xl font-sans font-extrabold tracking-tight text-text-headline mb-4 leading-tight"
-        >
-          Your Health. <span className="text-gradient-purple">Your Way.</span>
-        </motion.h1>
-        
-        <motion.p 
-          variants={itemVariants}
-          className="text-lg md:text-xl font-sans font-semibold text-text-headline max-w-2xl mx-auto mb-4"
-        >
-          Take Care of Your Health — The Smart Way
-        </motion.p>
-        
-        <motion.p 
-          variants={itemVariants}
-          className="text-xs md:text-sm text-text-body max-w-xl mx-auto mb-8 leading-relaxed"
-        >
-          Get your food plan, workout routine, and mental health support — all in one free app. Specifically customized for traditional diets and lifestyle.
-        </motion.p>
+            {/* Hero Content */}
+            <motion.h1 
+              variants={itemVariants}
+              className="text-4xl md:text-5xl lg:text-6xl font-sans font-extrabold tracking-tight text-text-headline mb-4 leading-tight"
+            >
+              Your Health. <span className="text-gradient-purple">Your Way.</span>
+            </motion.h1>
+            
+            <motion.p 
+              variants={itemVariants}
+              className="text-base md:text-lg lg:text-xl font-sans font-semibold text-text-headline mb-4"
+            >
+              Take Care of Your Health — The Smart Way
+            </motion.p>
+            
+            <motion.p 
+              variants={itemVariants}
+              className="text-xs md:text-sm text-text-body max-w-xl mb-8 leading-relaxed"
+            >
+              Get your food plan, workout routine, and mental health support — all in one free app. Specifically customized for traditional diets and lifestyle.
+            </motion.p>
 
-        {/* CTA Actions */}
-        <motion.div 
-          variants={itemVariants}
-          className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-10 w-full sm:w-auto self-center"
-        >
-          <motion.button
-            whileTap={{ scale: 0.97 }}
-            onClick={onStartOnboarding}
-            className="w-full sm:w-auto px-8 py-3.5 rounded-xl text-xs font-bold text-white btn-3d-purple uppercase tracking-wider flex items-center justify-center space-x-1.5"
-            id="cta-get-started"
-          >
-            <span>Find Your Custom Strategy in 1-Min →</span>
-          </motion.button>
-          <motion.button
-            whileTap={{ scale: 0.97 }}
-            onClick={() => setIsLoginModalOpen(true)}
-            className="w-full sm:w-auto px-8 py-3.5 rounded-xl text-xs font-bold text-text-headline btn-3d-slate uppercase tracking-wider"
-            id="cta-login"
-          >
-            Already registered? Log In
-          </motion.button>
-        </motion.div>
+            {/* CTA Actions */}
+            <motion.div 
+              variants={itemVariants}
+              className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 mb-10 w-full sm:w-auto"
+            >
+              <motion.button
+                whileTap={{ scale: 0.97 }}
+                onClick={onStartOnboarding}
+                className="w-full sm:w-auto px-8 py-3.5 rounded-xl text-xs font-bold text-white btn-3d-purple uppercase tracking-wider flex items-center justify-center space-x-1.5"
+                id="cta-get-started"
+              >
+                <span>Find Your Healthy Strategy (1-Min Quiz) →</span>
+              </motion.button>
+              <motion.button
+                whileTap={{ scale: 0.97 }}
+                onClick={() => setIsLoginModalOpen(true)}
+                className="w-full sm:w-auto px-8 py-3.5 rounded-xl text-xs font-bold text-text-headline btn-3d-slate uppercase tracking-wider"
+                id="cta-login"
+              >
+                Already registered? Log In
+              </motion.button>
+            </motion.div>
+          </div>
 
-        {/* Hero Responsive Mockup Graphic Integration */}
-        <motion.div
-          variants={itemVariants}
-          className="w-full max-w-3xl mx-auto mt-2 mb-12 rounded-2xl overflow-hidden border border-slate-100 shadow-xl shadow-sky-500/[0.04] bg-white p-2"
-        >
-          <img
-            src="/hero_mockup.png"
-            alt="Health Care Hub Dashboard Phone Mockup surrounded by Fresh Healthy Ingredients"
-            className="w-full h-auto rounded-xl object-cover"
-          />
-        </motion.div>
+          {/* Right Column (40% equivalent: col-span-5) */}
+          <div className="col-span-1 lg:col-span-5 flex items-center justify-center">
+            
+            {/* Desktop: realistic laptop/browser frame showing Daily Tracker (Phase 9) */}
+            <motion.div
+              variants={itemVariants}
+              className="hidden lg:block w-full"
+            >
+              <div className="relative w-full aspect-[4/3] max-w-sm mx-auto bg-slate-800 rounded-2xl p-1.5 shadow-2xl border-4 border-slate-700">
+                {/* Top Browser Bar */}
+                <div className="flex items-center space-x-1.5 px-3 py-1 bg-slate-900 rounded-t-xl text-[8px] text-slate-500 font-mono">
+                  <div className="w-1.5 h-1.5 rounded-full bg-red-500/80"></div>
+                  <div className="w-1.5 h-1.5 rounded-full bg-yellow-500/80"></div>
+                  <div className="w-1.5 h-1.5 rounded-full bg-green-500/80"></div>
+                  <span className="pl-2 select-none opacity-60">healthcare-hub.org/home</span>
+                </div>
+                {/* Browser Screen Content */}
+                <div className="w-full h-[calc(100%-1.25rem)] bg-[#F8FAFC] rounded-b-xl p-4 overflow-hidden text-left flex flex-col justify-between">
+                  {/* Mock Top bar */}
+                  <div className="flex justify-between items-center pb-2 border-b border-slate-100 mb-2">
+                    <div className="flex items-center space-x-1.5">
+                      <div className="w-4 h-4 rounded-full bg-purple-650 text-white text-[8px] font-bold flex items-center justify-center">J</div>
+                      <span className="text-[9px] font-bold text-slate-800">Jamal's Hub</span>
+                    </div>
+                    <span className="text-[7px] font-mono bg-purple-100 text-purple-705 px-1.5 rounded-full font-bold">Guest</span>
+                  </div>
+
+                  {/* Daily Basis Tracker circles */}
+                  <div className="bg-white border border-slate-100 p-2.5 rounded-xl space-y-2 shadow-sm flex-grow flex flex-col justify-center">
+                    <div className="text-[7.5px] font-bold text-slate-700 font-mono">DAILY BASIS Vitals</div>
+                    <div className="grid grid-cols-3 gap-1 text-center">
+                      <div className="flex flex-col items-center bg-slate-50 p-1 rounded-lg border border-slate-100/50">
+                        <div className="relative w-8 h-8 flex items-center justify-center">
+                          <svg className="w-full h-full transform -rotate-90">
+                            <circle cx="16" cy="16" r="13" className="stroke-slate-200" strokeWidth="2.5" fill="none" />
+                            <circle cx="16" cy="16" r="13" className="stroke-emerald-500" strokeWidth="2.5" fill="none" strokeDasharray="81.6" strokeDashoffset="25" />
+                          </svg>
+                          <span className="absolute text-[7px] font-bold text-slate-800">4k</span>
+                        </div>
+                        <span className="text-[5.5px] text-[#64748B] font-bold block mt-1 uppercase font-mono">Steps</span>
+                      </div>
+                      <div className="flex flex-col items-center bg-slate-50 p-1 rounded-lg border border-slate-100/50">
+                        <div className="relative w-8 h-8 flex items-center justify-center">
+                          <svg className="w-full h-full transform -rotate-90">
+                            <circle cx="16" cy="16" r="13" className="stroke-slate-200" strokeWidth="2.5" fill="none" />
+                            <circle cx="16" cy="16" r="13" className="stroke-sky-500" strokeWidth="2.5" fill="none" strokeDasharray="81.6" strokeDashoffset="35" />
+                          </svg>
+                          <span className="absolute text-[7px] font-bold text-slate-800">5🥛</span>
+                        </div>
+                        <span className="text-[5.5px] text-[#64748B] font-bold block mt-1 uppercase font-mono">Water</span>
+                      </div>
+                      <div className="flex flex-col items-center bg-slate-50 p-1 rounded-lg border border-slate-100/50">
+                        <div className="relative w-8 h-8 flex items-center justify-center">
+                          <svg className="w-full h-full transform -rotate-90">
+                            <circle cx="16" cy="16" r="13" className="stroke-slate-200" strokeWidth="2.5" fill="none" />
+                            <circle cx="16" cy="16" r="13" className="stroke-purple-650" strokeWidth="2.5" fill="none" strokeDasharray="81.6" strokeDashoffset="15" />
+                          </svg>
+                          <span className="absolute text-[7px] font-bold text-slate-800">7h</span>
+                        </div>
+                        <span className="text-[5.5px] text-[#64748B] font-bold block mt-1 uppercase font-mono">Sleep</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Small live banner at the bottom */}
+                  <div className="bg-purple-50 border border-purple-100 rounded-lg p-1.5 mt-2 flex justify-between items-center text-[7px] text-purple-700">
+                    <span>✓ Custom Nutrition Active</span>
+                    <span className="font-mono font-bold">1,850 kcal</span>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Mobile/Tablet Fallback Mockup (Visible on small screens) */}
+            <motion.div
+              variants={itemVariants}
+              className="block lg:hidden w-full max-w-md mx-auto mt-2"
+            >
+              <img
+                src="/hero_mockup.png"
+                alt="Health Care Hub Dashboard Phone Mockup surrounded by Fresh Healthy Ingredients"
+                className="w-full h-auto rounded-xl border border-slate-150 shadow-md"
+              />
+            </motion.div>
+
+          </div>
+        </div>
 
         {/* Social Proof */}
         <motion.div 

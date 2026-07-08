@@ -411,75 +411,71 @@ export default function Dashboard({
         </div>
       </div>
 
-      {/* 📱 Mobile Stats Quick Ring Gauges (Visible on mobile/tablet only, < 1024px) */}
-      <div className="lg:hidden grid grid-cols-2 gap-4 bg-white border border-slate-100 p-5 rounded-3xl shadow-sm shadow-sky-500/[0.01]">
-        {/* Calorie Progress Ring */}
-        <div className="flex flex-col items-center justify-center space-y-2 border-r border-slate-100 pr-2">
-          <div className="relative w-24 h-24 flex items-center justify-center">
-            <svg className="w-full h-full transform -rotate-90">
-              <circle
-                cx="48"
-                cy="48"
-                r="38"
-                className="stroke-slate-100"
-                strokeWidth="7"
-                fill="transparent"
-              />
-              <circle
-                cx="48"
-                cy="48"
-                r="38"
-                className="stroke-purple-600 transition-all duration-1000 ease-out"
-                strokeWidth="7"
-                fill="transparent"
-                strokeDasharray="238.7"
-                strokeDashoffset={238.7 - (238.7 * Math.min(loggedCalories, metrics.calories)) / metrics.calories}
-                strokeLinecap="round"
-              />
-            </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-xs font-mono font-extrabold text-text-headline">{Math.max(0, metrics.calories - loggedCalories)}</span>
-              <span className="text-[8px] text-text-muted font-bold uppercase tracking-wider font-mono">kcal left</span>
+      {/* Daily Basis Vitals Tracker circles - Responsive (Phase 8 & 9) */}
+      <div className="bg-white/80 backdrop-blur-md border border-slate-100 p-6 md:p-8 rounded-3xl shadow-xl shadow-slate-100/50">
+        <h3 className="text-xs font-mono font-bold uppercase tracking-widest text-[#64748B] mb-5">
+          Daily Basis Tracker (Vitals)
+        </h3>
+        
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          {/* Gauge 1: Steps */}
+          <div className="flex flex-col items-center justify-center p-4 bg-slate-50/50 border border-slate-100/50 rounded-2xl">
+            <div className="relative w-24 h-24 flex items-center justify-center">
+              <svg className="w-full h-full transform -rotate-90">
+                <circle cx="48" cy="48" r="38" className="stroke-slate-200" strokeWidth="6" fill="transparent" />
+                <circle cx="48" cy="48" r="38" className="stroke-emerald-500 transition-all duration-1000 ease-out" strokeWidth="6" fill="transparent" strokeDasharray="238.7" strokeDashoffset={238.7 - (238.7 * Math.min(loggedSteps, metrics.steps)) / metrics.steps} strokeLinecap="round" />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-xs font-bold text-text-headline">{loggedSteps.toLocaleString()}</span>
+                <span className="text-[8px] text-text-muted font-bold uppercase tracking-wider font-mono">Steps</span>
+              </div>
             </div>
+            <span className="text-[10px] font-bold text-text-muted mt-2 font-mono">{metrics.steps.toLocaleString()} Target</span>
           </div>
-          <div className="text-center">
-            <span className="text-[9px] text-text-muted font-bold uppercase tracking-wider block font-mono">Consumed</span>
-            <span className="text-[10px] font-bold text-text-headline font-mono">{loggedCalories} / {metrics.calories} kcal</span>
-          </div>
-        </div>
 
-        {/* Steps Progress Ring */}
-        <div className="flex flex-col items-center justify-center space-y-2 pl-2">
-          <div className="relative w-24 h-24 flex items-center justify-center">
-            <svg className="w-full h-full transform -rotate-90">
-              <circle
-                cx="48"
-                cy="48"
-                r="38"
-                className="stroke-slate-100"
-                strokeWidth="7"
-                fill="transparent"
-              />
-              <circle
-                cx="48"
-                cy="48"
-                r="38"
-                className="stroke-emerald-500 transition-all duration-1000 ease-out"
-                strokeWidth="7"
-                fill="transparent"
-                strokeDasharray="238.7"
-                strokeDashoffset={238.7 - (238.7 * Math.min(loggedSteps, metrics.steps)) / metrics.steps}
-                strokeLinecap="round"
-              />
-            </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-xs font-mono font-extrabold text-text-headline">{loggedSteps.toLocaleString()}</span>
-              <span className="text-[8px] text-text-muted font-bold uppercase tracking-wider font-mono">steps</span>
+          {/* Gauge 2: Water */}
+          <div className="flex flex-col items-center justify-center p-4 bg-slate-50/50 border border-slate-100/50 rounded-2xl">
+            <div className="relative w-24 h-24 flex items-center justify-center">
+              <svg className="w-full h-full transform -rotate-90">
+                <circle cx="48" cy="48" r="38" className="stroke-slate-200" strokeWidth="6" fill="transparent" />
+                <circle cx="48" cy="48" r="38" className="stroke-sky-500 transition-all duration-1000 ease-out" strokeWidth="6" fill="transparent" strokeDasharray="238.7" strokeDashoffset={238.7 - (238.7 * Math.min(loggedWater, metrics.water)) / metrics.water} strokeLinecap="round" />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-xs font-bold text-text-headline">{Math.round(loggedWater * 1000)}ml</span>
+                <span className="text-[8px] text-text-muted font-bold uppercase tracking-wider font-mono">Water</span>
+              </div>
             </div>
+            <span className="text-[10px] font-bold text-text-muted mt-2 font-mono">{Math.round(metrics.water * 1000)}ml Target</span>
           </div>
-          <div className="text-center">
-            <span className="text-[9px] text-text-muted font-bold uppercase tracking-wider block font-mono">Target</span>
-            <span className="text-[10px] font-bold text-text-headline font-mono">{metrics.steps.toLocaleString()} steps</span>
+
+          {/* Gauge 3: Sleep */}
+          <div className="flex flex-col items-center justify-center p-4 bg-slate-50/50 border border-slate-100/50 rounded-2xl">
+            <div className="relative w-24 h-24 flex items-center justify-center">
+              <svg className="w-full h-full transform -rotate-90">
+                <circle cx="48" cy="48" r="38" className="stroke-slate-200" strokeWidth="6" fill="transparent" />
+                <circle cx="48" cy="48" r="38" className="stroke-purple-600 transition-all duration-1000 ease-out" strokeWidth="6" fill="transparent" strokeDasharray="238.7" strokeDashoffset={238.7 - (238.7 * Math.min(loggedSleep, metrics.sleep)) / metrics.sleep} strokeLinecap="round" />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-xs font-bold text-text-headline">{loggedSleep} hrs</span>
+                <span className="text-[8px] text-text-muted font-bold uppercase tracking-wider font-mono">Sleep</span>
+              </div>
+            </div>
+            <span className="text-[10px] font-bold text-text-muted mt-2 font-mono">{metrics.sleep} hrs Target</span>
+          </div>
+
+          {/* Gauge 4: Active Heart Rate */}
+          <div className="flex flex-col items-center justify-center p-4 bg-slate-50/50 border border-slate-100/50 rounded-2xl">
+            <div className="relative w-24 h-24 flex items-center justify-center">
+              <svg className="w-full h-full transform -rotate-90">
+                <circle cx="48" cy="48" r="38" className="stroke-slate-200" strokeWidth="6" fill="transparent" />
+                <circle cx="48" cy="48" r="38" className="stroke-rose-500 animate-pulse" strokeWidth="6" fill="transparent" strokeDasharray="238.7" strokeDashoffset="50" strokeLinecap="round" />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-xs font-bold text-text-headline animate-pulse">72</span>
+                <span className="text-[8px] text-rose-500 font-bold uppercase tracking-wider font-mono">BPM</span>
+              </div>
+            </div>
+            <span className="text-[10px] font-bold text-text-muted mt-2 font-mono">Resting Vitals</span>
           </div>
         </div>
       </div>
@@ -1392,7 +1388,7 @@ export default function Dashboard({
       </div>
 
       {/* DAILY HABITS INTERACTIVE LIST */}
-      <div className="bg-white border border-slate-100 p-6 rounded-3xl shadow-sm space-y-4">
+      <div className="bg-white/80 backdrop-blur-md border border-slate-100 rounded-3xl p-8 shadow-xl shadow-slate-100/50 space-y-4">
         <div className="flex items-center justify-between">
           <div>
             <span className="text-[10px] font-bold text-[#64748B] uppercase tracking-widest font-mono block">Daily Habits (Rozana ki Aadaat)</span>
@@ -1490,7 +1486,7 @@ export default function Dashboard({
       </div>
 
       {/* Project Development Team credits attribution (Phase 8 - Mobile & Desktop visibility) */}
-      <div className="bg-white border border-slate-100 p-6 rounded-3xl shadow-sm text-left grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="bg-white/80 backdrop-blur-md border border-slate-100 rounded-3xl p-8 shadow-xl shadow-slate-100/50 text-left grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <h4 className="text-[10px] font-mono font-bold uppercase tracking-widest text-purple-650">✦ Project Development Team</h4>
           <p className="text-[11px] text-text-body mt-1.5 leading-relaxed">

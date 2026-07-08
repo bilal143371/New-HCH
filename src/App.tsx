@@ -8,10 +8,11 @@ import ExerciseView from './components/ExerciseView';
 import LogsHistoryView from './components/LogsHistoryView';
 import SupportiveMindView from './components/SupportiveMindView';
 import ReminderCenterView from './components/ReminderCenterView';
+import AboutView from './components/AboutView';
 import ThreeDLoadingScreen from './components/ThreeDLoadingScreen';
 import { UserProfile, UserMetrics, LoggedActivity, Exercise } from './types';
 import { calculatePersonalMetrics } from './utils/metrics';
-import { Sparkles, Key, LogIn, Lock, CheckCircle, ShieldAlert, Activity, Soup, Dumbbell, Brain, Settings, LogOut, Camera } from 'lucide-react';
+import { Sparkles, Key, LogIn, Lock, CheckCircle, ShieldAlert, Activity, Soup, Dumbbell, Brain, Settings, LogOut, Camera, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 export interface ReminderConfig {
@@ -177,6 +178,62 @@ export default function App() {
       setToasts(prev => prev.filter(t => t.id !== id));
     }, 7000);
   };
+
+  const handleTabChange = (tab: string) => {
+    setCurrentTab(tab);
+    let path = '/home';
+    if (tab === 'meals') path = '/nutrition';
+    else if (tab === 'exercises') path = '/fitness';
+    else if (tab === 'mind') path = '/relax';
+    else if (tab === 'settings') path = '/settings';
+    else if (tab === 'about') path = '/about';
+    
+    if (window.location.pathname !== path) {
+      window.history.pushState({ page: tab }, tab, path);
+    }
+  };
+
+  // Sync router state with URL history and popstate pops (Phase 9)
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      const path = window.location.pathname;
+      if (!profile) return;
+      
+      // If a user clicks back and would exit, guide back to home dashboard
+      if (path !== '/' && path !== '/home' && path !== '/nutrition' && path !== '/fitness' && path !== '/relax' && path !== '/about' && path !== '/settings') {
+        event.preventDefault();
+        window.history.pushState({ page: 'dashboard' }, 'Home', '/home');
+        setCurrentTab('dashboard');
+      } else {
+        if (path === '/nutrition') setCurrentTab('meals');
+        else if (path === '/fitness') setCurrentTab('exercises');
+        else if (path === '/relax') setCurrentTab('mind');
+        else if (path === '/about') setCurrentTab('about');
+        else if (path === '/settings') setCurrentTab('settings');
+        else setCurrentTab('dashboard');
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    
+    // Initial load path sync
+    if (profile) {
+      const path = window.location.pathname;
+      if (path === '/nutrition') setCurrentTab('meals');
+      else if (path === '/fitness') setCurrentTab('exercises');
+      else if (path === '/relax') setCurrentTab('mind');
+      else if (path === '/about') setCurrentTab('about');
+      else if (path === '/settings') setCurrentTab('settings');
+      else {
+        setCurrentTab('dashboard');
+        if (path !== '/' && path !== '/home') {
+          window.history.replaceState({ page: 'dashboard' }, 'Home', '/home');
+        }
+      }
+    }
+
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [profile]);
 
   const triggerNotification = (rem: ReminderConfig) => {
     const title = `Time for: ${rem.name}`;
@@ -571,7 +628,7 @@ export default function App() {
         onUpgradeRequest={() => setShowSignupUpgradeModal(true)}
         onLogout={handleLogout}
         currentTab={currentTab}
-        setCurrentTab={setCurrentTab}
+        setCurrentTab={handleTabChange}
         onSimulateExpiration={handleSimulateExpiration}
         onStartOnboarding={handleStartOnboardingFlow}
       />
@@ -624,13 +681,14 @@ export default function App() {
                   { id: 'meals', label: 'Nutrition & Diet', icon: <Soup className="w-4 h-4" /> },
                   { id: 'exercises', label: 'Safe Fitness', icon: <Dumbbell className="w-4 h-4" /> },
                   { id: 'mind', label: 'Supportive Mind', icon: <Brain className="w-4 h-4" /> },
+                  { id: 'about', label: 'About HCH Team', icon: <Info className="w-4 h-4" /> },
                   { id: 'settings', label: 'Settings & Ledger', icon: <Settings className="w-4 h-4" /> }
                 ].map((item) => {
                   const isActive = currentTab === item.id;
                   return (
                     <button
                       key={item.id}
-                      onClick={() => setCurrentTab(item.id)}
+                      onClick={() => handleTabChange(item.id)}
                       className={`w-full flex items-center space-x-2.5 px-4 py-3 rounded-2xl text-xs font-bold transition duration-200 ${
                         isActive
                           ? 'bg-purple-600 text-white shadow-sm font-bold'
@@ -710,7 +768,7 @@ export default function App() {
                       profile={profile}
                       metrics={metrics}
                       onOpenOnboarding={handleStartOnboardingFlow}
-                      setCurrentTab={setCurrentTab}
+                      setCurrentTab={handleTabChange}
                       loggedCalories={loggedCalories}
                       loggedProtein={loggedProtein}
                       loggedWater={loggedWater}
@@ -793,6 +851,17 @@ export default function App() {
                       addToast={addToast}
                       playChime={playChime}
                     />
+                  </motion.div>
+                )}
+                {currentTab === 'about' && (
+                  <motion.div
+                    key="about"
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -15 }}
+                    transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                  >
+                    <AboutView />
                   </motion.div>
                 )}
               </AnimatePresence>
