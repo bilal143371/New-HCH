@@ -143,7 +143,7 @@ export default function Navbar({
                     : 'bg-slate-100/80 border-slate-200/50 text-text-muted hover:text-text-body'
                 }`}
               >
-                <span>{simpleMode ? 'Simple Mode (سادہ موڈ) 🟢' : 'Advanced Mode'}</span>
+                <span>{simpleMode ? 'Simple Mode 🟢' : 'Advanced Mode'}</span>
               </button>
             )}
 

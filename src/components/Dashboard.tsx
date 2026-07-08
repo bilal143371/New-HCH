@@ -240,7 +240,7 @@ export default function Dashboard({
             <span className="text-[10px] font-bold text-[#64748B] uppercase tracking-widest font-mono block">Steps Taken</span>
             {simpleMode ? (
               <span className={`text-xs font-extrabold block leading-tight py-1 ${loggedSteps >= metrics.steps ? 'text-emerald-600' : 'text-slate-500'}`}>
-                {loggedSteps >= metrics.steps ? '✓ Walk Completed (چہل قدمی مکمل) 🟢' : '🚶 Keep Walking (چلتے رہیں)'}
+                {loggedSteps >= metrics.steps ? '✓ Walk Completed 🟢' : '🚶 Keep Walking'}
               </span>
             ) : (
               <div className="text-xl lg:text-2xl font-extrabold text-text-headline font-mono">
@@ -285,7 +285,7 @@ export default function Dashboard({
             <span className="text-[10px] font-bold text-[#64748B] uppercase tracking-widest font-mono block">Calorie Budget</span>
             {simpleMode ? (
               <span className={`text-xs font-extrabold block leading-tight py-1 ${loggedCalories <= metrics.calories && loggedCalories > 0 ? 'text-emerald-600' : loggedCalories === 0 ? 'text-slate-500' : 'text-red-500'}`}>
-                {loggedCalories <= metrics.calories && loggedCalories > 0 ? '✓ Good Diet (اچھی خوراک) 🟢' : loggedCalories === 0 ? '🍽️ Eat Healthy (اچھا کھائیں)' : '⚠️ Limit Exceeded (حد سے زیادہ)'}
+                {loggedCalories <= metrics.calories && loggedCalories > 0 ? '✓ Good Diet 🟢' : loggedCalories === 0 ? '🍽️ Eat Healthy' : '⚠️ Limit Exceeded'}
               </span>
             ) : (
               <div className="text-xl lg:text-2xl font-extrabold text-text-headline font-mono">
@@ -313,7 +313,7 @@ export default function Dashboard({
             <span className="text-[10px] font-bold text-[#64748B] uppercase tracking-widest font-mono block">Water Track</span>
             {simpleMode ? (
               <span className={`text-xs font-extrabold block leading-tight py-1 ${loggedWater >= metrics.water ? 'text-emerald-600' : 'text-slate-500'}`}>
-                {loggedWater >= metrics.water ? '✓ Good Hydration (پانی مکمل) 🟢' : '🥛 Drink Water (پانی پییں)'}
+                {loggedWater >= metrics.water ? '✓ Good Hydration 🟢' : '🥛 Drink Water'}
               </span>
             ) : (
               <div className="text-xl lg:text-2xl font-extrabold text-text-headline font-mono">
@@ -426,7 +426,7 @@ export default function Dashboard({
       <div className="bg-white/80 backdrop-blur-md border border-slate-100 rounded-3xl p-8 shadow-xl shadow-slate-100/50 space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <span className="text-[10px] font-bold text-[#64748B] uppercase tracking-widest font-mono block">Daily Habits (Rozana ki Aadaat)</span>
+            <span className="text-[10px] font-bold text-[#64748B] uppercase tracking-widest font-mono block">Daily Habits</span>
             <p className="text-xs text-text-body mt-0.5 font-sans">Tick the boxes as you complete them throughout the day!</p>
           </div>
           <span className="px-2.5 py-1 bg-purple-50 text-purple-700 rounded-full text-[10px] font-bold font-mono flex items-center">
@@ -448,8 +448,8 @@ export default function Dashboard({
             <div className="flex items-center space-x-3">
               <span className="text-xl">🥛</span>
               <div>
-                <h4 className="text-xs font-bold text-text-headline">Water Cup (Paani ka Glass)</h4>
-                <p className="text-[10.5px] text-text-body mt-0.5 font-sans">Paani pina sehat ke liye zaroori hai. Drink water to stay active! ({Math.round(loggedWater * 1000)}ml logged)</p>
+                <h4 className="text-xs font-bold text-text-headline">Water Cup</h4>
+                <p className="text-[10.5px] text-text-body mt-0.5 font-sans">Drinking water is essential for your body. Drink water to stay active! ({Math.round(loggedWater * 1000)}ml logged)</p>
               </div>
             </div>
             <div className={`w-5 h-5 rounded border flex items-center justify-center transition shrink-0 ${
@@ -474,8 +474,8 @@ export default function Dashboard({
             <div className="flex items-center space-x-3">
               <span className="text-xl">👟</span>
               <div>
-                <h4 className="text-xs font-bold text-text-headline">Step Shoe (Qadamo ki Chahal Qadmi)</h4>
-                <p className="text-[10.5px] text-text-body mt-0.5 font-sans">Rozana chalne se jism chust rehta hai. Walk at your own pace! ({loggedSteps.toLocaleString()} steps logged)</p>
+                <h4 className="text-xs font-bold text-text-headline">Step Shoe</h4>
+                <p className="text-[10.5px] text-text-body mt-0.5 font-sans">Walking helps keep your muscles active. Walk at your own pace! ({loggedSteps.toLocaleString()} steps logged)</p>
               </div>
             </div>
             <div className={`w-5 h-5 rounded border flex items-center justify-center transition shrink-0 ${
@@ -500,8 +500,8 @@ export default function Dashboard({
             <div className="flex items-center space-x-3">
               <span className="text-xl">⏰</span>
               <div>
-                <h4 className="text-xs font-bold text-text-headline">Sleep Clock (Soney ka Waqt)</h4>
-                <p className="text-[10.5px] text-text-body mt-0.5 font-sans">Sakoon ki neend aap ke dimaag ko fresh rakhti hai. Sleep well tonight! ({metrics.sleep} hours target)</p>
+                <h4 className="text-xs font-bold text-text-headline">Sleep Clock</h4>
+                <p className="text-[10.5px] text-text-body mt-0.5 font-sans">Restful sleep refreshes your brain and restores energy. Sleep well tonight! ({metrics.sleep} hours target)</p>
               </div>
             </div>
             <div className={`w-5 h-5 rounded border flex items-center justify-center transition shrink-0 ${
