@@ -169,6 +169,19 @@ body {
   padding: 0;
   line-height: 1.625; /* leading-relaxed */
   letter-spacing: -0.01em; /* crisp letter spacing */
+  /* Prevent browser bounce effects on mobile viewports */
+  overscroll-behavior-y: contain;
+}
+
+/* Safe-area Notch / Status-bar Padding Helpers */
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.pb-safe-nav {
+  padding-bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px));
 }
 
 .text-gradient-gold {

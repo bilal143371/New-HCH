@@ -11,7 +11,7 @@ import ReminderCenterView from './components/ReminderCenterView';
 import ThreeDLoadingScreen from './components/ThreeDLoadingScreen';
 import { UserProfile, UserMetrics, LoggedActivity, Exercise } from './types';
 import { calculatePersonalMetrics } from './utils/metrics';
-import { Sparkles, Key, LogIn, Lock, CheckCircle, ShieldAlert } from 'lucide-react';
+import { Sparkles, Key, LogIn, Lock, CheckCircle, ShieldAlert, Activity, Soup, Dumbbell, Brain, Settings, LogOut, Camera } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 export interface ReminderConfig {
@@ -585,131 +585,286 @@ export default function App() {
             onCancel={() => setIsOnboardingOpen(false)}
           />
         ) : profile && metrics ? (
-          <AnimatePresence mode="wait">
-            {currentTab === 'dashboard' && (
-              <motion.div
-                key="dashboard"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
-                transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+          <div className="max-w-7xl mx-auto px-4 md:px-8 py-6 w-full lg:grid lg:grid-cols-12 lg:gap-8">
+            
+            {/* Column 1: Left Sidebar Nav & Info (Desktop only) */}
+            <aside className="hidden lg:flex lg:col-span-3 flex-col space-y-6">
+              {/* Profile Card */}
+              <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm shadow-sky-500/[0.01]">
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="w-11 h-11 rounded-full bg-purple-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">
+                    {profile.name[0].toUpperCase()}
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-text-headline truncate max-w-[140px]" title={profile.name}>{profile.name}</h3>
+                    <span className="text-[10px] text-text-muted capitalize">{profile.gender}, {profile.age} yrs</span>
+                  </div>
+                </div>
+                
+                <div className="border-t border-slate-100 pt-3.5 space-y-2">
+                  <div className="flex justify-between text-[11px]">
+                    <span className="text-text-muted">Target Calories</span>
+                    <strong className="text-text-headline">{metrics.calories} kcal</strong>
+                  </div>
+                  <div className="flex justify-between text-[11px]">
+                    <span className="text-text-muted">Body Mass Index</span>
+                    <strong className="text-text-headline">{metrics.bmi} BMI</strong>
+                  </div>
+                  <div className="flex justify-between text-[11px]">
+                    <span className="text-text-muted">Category</span>
+                    <span className="text-purple-700 bg-purple-100/60 px-1.5 py-0.25 rounded text-[10px] font-bold">{metrics.bmiCategory}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Sidebar Navigation Menu */}
+              <nav className="bg-white border border-slate-100 rounded-3xl p-4 shadow-sm shadow-sky-500/[0.01] flex flex-col space-y-1">
+                {[
+                  { id: 'dashboard', label: 'Dashboard Hub', icon: <Activity className="w-4 h-4" /> },
+                  { id: 'meals', label: 'Nutrition & Diet', icon: <Soup className="w-4 h-4" /> },
+                  { id: 'exercises', label: 'Safe Fitness', icon: <Dumbbell className="w-4 h-4" /> },
+                  { id: 'mind', label: 'Supportive Mind', icon: <Brain className="w-4 h-4" /> },
+                  { id: 'settings', label: 'Settings & Ledger', icon: <Settings className="w-4 h-4" /> }
+                ].map((item) => {
+                  const isActive = currentTab === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => setCurrentTab(item.id)}
+                      className={`w-full flex items-center space-x-2.5 px-4 py-3 rounded-2xl text-xs font-bold transition duration-200 ${
+                        isActive
+                          ? 'bg-purple-600 text-white shadow-sm font-bold'
+                          : 'text-text-body hover:bg-slate-50 hover:text-text-headline'
+                      }`}
+                    >
+                      {item.icon}
+                      <span>{item.label}</span>
+                    </button>
+                  );
+                })}
+              </nav>
+
+              {/* Quick Logout Button */}
+              <button
+                onClick={handleLogout}
+                className="w-full py-3 bg-slate-100 hover:bg-red-50 text-text-muted hover:text-red-650 border border-slate-200/50 hover:border-red-200 rounded-2xl text-xs font-bold transition flex items-center justify-center space-x-2 shadow-sm"
               >
-                {sessionType === 'guest' && (
-                  <div className="max-w-6xl mx-auto px-4 md:px-8 mt-6">
-                    <div className="bg-purple-50 border border-purple-200/95 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm border-l-4 border-l-purple-500">
-                      <div className="flex items-center space-x-3 text-left">
-                        <div className="w-9 h-9 rounded-xl bg-purple-100 flex items-center justify-center border border-purple-200 shrink-0 text-purple-600">
-                          <ShieldAlert className="w-5 h-5 animate-pulse" />
-                        </div>
-                        <div>
-                          <strong className="text-xs font-bold text-text-headline block">
-                            Guest Session: 3 Days Remaining. Link Email to preserve data
-                          </strong>
-                          <span className="text-[10px] text-text-muted leading-relaxed">
-                            Your fitness logs, calories tracked, and progress milestones are stored on this device only. Please register to save them permanently.
-                          </span>
+                <LogOut className="w-4 h-4" />
+                <span>Sign Out Account</span>
+              </button>
+            </aside>
+
+            {/* Column 2: Center View Module Component (Scrollable/Flexible) */}
+            <div className="col-span-12 lg:col-span-6 space-y-6">
+              <AnimatePresence mode="wait">
+                {currentTab === 'dashboard' && (
+                  <motion.div
+                    key="dashboard"
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -15 }}
+                    transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                  >
+                    {sessionType === 'guest' && (
+                      <div className="mb-4">
+                        <div className="bg-purple-50 border border-purple-200/95 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm border-l-4 border-l-purple-500">
+                          <div className="flex items-center space-x-3 text-left">
+                            <div className="w-9 h-9 rounded-xl bg-purple-100 flex items-center justify-center border border-purple-200 shrink-0 text-purple-650">
+                              <ShieldAlert className="w-5 h-5 animate-pulse" />
+                            </div>
+                            <div>
+                              <strong className="text-xs font-bold text-text-headline block">
+                                Guest Session: 3 Days Remaining. Link Email to preserve data
+                              </strong>
+                              <span className="text-[10px] text-text-muted leading-relaxed">
+                                Your fitness logs, calories tracked, and progress milestones are stored on this device only. Please register to save them permanently.
+                              </span>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => setShowSignupUpgradeModal(true)}
+                            className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white text-[10px] font-extrabold rounded-xl shadow-sm transition active:scale-95 shrink-0 uppercase tracking-wider font-mono"
+                          >
+                            Register Free ✦
+                          </button>
                         </div>
                       </div>
-                      <button
-                        onClick={() => setShowSignupUpgradeModal(true)}
-                        className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white text-[10px] font-extrabold rounded-xl shadow-sm transition active:scale-95 shrink-0 uppercase tracking-wider font-mono"
-                      >
-                        Register Free ✦
-                      </button>
-                    </div>
-                  </div>
+                    )}
+                    <Dashboard
+                      profile={profile}
+                      metrics={metrics}
+                      onOpenOnboarding={handleStartOnboardingFlow}
+                      setCurrentTab={setCurrentTab}
+                      loggedCalories={loggedCalories}
+                      loggedProtein={loggedProtein}
+                      loggedWater={loggedWater}
+                      loggedSteps={loggedSteps}
+                      loggedSleep={loggedSleep}
+                      onUpdateLogs={handleUpdateLogs}
+                    />
+                  </motion.div>
                 )}
-                <Dashboard
-                  profile={profile}
-                  metrics={metrics}
-                  onOpenOnboarding={handleStartOnboardingFlow}
-                  setCurrentTab={setCurrentTab}
-                  loggedCalories={loggedCalories}
-                  loggedProtein={loggedProtein}
-                  loggedWater={loggedWater}
-                  loggedSteps={loggedSteps}
-                  loggedSleep={loggedSleep}
-                  onUpdateLogs={handleUpdateLogs}
-                />
-              </motion.div>
-            )}
-            {currentTab === 'meals' && (
-              <motion.div
-                key="meals"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
-                transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-              >
-                <MealPlanView
-                  profile={profile}
-                  metrics={metrics}
-                  onAddCalories={handleAddMealCalories}
-                />
-              </motion.div>
-            )}
-            {currentTab === 'exercises' && (
-              <motion.div
-                key="exercises"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
-                transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-              >
-                <ExerciseView
-                  profile={profile}
-                  onUpdateProfile={(updatedProfile: UserProfile) => {
-                    setProfile(updatedProfile);
-                    localStorage.setItem('user_profile', JSON.stringify(updatedProfile));
-                    // Re-calculate metrics to sync instantly
-                    const computed = calculatePersonalMetrics(updatedProfile);
-                    setMetrics(computed);
-                  }}
-                  activityLogs={activityLogs}
-                  setActivityLogs={setActivityLogs}
-                  onLogActivity={handleLogActivity}
-                />
-              </motion.div>
-            )}
-            {currentTab === 'mind' && (
-              <motion.div
-                key="mind"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
-                transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-              >
-                <SupportiveMindView
-                  profile={profile}
-                />
-              </motion.div>
-            )}
-            {currentTab === 'settings' && (
-              <motion.div
-                key="settings"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
-                transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-              >
-                <ReminderCenterView
-                  profile={profile}
-                  logs={activityLogs}
-                  onClearLogs={handleClearActivityHistory}
-                  onLogout={handleLogout}
-                  reminders={reminders}
-                  setReminders={setReminders}
-                  soundEnabled={soundEnabled}
-                  setSoundEnabled={setSoundEnabled}
-                  notificationPermission={notificationPermission}
-                  setNotificationPermission={setNotificationPermission}
-                  toasts={toasts}
-                  addToast={addToast}
-                  playChime={playChime}
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
+                {currentTab === 'meals' && (
+                  <motion.div
+                    key="meals"
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -15 }}
+                    transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                  >
+                    <MealPlanView
+                      profile={profile}
+                      metrics={metrics}
+                      onAddCalories={handleAddMealCalories}
+                    />
+                  </motion.div>
+                )}
+                {currentTab === 'exercises' && (
+                  <motion.div
+                    key="exercises"
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -15 }}
+                    transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                  >
+                    <ExerciseView
+                      profile={profile}
+                      onUpdateProfile={(updatedProfile: UserProfile) => {
+                        setProfile(updatedProfile);
+                        localStorage.setItem('user_profile', JSON.stringify(updatedProfile));
+                        const computed = calculatePersonalMetrics(updatedProfile);
+                        setMetrics(computed);
+                      }}
+                      activityLogs={activityLogs}
+                      setActivityLogs={setActivityLogs}
+                      onLogActivity={handleLogActivity}
+                    />
+                  </motion.div>
+                )}
+                {currentTab === 'mind' && (
+                  <motion.div
+                    key="mind"
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -15 }}
+                    transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                  >
+                    <SupportiveMindView
+                      profile={profile}
+                    />
+                  </motion.div>
+                )}
+                {currentTab === 'settings' && (
+                  <motion.div
+                    key="settings"
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -15 }}
+                    transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                  >
+                    <ReminderCenterView
+                      profile={profile}
+                      logs={activityLogs}
+                      onClearLogs={handleClearActivityHistory}
+                      onLogout={handleLogout}
+                      reminders={reminders}
+                      setReminders={setReminders}
+                      soundEnabled={soundEnabled}
+                      setSoundEnabled={setSoundEnabled}
+                      notificationPermission={notificationPermission}
+                      setNotificationPermission={setNotificationPermission}
+                      toasts={toasts}
+                      addToast={addToast}
+                      playChime={playChime}
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Column 3: Right Sidebar Summary (Desktop only) */}
+            <aside className="hidden lg:flex lg:col-span-3 flex-col space-y-6">
+              
+              {/* Mini AI Scan Simulator */}
+              <div className="bg-white border border-slate-100 rounded-3xl p-5 shadow-sm shadow-sky-500/[0.01] space-y-4">
+                <div className="flex justify-between items-center pb-2 border-b border-slate-100">
+                  <h4 className="text-xs font-extrabold text-text-headline flex items-center gap-1.5">
+                    <Camera className="w-4 h-4 text-purple-650" /> AI Food Scan Preview
+                  </h4>
+                  <button 
+                    onClick={() => setCurrentTab('meals')}
+                    className="text-[9px] font-mono text-purple-700 bg-purple-50 hover:bg-purple-100 px-2 py-0.5 rounded font-bold"
+                  >
+                    Open Tab
+                  </button>
+                </div>
+                <p className="text-[10px] text-text-muted leading-relaxed">
+                  Tap to scan our top localized dishes instantly:
+                </p>
+                <div className="grid grid-cols-2 gap-2 text-center text-[10px]">
+                  <button
+                    onClick={() => {
+                      setCurrentTab('meals');
+                      addToast("Opening AI Scanner", "Selected Moong Daal Soup scan placeholder. Complete the scanner simulation in the Diet view!", "info");
+                    }}
+                    className="p-2 border border-slate-100 hover:border-purple-300 rounded-xl bg-slate-50 text-left transition active:scale-95"
+                  >
+                    <strong className="block text-text-headline truncate">Moong Daal</strong>
+                    <span className="text-[8px] text-text-muted font-bold font-mono">320 kcal</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setCurrentTab('meals');
+                      addToast("Opening AI Scanner", "Selected Chicken Kebab scan placeholder. Complete the scanner simulation in the Diet view!", "info");
+                    }}
+                    className="p-2 border border-slate-100 hover:border-purple-300 rounded-xl bg-slate-50 text-left transition active:scale-95"
+                  >
+                    <strong className="block text-text-headline truncate">Chicken Kebab</strong>
+                    <span className="text-[8px] text-text-muted font-bold font-mono">410 kcal</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Respiratory Breathing Pacing preview widget */}
+              <div className="bg-white border border-slate-100 rounded-3xl p-5 shadow-sm shadow-sky-500/[0.01] space-y-4">
+                <div className="flex justify-between items-center pb-2 border-b border-slate-100">
+                  <h4 className="text-xs font-extrabold text-text-headline flex items-center gap-1.5">
+                    <Brain className="w-4 h-4 text-purple-650" /> Live Stress Pacer
+                  </h4>
+                  <button 
+                    onClick={() => setCurrentTab('mind')}
+                    className="text-[9px] font-mono text-purple-700 bg-purple-50 hover:bg-purple-100 px-2 py-0.5 rounded font-bold"
+                  >
+                    Breathe
+                  </button>
+                </div>
+                <div className="flex flex-col items-center justify-center p-4 bg-slate-50/50 rounded-2xl border border-slate-100 relative">
+                  {/* Pulsing breathing bubble mockup */}
+                  <div className="w-10 h-10 rounded-full bg-purple-500/10 border border-purple-500/35 flex items-center justify-center animate-pulse">
+                    <div className="w-6 h-6 rounded-full bg-purple-500/20"></div>
+                  </div>
+                  <span className="text-[9px] font-mono text-purple-700 font-bold mt-3">4s Inhale Pace</span>
+                </div>
+              </div>
+
+              {/* Member stories */}
+              <div className="bg-white border border-slate-100 rounded-3xl p-5 shadow-sm shadow-sky-500/[0.01] space-y-3 text-left">
+                <h4 className="text-xs font-extrabold text-text-headline uppercase tracking-widest font-mono text-purple-650">★ USER STORIES</h4>
+                <div className="space-y-2 text-[10px] text-text-body">
+                  <div className="p-3 border border-slate-100 bg-slate-50/30 rounded-2xl leading-normal italic font-serif">
+                    "Traditional Moong Daal Soup keeps my sugar stable during the busy afternoons."
+                    <span className="block text-[8px] font-mono text-text-muted mt-1.5 font-bold not-italic">— Bilal, Lahore</span>
+                  </div>
+                  <div className="p-3 border border-slate-100 bg-slate-50/30 rounded-2xl leading-normal italic font-serif">
+                    "Knee-safe squats are gentle on my joints and easy to do at home!"
+                    <span className="block text-[8px] font-mono text-text-muted mt-1.5 font-bold not-italic">— Amina, Karachi</span>
+                  </div>
+                </div>
+              </div>
+
+            </aside>
+
+          </div>
         ) : (
           <AnimatePresence mode="wait">
             <motion.div

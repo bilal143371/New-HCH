@@ -380,17 +380,16 @@ export default function Dashboard({
   const handleNextTip = () => {
     setTipIndex((prev) => (prev + 1) % HEALTH_TIPS.length);
   };
-
   return (
     <div className="w-full max-w-6xl mx-auto px-4 py-8 space-y-8 animate-fade-in text-left">
       
       {/* Top Welcome Title Banner */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-white/[0.06] pb-6">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-slate-100 pb-6">
         <div>
-          <h2 className="text-2xl md:text-3xl font-sans font-extrabold tracking-tight text-text-headline">
+          <h2 className="text-xl md:text-3xl font-sans font-extrabold tracking-tight text-text-headline">
             Daily Health Metrics
           </h2>
-          <p className="text-xs md:text-sm text-text-muted mt-1 font-mono">
+          <p className="text-xs text-text-muted mt-1 font-mono">
             {profile.name}'s {formattedGoalLabel} plan · {formattedActivityLabel} · {profile.age} yrs old
           </p>
         </div>
@@ -398,26 +397,116 @@ export default function Dashboard({
         <div className="flex space-x-2">
           <button
             onClick={handleClearTodayLogs}
-            className="flex items-center px-4 py-2 border border-white/[0.08] hover:border-red-400/20 bg-bg-card hover:bg-white/[0.02] text-xs text-text-muted hover:text-red-400 rounded-lg transition font-mono"
+            className="flex items-center px-4 py-2 border border-slate-200 hover:border-red-400/20 bg-white hover:bg-slate-50 text-[10px] text-text-muted hover:text-red-650 rounded-lg transition font-mono min-h-[48px]"
             title="Reset daily counts"
           >
             Reset Logs
           </button>
           <button
             onClick={onOpenOnboarding}
-            className="flex items-center px-4 py-2 btn-3d-purple text-xs font-bold rounded-lg active:scale-95 shadow-md font-sans"
+            className="flex items-center px-4 py-2 btn-3d-purple text-[10px] font-bold rounded-lg active:scale-95 shadow-sm font-sans min-h-[48px]"
           >
-            <RotateCcw className="w-3.5 h-3.5 mr-1.5 animate-spin-hover" /> Recalculate
+            <RotateCcw className="w-3 h-3 mr-1.5 animate-spin-hover" /> Recalculate
           </button>
+        </div>
+      </div>
+
+      {/* 📱 Mobile Stats Quick Ring Gauges (Visible on mobile/tablet only, < 1024px) */}
+      <div className="lg:hidden grid grid-cols-2 gap-4 bg-white border border-slate-100 p-5 rounded-3xl shadow-sm shadow-sky-500/[0.01]">
+        {/* Calorie Progress Ring */}
+        <div className="flex flex-col items-center justify-center space-y-2 border-r border-slate-100 pr-2">
+          <div className="relative w-24 h-24 flex items-center justify-center">
+            <svg className="w-full h-full transform -rotate-90">
+              <circle
+                cx="48"
+                cy="48"
+                r="38"
+                className="stroke-slate-100"
+                strokeWidth="7"
+                fill="transparent"
+              />
+              <circle
+                cx="48"
+                cy="48"
+                r="38"
+                className="stroke-purple-600 transition-all duration-1000 ease-out"
+                strokeWidth="7"
+                fill="transparent"
+                strokeDasharray="238.7"
+                strokeDashoffset={238.7 - (238.7 * Math.min(loggedCalories, metrics.calories)) / metrics.calories}
+                strokeLinecap="round"
+              />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <span className="text-xs font-mono font-extrabold text-text-headline">{Math.max(0, metrics.calories - loggedCalories)}</span>
+              <span className="text-[8px] text-text-muted font-bold uppercase tracking-wider font-mono">kcal left</span>
+            </div>
+          </div>
+          <div className="text-center">
+            <span className="text-[9px] text-text-muted font-bold uppercase tracking-wider block font-mono">Consumed</span>
+            <span className="text-[10px] font-bold text-text-headline font-mono">{loggedCalories} / {metrics.calories} kcal</span>
+          </div>
+        </div>
+
+        {/* Steps Progress Ring */}
+        <div className="flex flex-col items-center justify-center space-y-2 pl-2">
+          <div className="relative w-24 h-24 flex items-center justify-center">
+            <svg className="w-full h-full transform -rotate-90">
+              <circle
+                cx="48"
+                cy="48"
+                r="38"
+                className="stroke-slate-100"
+                strokeWidth="7"
+                fill="transparent"
+              />
+              <circle
+                cx="48"
+                cy="48"
+                r="38"
+                className="stroke-emerald-500 transition-all duration-1000 ease-out"
+                strokeWidth="7"
+                fill="transparent"
+                strokeDasharray="238.7"
+                strokeDashoffset={238.7 - (238.7 * Math.min(loggedSteps, metrics.steps)) / metrics.steps}
+                strokeLinecap="round"
+              />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <span className="text-xs font-mono font-extrabold text-text-headline">{loggedSteps.toLocaleString()}</span>
+              <span className="text-[8px] text-text-muted font-bold uppercase tracking-wider font-mono">steps</span>
+            </div>
+          </div>
+          <div className="text-center">
+            <span className="text-[9px] text-text-muted font-bold uppercase tracking-wider block font-mono">Target</span>
+            <span className="text-[10px] font-bold text-text-headline font-mono">{metrics.steps.toLocaleString()} steps</span>
+          </div>
+        </div>
+      </div>
+
+      {/* 📱 Mobile Horizontal Health Tips Slider (Visible on < 1024px) */}
+      <div className="lg:hidden space-y-2.5">
+        <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest font-mono block">Swipeable Health Tips:</span>
+        <div className="flex overflow-x-auto scroll-smooth snap-x snap-mandatory gap-4 pb-2.5 scrollbar-none">
+          {HEALTH_TIPS.map((tip, i) => (
+            <div key={i} className="min-w-[280px] max-w-[280px] snap-center p-5 bg-white border border-slate-100 rounded-3xl shadow-sm flex flex-col justify-between min-h-[160px] text-left">
+              <div>
+                <span className="text-[8px] font-mono font-bold text-purple-700 bg-purple-100/60 px-2 py-0.5 rounded-full uppercase tracking-wider">{tip.tag}</span>
+                <h4 className="text-xs font-bold text-text-headline mt-2.5">{tip.title}</h4>
+                <p className="text-[11px] text-text-body mt-1 leading-normal italic font-sans">"{tip.description}"</p>
+              </div>
+              <span className="text-[9px] text-emerald-600 font-bold block border-t border-slate-50 pt-2 mt-2">✓ Benefit: {tip.benefit}</span>
+            </div>
+          ))}
         </div>
       </div>
 
       {/* Warning/Guideline Badges depending on health conditions */}
       {profile.healthConditions.length > 0 && (
-        <div className="p-4 rounded-xl bg-gold-primary/5 border border-gold-primary/20 flex items-start space-x-3 text-left">
-          <AlertTriangle className="w-5 h-5 text-gold-primary shrink-0 mt-0.5" />
+        <div className="p-4 rounded-3xl bg-amber-50/60 border border-amber-200/60 flex items-start space-x-3 text-left">
+          <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
           <div>
-            <h4 className="text-xs font-bold text-gold-light">Health Guidelines Triggered</h4>
+            <h4 className="text-xs font-bold text-amber-800">Health Guidelines Triggered</h4>
             <p className="text-xs text-text-body mt-0.5 leading-relaxed font-sans">
               Your calorie caps, protein targets, steps floors, and exercises are personalized for: {profile.healthConditions.map(c => c.split('-').join(' ')).join(', ')}.
             </p>
