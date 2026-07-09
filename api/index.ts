@@ -191,7 +191,7 @@ STRICT OUTPUT CONSTRAINTS:
   while (attempts > 0) {
     try {
       const response = await ai.models.generateContent({
-        model: "gemini-3.5-flash",
+        model: "gemini-2.5-flash",
         contents: prompt,
         config: {
           systemInstruction: "You are an expert digital nutritionist for the Pakistani community. You write in simple English, keeping every sentence under 12 words, with zero medical jargon and zero Urdu script or Roman Urdu words.",
@@ -343,7 +343,7 @@ app.post("/api/supportive-mind-chat", async (req, res) => {
     while (attempts > 0) {
       try {
         const response = await ai.models.generateContent({
-          model: "gemini-3.5-flash",
+          model: "gemini-2.5-flash",
           contents: cleanContents,
           config: {
             systemInstruction,
