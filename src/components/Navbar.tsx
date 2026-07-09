@@ -159,17 +159,17 @@ export default function Navbar({
                 height: '34px',
                 borderRadius: radii.full,
                 background: colors.primary,
-                color: colors.white,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontFamily: fonts.heading,
-                fontWeight: 700,
-                fontSize: '0.8125rem',
                 boxShadow: shadows.card,
               }}
             >
-              {profile?.name ? profile.name[0].toUpperCase() : <Activity size={16} />}
+              <svg width="22" height="22" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M50 85C50 85 80 65 80 40C80 15 50 15 50 15C50 15 20 15 20 40C20 65 50 85 50 85Z" fill={colors.primary} stroke={colors.background} strokeWidth="8" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M28 45H40L46 25L54 65L60 41L64 45H72" stroke={colors.accent} strokeWidth="9" strokeLinecap="round" strokeLinejoin="round"/>
+                <circle cx="50" cy="15" r="7" fill={colors.success} />
+              </svg>
             </div>
             <div>
               <h1
