@@ -567,7 +567,6 @@ export default function MealPlanView({
           {[
             { id: '7day', label: 'Weekly Meals', icon: Calendar },
             { id: 'lookup', label: 'Search Foods', icon: Search },
-            { id: 'photo', label: 'Snap Photo', icon: Camera },
             { id: 'ramadan', label: 'Fasting Helper', icon: Moon },
             { id: 'compare', label: 'Compare', icon: ArrowLeftRight },
           ].map((tab) => {
@@ -608,7 +607,6 @@ export default function MealPlanView({
             Tools:
           </span>
           {[
-            { id: 'cooking', label: 'Cooking Tips', icon: BookOpen },
             { id: 'favorites', label: 'Favourites', icon: Heart },
           ].map((tab) => {
             const Icon = tab.icon;
@@ -662,56 +660,7 @@ export default function MealPlanView({
         </div>
       )}
 
-      {/* ═══════════════════════════════════════════════════════
-          A. COOKING TIPS (Secondary Tab)
-         ═══════════════════════════════════════════════════════ */}
-      {secondaryTab === 'cooking' && (
-        <div className="hch-animate-in" style={{ display: 'flex', flexDirection: 'column', gap: spacing[16] }}>
-          <div>
-            <h3 style={{ fontFamily: fonts.heading, fontSize: fontSizes.lg, fontWeight: 700, color: colors.text, margin: 0, display: 'flex', alignItems: 'center', gap: spacing[8] }}>
-              <BookOpen size={20} color={colors.primary} /> Simple Cooking Guide
-            </h3>
-            <p style={{ fontFamily: fonts.body, fontSize: fontSizes.sm, color: colors.muted, lineHeight: 1.6, marginTop: spacing[4] }}>
-              Traditional recipes, simplified for healthy cooking. Each step is under 12 words — no culinary experience needed! 🧑‍🍳
-            </p>
-          </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: spacing[16] }}>
-            {RECIPES.map((recipe, idx) => (
-              <div key={idx} style={{ ...sectionCard, display: 'flex', flexDirection: 'column', gap: spacing[16] }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <div>
-                    <h4 style={{ fontFamily: fonts.heading, fontSize: fontSizes.base, fontWeight: 700, color: colors.text, margin: 0 }}>{recipe.title}</h4>
-                    <span style={{ fontFamily: fonts.body, fontSize: '0.6875rem', color: colors.accent, fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', marginTop: '4px' }}>
-                      <Clock size={11} /> {recipe.time}
-                    </span>
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <span style={{ fontFamily: fonts.heading, fontSize: fontSizes.sm, fontWeight: 700, color: colors.text, display: 'block' }}>{recipe.calories}</span>
-                    <span style={{ fontSize: '0.6875rem', color: colors.muted }}>Protein: {recipe.protein}</span>
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[8] }}>
-                  <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: colors.muted, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Ingredients</span>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                    {recipe.ingredients.map((ing, i) => (
-                      <span key={i} style={{ fontSize: '0.6875rem', background: colors.background, padding: '4px 10px', borderRadius: '8px', color: colors.text }}>{ing}</span>
-                    ))}
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[4] }}>
-                  <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: colors.muted, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Steps</span>
-                  <ol style={{ margin: 0, paddingLeft: '16px', fontSize: fontSizes.xs, color: colors.text, lineHeight: 1.7 }}>
-                    {recipe.steps.map((step, sIdx) => (<li key={sIdx}>{step}</li>))}
-                  </ol>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* ═══════════════════════════════════════════════════════
           B. FAVOURITES (Secondary Tab)
@@ -1220,139 +1169,7 @@ export default function MealPlanView({
         </div>
       )}
 
-      {/* ═══════════════════════════════════════════════════════
-          E. SNAP PHOTO — AI Food Scanner
-         ═══════════════════════════════════════════════════════ */}
-      {activeTab === 'photo' && !secondaryTab && (
-        <div className="hch-animate-in" style={{ display: 'flex', flexDirection: 'column', gap: spacing[16] }}>
-          <div>
-            <h3 style={{ fontFamily: fonts.heading, fontSize: fontSizes.lg, fontWeight: 700, color: colors.text, margin: 0, display: 'flex', alignItems: 'center', gap: spacing[8] }}>
-              <Camera size={20} color={colors.primary} /> AI Food Scanner
-            </h3>
-            <p style={{ fontFamily: fonts.body, fontSize: fontSizes.sm, color: colors.muted, lineHeight: 1.6, marginTop: spacing[4] }}>
-              Tap a meal card to scan it. Our AI estimates nutrition in seconds! 📸
-            </p>
-          </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: spacing[16] }}>
-            {/* Scanner screen */}
-            <div style={{ ...sectionCard, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '280px' }}>
-              <div style={{ width: '100%', height: '180px', background: colors.background, borderRadius: '12px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
-                {scanningPhoto ? (
-                  <>
-                    <div style={{ position: 'absolute', inset: 0, background: `${colors.primary}08` }} />
-                    <div style={{ textAlign: 'center' }}>
-                      <div style={{ width: '36px', height: '36px', borderRadius: '50%', border: `3px solid ${colors.success}30`, borderTop: `3px solid ${colors.primary}`, animation: 'hch-fade-up 0.5s ease-out', margin: '0 auto 12px' }} />
-                      <span style={{ fontSize: fontSizes.xs, fontWeight: 700, color: colors.primary }}>Analysing food…</span>
-                    </div>
-                  </>
-                ) : scannedResult ? (
-                  <div style={{ textAlign: 'center', padding: spacing[16] }}>
-                    <CheckCircle size={28} style={{ color: colors.primary, marginBottom: spacing[8] }} />
-                    <span style={{ display: 'block', fontSize: fontSizes.xs, fontWeight: 700, color: colors.primary, background: `${colors.primary}10`, padding: '3px 10px', borderRadius: '6px', marginBottom: spacing[4] }}>Analysis Complete</span>
-                    <strong style={{ fontFamily: fonts.heading, fontSize: fontSizes.sm, color: colors.text, display: 'block' }}>{scannedResult.name}</strong>
-                    <span style={{ fontSize: fontSizes.xs, fontWeight: 700, color: colors.accent }}>{scannedResult.calories} kcal</span>
-                  </div>
-                ) : (
-                  <div style={{ textAlign: 'center', padding: spacing[16] }}>
-                    <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: `${colors.success}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
-                      <Camera size={24} style={{ color: colors.muted }} />
-                    </div>
-                    <h4 style={{ fontSize: fontSizes.sm, fontWeight: 700, color: colors.text, margin: 0 }}>No meal selected</h4>
-                    <p style={{ fontSize: fontSizes.xs, color: colors.muted, marginTop: '4px' }}>Tap a food card to start scanning</p>
-                  </div>
-                )}
-              </div>
-              <div style={{ borderTop: `1px solid ${colors.success}15`, paddingTop: spacing[12], marginTop: spacing[12], textAlign: 'center', fontSize: fontSizes.xs, color: colors.muted }}>
-                {scanningPhoto ? <span style={{ color: colors.primary, fontWeight: 600 }}>Processing image…</span> : scannedResult ? <span style={{ color: colors.primary, fontWeight: 600 }}>✓ Values logged!</span> : 'Select a meal to scan'}
-              </div>
-            </div>
-
-            {/* Food placeholders */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[12] }}>
-              <span style={{ fontSize: fontSizes.xs, fontWeight: 700, color: colors.muted, letterSpacing: '0.03em' }}>Tap to scan:</span>
-              {[
-                { key: "lentil", name: "Lentil Soup", fullName: "Traditional Moong Daal Soup + Garden Kachi Salad", calories: 320, protein: 14, carbs: 42, fat: 6, notes: "Rich in soluble fibers and plant protein. Very low oil impact." },
-                { key: "oats", name: "Oats & Fruits", fullName: "Multigrain Oats with Apples and Honey", calories: 290, protein: 9, carbs: 54, fat: 4, notes: "High in oat beta-glucan fiber which helps stabilize morning blood sugar levels." },
-                { key: "chicken", name: "Tandoori Chicken", fullName: "Grilled Skinless Chicken Kebab Salad", calories: 410, protein: 32, carbs: 18, fat: 12, notes: "High protein, moderate fat. Excellent muscle conditioning meal." },
-              ].map((demo) => {
-                const isSelected = scannedResult?.name === demo.fullName;
-                return (
-                  <button
-                    key={demo.key}
-                    onClick={() => {
-                      setScanningPhoto(true);
-                      setScannedResult(null);
-                      setTimeout(() => {
-                        setScanningPhoto(false);
-                        setScannedResult({ name: demo.fullName, calories: demo.calories, protein: demo.protein, carbs: demo.carbs, fat: demo.fat, notes: demo.notes });
-                      }, 1800);
-                    }}
-                    disabled={scanningPhoto}
-                    style={{
-                      width: '100%', padding: spacing[16], borderRadius: radii.card,
-                      border: isSelected ? `2px solid ${colors.primary}` : `1.5px solid ${colors.success}30`,
-                      background: isSelected ? `${colors.primary}05` : colors.white,
-                      textAlign: 'left', cursor: scanningPhoto ? 'not-allowed' : 'pointer',
-                      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                      transition: 'all 0.25s ease', fontFamily: fonts.body,
-                    }}
-                  >
-                    <div>
-                      <h4 style={{ fontSize: fontSizes.sm, fontWeight: 700, color: colors.text, margin: 0, display: 'flex', alignItems: 'center', gap: spacing[8] }}>
-                        {demo.name}
-                        <span style={{ fontSize: '0.5625rem', fontWeight: 700, background: `${colors.accent}12`, color: colors.accent, padding: '2px 8px', borderRadius: '6px' }}>{demo.calories} kcal</span>
-                      </h4>
-                      <p style={{ fontSize: fontSizes.xs, color: colors.muted, marginTop: '4px' }}>{demo.fullName}</p>
-                      <span style={{ fontSize: '0.625rem', color: colors.muted }}>P: {demo.protein}g · C: {demo.carbs}g · F: {demo.fat}g</span>
-                    </div>
-                    <ChevronRight size={16} style={{ color: colors.muted, flexShrink: 0 }} />
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Scan results */}
-          {scannedResult && !scanningPhoto && (
-            <div className="hch-animate-in" style={{ ...sectionCard, display: 'flex', flexDirection: 'column', gap: spacing[16] }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: `1px solid ${colors.success}15`, paddingBottom: spacing[12] }}>
-                <div>
-                  <span style={{ fontSize: '0.5625rem', fontWeight: 700, background: `${colors.primary}10`, color: colors.primary, padding: '3px 8px', borderRadius: '6px' }}>Analysis Confirmed</span>
-                  <h4 style={{ fontFamily: fonts.heading, fontSize: fontSizes.base, fontWeight: 700, color: colors.text, marginTop: spacing[8] }}>{scannedResult.name}</h4>
-                </div>
-                <span style={{ fontFamily: fonts.heading, fontSize: fontSizes.lg, fontWeight: 700, color: colors.accent }}>{scannedResult.calories} kcal</span>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: spacing[8] }}>
-                {[
-                  { label: 'Protein', value: `${scannedResult.protein}g` },
-                  { label: 'Carbs', value: `${scannedResult.carbs}g` },
-                  { label: 'Fats', value: `${scannedResult.fat}g` },
-                ].map((m) => (
-                  <div key={m.label} style={{ textAlign: 'center', padding: spacing[12], background: colors.background, borderRadius: '12px' }}>
-                    <span style={{ fontSize: '0.625rem', color: colors.muted, textTransform: 'uppercase', letterSpacing: '0.04em', display: 'block' }}>{m.label}</span>
-                    <span style={{ fontFamily: fonts.heading, fontSize: fontSizes.sm, fontWeight: 700, color: colors.text, display: 'block', marginTop: '4px' }}>{m.value}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: spacing[8], background: colors.background, padding: spacing[12], borderRadius: '12px' }}>
-                <Info size={14} style={{ color: colors.primary, marginTop: '2px', flexShrink: 0 }} />
-                <p style={{ fontSize: fontSizes.xs, color: colors.text, lineHeight: 1.6, margin: 0 }}>{scannedResult.notes}</p>
-              </div>
-
-              <button
-                onClick={() => handleLogMealCalories(scannedResult.name, scannedResult.calories, scannedResult.protein)}
-                className="hch-btn hch-btn--primary"
-                style={{ width: '100%' }}
-              >
-                <Flame size={14} /> Log to Daily Totals
-              </button>
-            </div>
-          )}
-        </div>
-      )}
 
       {/* ═══════════════════════════════════════════════════════
           F. RAMADAN HEALTH HELPER
