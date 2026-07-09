@@ -38,6 +38,7 @@ export interface Exercise {
   timerSeconds?: number;
   highImpact?: boolean;
   isHeavyLift?: boolean;
+  image: string;
 }
 
 export interface ExerciseLog {

@@ -706,7 +706,7 @@ export default function ExerciseView({
         }}
       >
         <img
-          src="/fitness_workout.png"
+          src="/exercise_page_hero.png"
           alt="Fitness workout banner"
           style={{
             position: 'absolute',
@@ -1090,27 +1090,7 @@ export default function ExerciseView({
                               const isBreathingForAsthma = profile.healthConditions.includes('asthma') && ex.category === 'breathing';
 
                               // Unique Card Image Mapping
-                              let cardImg = '/mental_relaxation.png';
-                              if (ex.id === 'b1') cardImg = mediaMap.ex_wall_squat;
-                              else if (ex.id === 'b2') cardImg = mediaMap.ex_glute_bridge;
-                              else if (ex.id === 'b3') cardImg = mediaMap.ex_calf_raise;
-                              else if (ex.id === 'b4') cardImg = mediaMap.ex_arm_raise;
-                              else if (ex.id === 'b5') cardImg = mediaMap.ex_wall_pushup;
-                              else if (ex.id === 'b6') cardImg = mediaMap.ex_pushup;
-                              else if (ex.id === 'b7') cardImg = mediaMap.ex_cat_cow;
-                              else if (ex.id === 'b8') cardImg = mediaMap.ex_bird_dog;
-                              else if (ex.id === 'b9') cardImg = mediaMap.ex_dead_bug;
-                              else if (ex.id === 'b10') cardImg = mediaMap.ex_plank;
-                              else if (ex.id === 'm1') cardImg = mediaMap.ex_mind_breathing;
-                              else if (ex.id === 'm2') cardImg = mediaMap.ex_mind_meditation;
-                              else if (ex.id === 'm3') cardImg = mediaMap.ex_mind_sleep;
-                              else if (ex.id === 'm4') cardImg = mediaMap.ex_mind_stress;
-                              else if (ex.id === 'm5') cardImg = mediaMap.ex_mind_energy;
-                              else if (ex.category === 'legs') cardImg = mediaMap.ex_wall_squat;
-                              else if (ex.category === 'core') cardImg = mediaMap.ex_plank;
-                              else if (ex.category === 'chest') cardImg = mediaMap.ex_pushup;
-                              else if (ex.category === 'arms') cardImg = mediaMap.ex_arm_raise;
-                              else if (ex.category === 'back') cardImg = mediaMap.ex_bird_dog;
+                              let cardImg = ex.image;
 
                               return (
                                 <div
@@ -1332,6 +1312,9 @@ export default function ExerciseView({
                                   : 'border-white/[0.04] bg-bg-surface hover:border-white/10 text-text-muted hover:text-text-headline'
                               }`}
                             >
+                              <div style={{ width: '100%', height: '60px', borderRadius: '8px', overflow: 'hidden', marginBottom: '8px' }}>
+                                <img src={preset.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              </div>
                               <div className="flex justify-between items-center mb-1">
                                 <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase font-mono tracking-wide ${
                                   selectedExercisePresetId === preset.id

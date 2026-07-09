@@ -16,6 +16,7 @@ export interface StaticExercisePlanVariation {
   name: string;
   description: string;
   tag: string;
+  image: string;
   days: StaticExerciseDay[];
 }
 
@@ -39,7 +40,8 @@ export const EXERCISES: Exercise[] = [
     hasTimer: true,
     timerSeconds: 15,
     highImpact: false,
-    isHeavyLift: false
+    isHeavyLift: false,
+    image: '/exercise_wall_squats.png'
   },
   {
     id: 'b2',
@@ -56,7 +58,8 @@ export const EXERCISES: Exercise[] = [
       'Slowly lower your hips back down.'
     ],
     highImpact: false,
-    isHeavyLift: false
+    isHeavyLift: false,
+    image: '/exercise_glute_bridges.png'
   },
   {
     id: 'b3',
@@ -73,7 +76,8 @@ export const EXERCISES: Exercise[] = [
       'Lower your heels back to the ground.'
     ],
     highImpact: false,
-    isHeavyLift: false
+    isHeavyLift: false,
+    image: '/exercise_calf_raises.png'
   },
   {
     id: 'b4',
@@ -92,7 +96,8 @@ export const EXERCISES: Exercise[] = [
     hasTimer: true,
     timerSeconds: 30,
     highImpact: false,
-    isHeavyLift: false
+    isHeavyLift: false,
+    image: '/exercise_arm_circles.png'
   },
   {
     id: 'b5',
@@ -109,7 +114,8 @@ export const EXERCISES: Exercise[] = [
       'Push back to the starting position.'
     ],
     highImpact: false,
-    isHeavyLift: false
+    isHeavyLift: false,
+    image: '/exercise_wall_pushups.png'
   },
   {
     id: 'b6',
@@ -126,7 +132,8 @@ export const EXERCISES: Exercise[] = [
       'Push your body back up to start.'
     ],
     highImpact: false,
-    isHeavyLift: true
+    isHeavyLift: true,
+    image: '/exercise_standard_pushups.png'
   },
   {
     id: 'b7',
@@ -143,7 +150,8 @@ export const EXERCISES: Exercise[] = [
       'Move slowly with your breathing.'
     ],
     highImpact: false,
-    isHeavyLift: false
+    isHeavyLift: false,
+    image: '/exercise_cat_cow.png'
   },
   {
     id: 'b8',
@@ -160,7 +168,8 @@ export const EXERCISES: Exercise[] = [
       'Return to start and repeat with opposite side.'
     ],
     highImpact: false,
-    isHeavyLift: false
+    isHeavyLift: false,
+    image: '/exercise_bird_dog.png'
   },
   {
     id: 'b9',
@@ -177,7 +186,8 @@ export const EXERCISES: Exercise[] = [
       'Return to start and repeat with other side.'
     ],
     highImpact: false,
-    isHeavyLift: false
+    isHeavyLift: false,
+    image: '/exercise_dead_bug.png'
   },
   {
     id: 'b10',
@@ -196,7 +206,8 @@ export const EXERCISES: Exercise[] = [
     hasTimer: true,
     timerSeconds: 30,
     highImpact: false,
-    isHeavyLift: false
+    isHeavyLift: false,
+    image: '/exercise_plank.png'
   },
   {
     id: 'b11',
@@ -215,7 +226,8 @@ export const EXERCISES: Exercise[] = [
     hasTimer: true,
     timerSeconds: 30,
     highImpact: true,
-    isHeavyLift: false
+    isHeavyLift: false,
+    image: '/exercise_high_knees.png'
   },
   {
     id: 'b12',
@@ -232,7 +244,8 @@ export const EXERCISES: Exercise[] = [
       'Land softly and bend knees straight into next squat.'
     ],
     highImpact: true,
-    isHeavyLift: false
+    isHeavyLift: false,
+    image: '/exercise_jump_squats.png'
   },
   {
     id: 'b13',
@@ -249,7 +262,8 @@ export const EXERCISES: Exercise[] = [
       'Jump up explosively with arms overhead.'
     ],
     highImpact: true,
-    isHeavyLift: false
+    isHeavyLift: false,
+    image: '/exercise_burpees.png'
   },
 
   // MIND & RELAXATION (MENTAL)
@@ -270,7 +284,8 @@ export const EXERCISES: Exercise[] = [
     hasTimer: true,
     timerSeconds: 19,
     highImpact: false,
-    isHeavyLift: false
+    isHeavyLift: false,
+    image: '/mental_relaxation.png'
   },
   {
     id: 'm2',
@@ -290,7 +305,8 @@ export const EXERCISES: Exercise[] = [
     hasTimer: true,
     timerSeconds: 16,
     highImpact: false,
-    isHeavyLift: false
+    isHeavyLift: false,
+    image: '/quick_action_coach.png'
   },
   {
     id: 'm3',
@@ -309,7 +325,8 @@ export const EXERCISES: Exercise[] = [
     hasTimer: true,
     timerSeconds: 300,
     highImpact: false,
-    isHeavyLift: false
+    isHeavyLift: false,
+    image: '/male_meal_prep.png'
   },
   {
     id: 'm4',
@@ -328,7 +345,8 @@ export const EXERCISES: Exercise[] = [
     hasTimer: true,
     timerSeconds: 180,
     highImpact: false,
-    isHeavyLift: false
+    isHeavyLift: false,
+    image: '/fitness_workout.png'
   },
   {
     id: 'm5',
@@ -347,7 +365,8 @@ export const EXERCISES: Exercise[] = [
     hasTimer: true,
     timerSeconds: 300,
     highImpact: false,
-    isHeavyLift: false
+    isHeavyLift: false,
+    image: '/quick_action_workout.png'
   },
   {
     id: 'm6',
@@ -366,7 +385,8 @@ export const EXERCISES: Exercise[] = [
     hasTimer: true,
     timerSeconds: 120,
     highImpact: false,
-    isHeavyLift: false
+    isHeavyLift: false,
+    image: '/mental_relaxation.png'
   }
 ];
 
@@ -377,32 +397,33 @@ export const EXERCISE_PLAN_VARIATIONS: StaticExercisePlanVariation[] = [
     name: 'Fat Burn & Cardio Stamina',
     description: 'A higher energy routine focusing on stamina, caloric burn, and steady-state cardiovascular endurance.',
     tag: 'Stamina',
+    image: '/plan_fat_burn.png',
     days: [
       {
         day: 1,
         title: 'Calorie Burn Starter',
         description: 'Brisk cardio activity combined with functional lower body squat conditioning.',
-        exercises: ['Wall Squats', 'Calf Raises'],
-        category: 'legs',
+        exercises: ['High Knees', 'Wall Squats', 'Standard Push-Ups'],
+        category: 'full-body',
         sphere: 'physical',
         duration: '15 mins',
         completed: false
       },
       {
         day: 2,
-        title: 'Core & Upper Body Activation',
-        description: 'Establish core stability and build upper chest endurance with dynamic planking.',
-        exercises: ['Standard Push-Ups', 'Plank Hold'],
-        category: 'chest',
+        title: 'Core & Upper Body Flow',
+        description: 'Tighten stomach core muscles and build arm stamina without heavy lifts.',
+        exercises: ['Plank Hold', 'Arm Circles', 'Wall Push-Ups'],
+        category: 'core',
         sphere: 'physical',
         duration: '12 mins',
         completed: false
       },
       {
         day: 3,
-        title: 'Anxiety-Relief Breathwork',
-        description: 'Deep breathing to stabilize blood pressure and oxygenate muscle fibers.',
-        exercises: ['Deep Belly Breathing', 'Box Breathing'],
+        title: 'Mid-Week Mental Recover',
+        description: 'Guided breath intervals to lower arterial pulse rate and soothe central nervous systems.',
+        exercises: ['4-7-8 Deep Breathing Exercise', 'Mindful Body Scan'],
         category: 'breathing',
         sphere: 'mental',
         duration: '10 mins',
@@ -410,97 +431,98 @@ export const EXERCISE_PLAN_VARIATIONS: StaticExercisePlanVariation[] = [
       },
       {
         day: 4,
-        title: 'Spine Support & Posture',
-        description: 'Stretch the back muscles to correct alignment after long periods of sitting.',
-        exercises: ['Cat-Cow Stretch', 'Bird-Dog Hold'],
-        category: 'back',
-        sphere: 'physical',
-        duration: '12 mins',
-        completed: false
-      },
-      {
-        day: 5,
-        title: 'Mindfulness & Cognitive Reset',
-        description: 'Soothe nerves and reset cognitive focus with guided meditation.',
-        exercises: ['Mindfulness Meditation', 'Calming Ocean Sounds'],
-        category: 'meditation',
-        sphere: 'mental',
-        duration: '15 mins',
-        completed: false
-      },
-      {
-        day: 6,
-        title: 'Full Body Endurance Burn',
-        description: 'A fast-paced bodyweight circuit to maximize post-workout caloric afterburn.',
-        exercises: ['Standard Push-Ups', 'Glute Bridges'],
-        category: 'full-body',
+        title: 'Explosive Lower Power',
+        description: 'A high-impact functional legs and back day to challenge cardiovascular bounds.',
+        exercises: ['Jump Squats', 'Calf Raises', 'Gentle Cat-Cow Stretch'],
+        category: 'legs',
         sphere: 'physical',
         duration: '18 mins',
         completed: false
       },
       {
+        day: 5,
+        title: 'Full Body Stamina Burner',
+        description: 'Unleash intense cellular fat combustion with continuous bodyweight intervals.',
+        exercises: ['Burpees', 'Dead Bug Core Press', 'Quick Energy Charger'],
+        category: 'full-body',
+        sphere: 'physical',
+        duration: '20 mins',
+        completed: false
+      },
+      {
+        day: 6,
+        title: 'Spinal Relief & Mobility',
+        description: 'Support joint wellness with low-stiff posture stabilizers and slow stretches.',
+        exercises: ['Bird-Dog Stability', 'Gentle Cat-Cow Stretch', 'Glute Bridges'],
+        category: 'back',
+        sphere: 'physical',
+        duration: '15 mins',
+        completed: false
+      },
+      {
         day: 7,
-        title: 'Deep Rest & Sleep Prep',
-        description: 'Prepare the body for overnight cell repairs and deep REM cycles.',
-        exercises: ['Deep Sleep Meditation', 'Progressive Muscle Relaxation'],
+        title: 'Deep Restful Sleep Wind-down',
+        description: 'Prepare sleep pathways to welcome nighttime growth hormone synthesis.',
+        exercises: ['Evening Sleep Prep Meditation', 'Gratitude Reflection'],
         category: 'sleep',
         sphere: 'mental',
-        duration: '20 mins',
+        duration: '10 mins',
         completed: false
       }
     ]
   },
   {
     id: 'strength-lean-muscle',
-    name: 'Strength & Lean Muscle (Hypertrophy)',
-    description: 'Focuses on progressive bodyweight loading, muscle activation, and core isometric holds.',
+    name: 'Strength & Lean Muscle / Hypertrophy',
+    description: 'Targeted resistance training utilizing bodyweight leverage to build muscle density and bone mineral strength.',
     tag: 'Strength',
+    image: '/plan_strength_muscle.png',
     days: [
       {
         day: 1,
-        title: 'Lower Body Strength Builder',
-        description: 'High-tension holds for leg, quad, and hamstring development.',
-        exercises: ['Wall Squats', 'Glute Bridges'],
-        category: 'legs',
-        sphere: 'physical',
-        duration: '18 mins',
-        completed: false
-      },
-      {
-        day: 2,
-        title: 'Chest & Core Solidification',
-        description: 'Target pectorals and abdominal walls using controlled repetitions.',
-        exercises: ['Standard Push-Ups', 'Plank Hold'],
+        title: 'Chest & Arm Power Builder',
+        description: 'Build robust chest muscles and shoulder stability through pure pushing density.',
+        exercises: ['Standard Push-Ups', 'Wall Push-Ups', 'Arm Circles'],
         category: 'chest',
         sphere: 'physical',
         duration: '15 mins',
         completed: false
       },
       {
+        day: 2,
+        title: 'Lower Chain Hypertrophy',
+        description: 'High-tension squat reps to safely fatigue leg quadriceps and glutes.',
+        exercises: ['Wall Squats', 'Glute Bridges', 'Calf Raises'],
+        category: 'legs',
+        sphere: 'physical',
+        duration: '18 mins',
+        completed: false
+      },
+      {
         day: 3,
-        title: 'Vagus Nerve Breath Regulation',
-        description: 'Activate the parasympathetic nervous system to accelerate tissue repair.',
-        exercises: ['Box Breathing', 'Alternate Nostril Breathing'],
-        category: 'breathing',
-        sphere: 'mental',
-        duration: '10 mins',
+        title: 'Deep Posture Safeguards',
+        description: 'Stretch lower-back structures and strengthen core columns to improve posture.',
+        exercises: ['Bird-Dog Stability', 'Plank Hold', 'Dead Bug Core Press'],
+        category: 'back',
+        sphere: 'physical',
+        duration: '15 mins',
         completed: false
       },
       {
         day: 4,
-        title: 'Posterior Chain Strengthening',
-        description: 'Strengthen erector spinae and shoulder stabilizing muscles.',
-        exercises: ['Bird-Dog Hold', 'Cat-Cow Stretch'],
-        category: 'back',
-        sphere: 'physical',
-        duration: '14 mins',
+        title: 'Stress Relief & Cortisol Control',
+        description: 'Deep breathing to purge systemic metabolic stress and optimize recovery.',
+        exercises: ['Box Breathing technique', 'Gratitude Reflection'],
+        category: 'stress',
+        sphere: 'mental',
+        duration: '10 mins',
         completed: false
       },
       {
         day: 5,
         title: 'Deep Focus & Visualization',
         description: 'Mental rehearsals to improve neuromuscular coordination and mind-muscle connection.',
-        exercises: ['Mindfulness Meditation', 'Stress Release Scan'],
+        exercises: ['Mindful Body Scan', 'Quick Energy Charger'],
         category: 'meditation',
         sphere: 'mental',
         duration: '15 mins',
@@ -520,7 +542,7 @@ export const EXERCISE_PLAN_VARIATIONS: StaticExercisePlanVariation[] = [
         day: 7,
         title: 'Systemic Relaxation & Recover',
         description: 'Systematic muscular scanning to reduce tension and release micro-spasms.',
-        exercises: ['Progressive Muscle Relaxation', 'Calming Ocean Sounds'],
+        exercises: ['Evening Sleep Prep Meditation', 'Mindful Body Scan'],
         category: 'sleep',
         sphere: 'mental',
         duration: '20 mins',
@@ -533,6 +555,7 @@ export const EXERCISE_PLAN_VARIATIONS: StaticExercisePlanVariation[] = [
     name: 'Gentle Low-Impact & Joint-Friendly',
     description: 'Perfect for beginners, seniors, or those recovering from knee/joint stiffness or heart conditions.',
     tag: 'Low Impact',
+    image: '/plan_joint_friendly.png',
     days: [
       {
         day: 1,
@@ -558,7 +581,7 @@ export const EXERCISE_PLAN_VARIATIONS: StaticExercisePlanVariation[] = [
         day: 3,
         title: 'Stress-Relief Deep Breathing',
         description: 'Soothe the airways and support blood pressure control through deep belly breathing.',
-        exercises: ['Deep Belly Breathing', 'Box Breathing'],
+        exercises: ['4-7-8 Deep Breathing Exercise', 'Box Breathing technique'],
         category: 'breathing',
         sphere: 'mental',
         duration: '12 mins',
@@ -568,7 +591,7 @@ export const EXERCISE_PLAN_VARIATIONS: StaticExercisePlanVariation[] = [
         day: 4,
         title: 'Spinal Decompression & Flex',
         description: 'Gentle, non-strenuous stretches to loosen lumbar and dorsal spinal muscles.',
-        exercises: ['Cat-Cow Stretch', 'Bird-Dog Hold'],
+        exercises: ['Gentle Cat-Cow Stretch', 'Bird-Dog Stability'],
         category: 'back',
         sphere: 'physical',
         duration: '12 mins',
@@ -578,7 +601,7 @@ export const EXERCISE_PLAN_VARIATIONS: StaticExercisePlanVariation[] = [
         day: 5,
         title: 'Somatic Mindfulness Check-In',
         description: 'Observe somatic signals and release chronic physical anxiety.',
-        exercises: ['Mindfulness Meditation', 'Calming Ocean Sounds'],
+        exercises: ['Mindful Body Scan', 'Gratitude Reflection'],
         category: 'meditation',
         sphere: 'mental',
         duration: '15 mins',
@@ -588,7 +611,7 @@ export const EXERCISE_PLAN_VARIATIONS: StaticExercisePlanVariation[] = [
         day: 6,
         title: 'Core & Glutes Alignment',
         description: 'Safe, lying floor exercises to strengthen glutes without loading knee joints.',
-        exercises: ['Glute Bridges', 'Bird-Dog Hold'],
+        exercises: ['Glute Bridges', 'Bird-Dog Stability'],
         category: 'full-body',
         sphere: 'physical',
         duration: '12 mins',
@@ -598,7 +621,7 @@ export const EXERCISE_PLAN_VARIATIONS: StaticExercisePlanVariation[] = [
         day: 7,
         title: 'Nervous System Soother',
         description: 'Slow down cardiac pace and transition safely into a night of peaceful rest.',
-        exercises: ['Deep Sleep Meditation', 'Progressive Muscle Relaxation'],
+        exercises: ['Evening Sleep Prep Meditation', 'Mindful Body Scan'],
         category: 'sleep',
         sphere: 'mental',
         duration: '15 mins',
