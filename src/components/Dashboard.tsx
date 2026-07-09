@@ -11,6 +11,7 @@
 import React, { useState, useEffect } from 'react';
 import { UserProfile, UserMetrics } from '../types';
 import { theme } from '../styles/theme';
+import { mediaMap } from '../data/mediaMap';
 import '../styles/design-system.css';
 import {
   Footprints,
@@ -677,9 +678,9 @@ export default function Dashboard({
           gap: spacing[12],
         }}>
           {[
-            { label: 'Meal Planner', desc: 'Pakistani recipes & nutrition tracking', tab: 'meals', emoji: '🥗', image: '/quick_action_meal.png' },
-            { label: 'Workouts', desc: 'Joint-safe exercises for every level', tab: 'exercises', emoji: '💪', image: '/quick_action_workout.png' },
-            { label: 'Mind Support', desc: 'Breathing, meditation & coach chat', tab: 'mind', emoji: '🧘', image: '/quick_action_coach.png' },
+            { label: 'Meal Planner', desc: 'Pakistani recipes & nutrition tracking', tab: 'meals', emoji: '🥗', image: mediaMap.explore_meals },
+            { label: 'Workouts', desc: 'Joint-safe exercises for every level', tab: 'exercises', emoji: '💪', image: mediaMap.explore_workouts },
+            { label: 'Mind Support', desc: 'Breathing, meditation & coach chat', tab: 'mind', emoji: '🧘', image: mediaMap.explore_mind },
           ].map((item) => (
             <button
               key={item.tab}

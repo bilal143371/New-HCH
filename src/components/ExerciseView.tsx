@@ -3,6 +3,7 @@ import { UserProfile, Exercise, LoggedActivity } from '../types';
 import { EXERCISES } from '../data/exercises';
 import { EXERCISE_PLAN_VARIATIONS } from '../data/exercises';
 import { theme } from '../styles/theme';
+import { mediaMap } from '../data/mediaMap';
 import '../styles/design-system.css';
 import { 
   Play, 
@@ -1088,13 +1089,28 @@ export default function ExerciseView({
                               const isStrechForBack = profile.healthConditions.includes('back-pain') && ex.category === 'back';
                               const isBreathingForAsthma = profile.healthConditions.includes('asthma') && ex.category === 'breathing';
 
-                              // Category Image Mapping
+                              // Unique Card Image Mapping
                               let cardImg = '/mental_relaxation.png';
-                              if (activeTab === 'physical') {
-                                if (cat === 'legs' || cat === 'core') cardImg = '/male_workout.png';
-                                else if (cat === 'arms' || cat === 'chest') cardImg = '/fitness_workout.png';
-                                else cardImg = '/hero_mockup.png';
-                              }
+                              if (ex.id === 'b1') cardImg = mediaMap.ex_wall_squat;
+                              else if (ex.id === 'b2') cardImg = mediaMap.ex_glute_bridge;
+                              else if (ex.id === 'b3') cardImg = mediaMap.ex_calf_raise;
+                              else if (ex.id === 'b4') cardImg = mediaMap.ex_arm_raise;
+                              else if (ex.id === 'b5') cardImg = mediaMap.ex_wall_pushup;
+                              else if (ex.id === 'b6') cardImg = mediaMap.ex_pushup;
+                              else if (ex.id === 'b7') cardImg = mediaMap.ex_cat_cow;
+                              else if (ex.id === 'b8') cardImg = mediaMap.ex_bird_dog;
+                              else if (ex.id === 'b9') cardImg = mediaMap.ex_dead_bug;
+                              else if (ex.id === 'b10') cardImg = mediaMap.ex_plank;
+                              else if (ex.id === 'm1') cardImg = mediaMap.ex_mind_breathing;
+                              else if (ex.id === 'm2') cardImg = mediaMap.ex_mind_meditation;
+                              else if (ex.id === 'm3') cardImg = mediaMap.ex_mind_sleep;
+                              else if (ex.id === 'm4') cardImg = mediaMap.ex_mind_stress;
+                              else if (ex.id === 'm5') cardImg = mediaMap.ex_mind_energy;
+                              else if (ex.category === 'legs') cardImg = mediaMap.ex_wall_squat;
+                              else if (ex.category === 'core') cardImg = mediaMap.ex_plank;
+                              else if (ex.category === 'chest') cardImg = mediaMap.ex_pushup;
+                              else if (ex.category === 'arms') cardImg = mediaMap.ex_arm_raise;
+                              else if (ex.category === 'back') cardImg = mediaMap.ex_bird_dog;
 
                               return (
                                 <div
@@ -1473,6 +1489,9 @@ export default function ExerciseView({
           
           {/* INTERACTIVE BODY MAP CARD */}
           <div className="p-5 rounded-xl bg-bg-card border border-white/[0.06] shadow-card flex flex-col space-y-4">
+            <div style={{ width: '100%', height: '80px', borderRadius: radii.card, overflow: 'hidden' }}>
+              <img src={mediaMap.tool_joint_filter} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            </div>
             <div className="text-left">
               <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest font-mono block">Pain Safeguards Map</span>
               <h3 className="text-md font-bold text-text-headline mt-0.5">Filter Workouts by Joint Pain</h3>
@@ -1548,6 +1567,9 @@ export default function ExerciseView({
 
           {/* CALORIE BURN MATCHER (WORKOUT SWAPPER) */}
           <div className="p-5 rounded-xl bg-bg-card border border-white/[0.06] shadow-card flex flex-col space-y-4">
+            <div style={{ width: '100%', height: '80px', borderRadius: radii.card, overflow: 'hidden' }}>
+              <img src={mediaMap.tool_burn_matcher} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            </div>
             <div className="text-left">
               <span className="text-[10px] font-bold text-text-gold uppercase tracking-widest font-mono block">Workout Swapper</span>
               <h3 className="text-md font-bold text-text-headline mt-0.5">Calorie Burn Matcher</h3>
