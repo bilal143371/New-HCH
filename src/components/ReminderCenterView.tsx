@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { UserProfile, LoggedActivity } from '../types';
 import LogsHistoryView from './LogsHistoryView';
 import { theme } from '../styles/theme';
+import { mediaMap } from '../data/mediaMap';
 import '../styles/design-system.css';
 import { 
   Bell, 
@@ -894,8 +895,20 @@ export default function ReminderCenterView({
                        background: rem.isActive ? `${colors.primary}15` : `${colors.primary}05`,
                        border: `1px solid ${rem.isActive ? colors.primary : colors.success}20`,
                        color: colors.primary,
+                       overflow: 'hidden',
                     }}>
-                      {renderReminderIcon(rem.iconName)}
+                      {rem.id === 'hydration' || rem.id === 'sehri' || rem.id === 'iftari' ? (
+                        <img
+                          src={
+                            rem.id === 'hydration' ? mediaMap.rem_hydration :
+                            rem.id === 'sehri' ? mediaMap.rem_sehri : mediaMap.rem_iftari
+                          }
+                          alt=""
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        />
+                      ) : (
+                        renderReminderIcon(rem.iconName)
+                      )}
                     </div>
                     <div>
                       <h3 style={{ fontFamily: fonts.heading, fontSize: '0.875rem', fontWeight: 700, color: colors.text, margin: 0 }}>{rem.name}</h3>
