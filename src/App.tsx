@@ -26,6 +26,7 @@ const SIDEBAR_NAV = [
   { id: 'exercises', label: 'Workouts',     icon: Dumbbell },
   { id: 'mind',      label: 'Mind Support', icon: Brain },
   { id: 'settings',  label: 'Settings',     icon: Settings },
+  { id: 'about',     label: 'About',        icon: Info },
 ];
 
 export interface ReminderConfig {

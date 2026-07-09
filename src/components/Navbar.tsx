@@ -12,6 +12,7 @@ import {
   X,
   ShieldAlert,
   Activity,
+  Info,
 } from 'lucide-react';
 
 const { colors, fonts, radii, shadows, spacing } = theme;
@@ -30,13 +31,14 @@ export interface NavbarProps {
   onToggleSimpleMode?: () => void;
 }
 
-/* ─── Sidebar nav items (5 max) ────────────────────────────────── */
+/* ─── Sidebar nav items (6 max) ────────────────────────────────── */
 const NAV_ITEMS = [
   { id: 'dashboard', label: 'Home',         icon: Home },
   { id: 'meals',     label: 'Meals',        icon: UtensilsCrossed },
   { id: 'exercises', label: 'Workouts',     icon: Dumbbell },
   { id: 'mind',      label: 'Mind Support', icon: Brain },
   { id: 'settings',  label: 'Settings',     icon: Settings },
+  { id: 'about',     label: 'About',        icon: Info },
 ];
 
 export default function Navbar({
