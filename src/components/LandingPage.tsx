@@ -166,7 +166,7 @@ export default function LandingPage({
               <motion.button
                 whileTap={{ scale: 0.97 }}
                 onClick={onStartOnboarding}
-                className="w-full sm:w-auto px-8 py-3.5 rounded-xl text-xs font-bold text-white btn-3d-purple uppercase tracking-wider flex items-center justify-center space-x-1.5"
+                className="w-full sm:w-auto px-8 py-3.5 rounded-xl text-xs font-bold text-white btn-3d-gold uppercase tracking-wider flex items-center justify-center space-x-1.5"
                 id="cta-get-started"
               >
                 <span>Find Your Healthy Strategy (1-Min Quiz) →</span>
@@ -174,7 +174,7 @@ export default function LandingPage({
               <motion.button
                 whileTap={{ scale: 0.97 }}
                 onClick={() => setIsLoginModalOpen(true)}
-                className="w-full sm:w-auto px-8 py-3.5 rounded-xl text-xs font-bold text-text-headline btn-3d-slate uppercase tracking-wider"
+                className="w-full sm:w-auto px-8 py-3.5 rounded-xl text-xs font-bold text-white btn-3d-gold uppercase tracking-wider"
                 id="cta-login"
               >
                 Already registered? Log In
@@ -307,7 +307,7 @@ export default function LandingPage({
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={onStartGuest}
-              className="w-full sm:w-auto px-5 py-3 rounded-xl text-xs font-bold btn-3d-purple shrink-0 uppercase tracking-wider font-mono"
+              className="w-full sm:w-auto px-5 py-3 rounded-xl text-xs font-bold btn-3d-gold text-white shrink-0 uppercase tracking-wider font-mono"
             >
               Try as Guest →
             </motion.button>
