@@ -45,42 +45,42 @@
 }
 
 :root {
-  /* Primary Background: Slate-White, Cards/Nav: Pure White, Input: Light Slate */
-  --bg-deep: #F8FAFC;
-  --bg-base: #F8FAFC;
+  /* Primary Background: Cream (#FAF7F2), Cards/Nav: Pure White, Input: Cream Slate */
+  --bg-deep: #FAF7F2;
+  --bg-base: #FAF7F2;
   --bg-nav: #FFFFFF;
   --bg-card: #FFFFFF;
-  --bg-surface: #F1F5F9;
+  --bg-surface: #FAF7F2;
 
-  /* Secondary Accent: Mint Green / Emerald (#10B981) */
-  --gold-primary: #10B981;
-  --gold-light: #34D399;
-  --gold-dark: #047857;
-  --gold-glow: rgba(16, 185, 129, 0.08);
+  /* Secondary Brand Color: Forest Green (#2F5233) */
+  --gold-primary: #2F5233;
+  --gold-light: #B7CBB0;
+  --gold-dark: #1f3622;
+  --gold-glow: rgba(47, 82, 51, 0.08);
 
-  /* Primary Accent: Sky Blue / Deep Sky (#0284C7) */
-  --purple-primary: #0284C7;
-  --purple-light: #0EA5E9;
-  --purple-dark: #0369A1;
-  --purple-glow: rgba(2, 132, 199, 0.08);
+  /* Primary Brand/Accent Color: Terracotta (#F2865E) */
+  --purple-primary: #F2865E;
+  --purple-light: #f5a484;
+  --purple-dark: #cc653d;
+  --purple-glow: rgba(242, 134, 94, 0.08);
 
-  /* Headings: Deep Slate (#1E293B), Body: Slate Gray (#475569) */
-  --text-headline: #1E293B;
-  --text-body: #475569;
-  --text-muted: #64748B;
-  --text-gold: #10B981;
-  --text-purple: #0284C7;
+  /* Headings: Near-Black (#26291F), Body: Sage Gray (#6B7060) */
+  --text-headline: #26291F;
+  --text-body: #6B7060;
+  --text-muted: #8E9484;
+  --text-gold: #2F5233;
+  --text-purple: #F2865E;
 
-  /* Borders & Dividers: Soft Gray (#E2E8F0) */
-  --border-subtle: #E2E8F0;
-  --border-gold: rgba(16, 185, 129, 0.20);
-  --border-purple: rgba(2, 132, 199, 0.20);
-  --border-mid: #E2E8F0;
+  /* Borders & Dividers: Soft Sage-Gray */
+  --border-subtle: rgba(47, 82, 51, 0.1);
+  --border-gold: rgba(47, 82, 51, 0.20);
+  --border-purple: rgba(242, 134, 94, 0.20);
+  --border-mid: rgba(47, 82, 51, 0.1);
 
   /* Soft premium drop shadows with subtle tints */
-  --shadow-gold: 0 4px 6px -1px rgba(16, 185, 129, 0.03);
-  --shadow-card: 0 4px 6px -1px rgba(14, 165, 233, 0.04), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-  --shadow-deep: 0 10px 15px -3px rgba(14, 165, 233, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+  --shadow-gold: 0 4px 6px -1px rgba(47, 82, 51, 0.03);
+  --shadow-card: 0 4px 6px -1px rgba(242, 134, 94, 0.04), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --shadow-deep: 0 10px 15px -3px rgba(242, 134, 94, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
 }
 
 /* Light Rose Theme Variation (Previously Midnight OLED) */
