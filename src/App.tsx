@@ -12,8 +12,21 @@ import AboutView from './components/AboutView';
 import ThreeDLoadingScreen from './components/ThreeDLoadingScreen';
 import { UserProfile, UserMetrics, LoggedActivity, Exercise } from './types';
 import { calculatePersonalMetrics } from './utils/metrics';
-import { Sparkles, Key, LogIn, Lock, CheckCircle, ShieldAlert, Activity, Soup, Dumbbell, Brain, Settings, LogOut, Camera, Info } from 'lucide-react';
+import { theme } from './styles/theme';
+import './styles/design-system.css';
+import { Sparkles, Key, LogIn, Lock, CheckCircle, ShieldAlert, Activity, Home, UtensilsCrossed, Dumbbell, Brain, Settings, LogOut, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+
+const { colors, fonts, radii, shadows, spacing } = theme;
+
+/* ─── Sidebar nav config (matches Navbar) ─────────────────────── */
+const SIDEBAR_NAV = [
+  { id: 'dashboard', label: 'Home',         icon: Home },
+  { id: 'meals',     label: 'Meals',        icon: UtensilsCrossed },
+  { id: 'exercises', label: 'Workouts',     icon: Dumbbell },
+  { id: 'mind',      label: 'Mind Support', icon: Brain },
+  { id: 'settings',  label: 'Settings',     icon: Settings },
+];
 
 export interface ReminderConfig {
   id: string;
@@ -630,7 +643,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-bg-deep text-text-body flex flex-col justify-between">
+    <div className="min-h-screen flex flex-col justify-between" style={{ background: colors.background, color: colors.text, fontFamily: fonts.body }}>
       
       <Navbar
         profile={profile}
@@ -657,101 +670,154 @@ export default function App() {
         ) : profile && metrics ? (
           <div className="max-w-7xl mx-auto px-4 md:px-8 py-6 w-full lg:grid lg:grid-cols-12 lg:gap-8">
             
-            {/* Column 1: Left Sidebar Nav & Info (Desktop only) */}
-            <aside className="hidden lg:flex lg:col-span-3 flex-col space-y-6">
-              {/* Profile Card */}
-              <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm shadow-sky-500/[0.01]">
-                <div className="flex items-center space-x-3 mb-4">
-                  <div className="w-11 h-11 rounded-full bg-purple-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">
+            {/* Column 1: Left Sidebar Nav & Profile (Desktop only) */}
+            <aside className="hidden lg:flex lg:col-span-3 flex-col" style={{ gap: spacing[16] }}>
+
+              {/* ── Profile Card ── */}
+              <div
+                style={{
+                  background: colors.white,
+                  borderRadius: radii.card,
+                  boxShadow: shadows.card,
+                  padding: spacing[24],
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: spacing[8], marginBottom: spacing[16] }}>
+                  <div
+                    style={{
+                      width: '42px',
+                      height: '42px',
+                      borderRadius: '9999px',
+                      background: colors.primary,
+                      color: colors.white,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontFamily: fonts.heading,
+                      fontWeight: 700,
+                      fontSize: '0.875rem',
+                    }}
+                  >
                     {profile.name[0].toUpperCase()}
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-text-headline truncate max-w-[140px]" title={profile.name}>{profile.name}</h3>
-                    <span className="text-[10px] text-text-muted capitalize">{profile.gender}, {profile.age} yrs</span>
+                    <h3 style={{ fontFamily: fonts.heading, fontSize: '0.875rem', fontWeight: 700, color: colors.text, margin: 0 }}>
+                      {profile.name}
+                    </h3>
+                    <span style={{ fontFamily: fonts.body, fontSize: '0.6875rem', color: colors.muted, textTransform: 'capitalize' }}>
+                      {profile.gender}, {profile.age} yrs
+                    </span>
                   </div>
                 </div>
-                
-                {simpleMode ? (
-                  <div className="border-t border-slate-100 pt-3.5 space-y-2 text-[11px]">
-                    <div className="flex justify-between">
-                      <span className="text-text-muted">Daily Goal</span>
-                      <strong className="text-emerald-600 font-bold">Stay Active 🏃</strong>
+
+                <div style={{ borderTop: `1px solid ${colors.success}40`, paddingTop: spacing[8] }}>
+                  {[
+                    { label: 'Target Calories', value: `${metrics.calories} kcal` },
+                    { label: 'Body Mass Index', value: `${metrics.bmi} BMI` },
+                    { label: 'Category', value: metrics.bmiCategory },
+                  ].map((row) => (
+                    <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.6875rem', padding: `${spacing[4]} 0`, fontFamily: fonts.body }}>
+                      <span style={{ color: colors.muted }}>{row.label}</span>
+                      <strong style={{ color: colors.text }}>{row.value}</strong>
                     </div>
-                  </div>
-                ) : (
-                  <div className="border-t border-slate-100 pt-3.5 space-y-2">
-                    <div className="flex justify-between text-[11px]">
-                      <span className="text-text-muted">Target Calories</span>
-                      <strong className="text-text-headline">{metrics.calories} kcal</strong>
-                    </div>
-                    <div className="flex justify-between text-[11px]">
-                      <span className="text-text-muted">Body Mass Index</span>
-                      <strong className="text-text-headline">{metrics.bmi} BMI</strong>
-                    </div>
-                    <div className="flex justify-between text-[11px]">
-                      <span className="text-text-muted">Category</span>
-                      <span className="text-purple-700 bg-purple-100/60 px-1.5 py-0.25 rounded text-[10px] font-bold">{metrics.bmiCategory}</span>
-                    </div>
-                  </div>
-                )}
+                  ))}
+                </div>
               </div>
 
-              {/* Sidebar Navigation Menu */}
-              <nav className="bg-white border border-slate-100 rounded-3xl p-4 shadow-sm shadow-sky-500/[0.01] flex flex-col space-y-1">
-                {[
-                  { id: 'dashboard', label: 'Dashboard Hub', icon: <Activity className="w-4 h-4" /> },
-                  { id: 'meals', label: 'Nutrition & Diet', icon: <Soup className="w-4 h-4" /> },
-                  { id: 'exercises', label: 'Safe Fitness', icon: <Dumbbell className="w-4 h-4" /> },
-                  { id: 'mind', label: 'Supportive Mind', icon: <Brain className="w-4 h-4" /> },
-                  { id: 'about', label: 'About HCH Team', icon: <Info className="w-4 h-4" /> },
-                  { id: 'settings', label: 'Settings & Ledger', icon: <Settings className="w-4 h-4" /> }
-                ].map((item) => {
+              {/* ── Sidebar Navigation (5 items) ── */}
+              <nav
+                style={{
+                  background: colors.white,
+                  borderRadius: radii.card,
+                  boxShadow: shadows.card,
+                  padding: spacing[8],
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: spacing[4],
+                }}
+              >
+                {SIDEBAR_NAV.map((item) => {
                   const isActive = currentTab === item.id;
+                  const Icon = item.icon;
                   return (
                     <button
                       key={item.id}
                       onClick={() => handleTabChange(item.id)}
-                      className={`w-full flex items-center space-x-2.5 px-4 py-3 rounded-2xl text-xs font-bold transition duration-200 ${
-                        isActive
-                          ? 'bg-purple-600 text-white shadow-sm font-bold'
-                          : 'text-text-body hover:bg-slate-50 hover:text-text-headline'
-                      }`}
+                      style={{
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: spacing[8],
+                        padding: `10px ${spacing[16]}`,
+                        borderRadius: radii.button,
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontFamily: fonts.body,
+                        fontSize: '0.8125rem',
+                        fontWeight: isActive ? 700 : 500,
+                        background: isActive ? colors.primary : 'transparent',
+                        color: isActive ? colors.white : colors.muted,
+                        transition: 'all 0.2s',
+                        boxShadow: isActive ? shadows.card : 'none',
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!isActive) {
+                          e.currentTarget.style.background = `${colors.success}30`;
+                          e.currentTarget.style.color = colors.text;
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isActive) {
+                          e.currentTarget.style.background = 'transparent';
+                          e.currentTarget.style.color = colors.muted;
+                        }
+                      }}
                     >
-                      {item.icon}
+                      <Icon size={16} />
                       <span>{item.label}</span>
                     </button>
                   );
                 })}
               </nav>
 
-              {/* Quick Logout Button */}
+              {/* ── Sign Out ── */}
               <button
                 onClick={handleLogout}
-                className="w-full py-3 bg-slate-100 hover:bg-red-50 text-text-muted hover:text-red-650 border border-slate-200/50 hover:border-red-200 rounded-2xl text-xs font-bold transition flex items-center justify-center space-x-2 shadow-sm"
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: spacing[8],
+                  padding: `10px 0`,
+                  borderRadius: radii.button,
+                  border: `1px solid ${colors.success}50`,
+                  background: 'transparent',
+                  fontFamily: fonts.body,
+                  fontSize: '0.8125rem',
+                  fontWeight: 500,
+                  color: colors.muted,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = '#e54d2e50';
+                  e.currentTarget.style.color = '#c53d2c';
+                  e.currentTarget.style.background = '#fef2f2';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = `${colors.success}50`;
+                  e.currentTarget.style.color = colors.muted;
+                  e.currentTarget.style.background = 'transparent';
+                }}
               >
-                <LogOut className="w-4 h-4" />
-                <span>Sign Out Account</span>
+                <LogOut size={14} />
+                <span>Sign Out</span>
               </button>
-
-              {/* Submission Team Attribution (Phase 8) */}
-              <div className="bg-white border border-slate-100 rounded-3xl p-5 shadow-sm text-left">
-                <span className="text-[9px] font-mono font-bold uppercase tracking-widest text-purple-650 block mb-2">★ HCH DEVELOPMENT TEAM</span>
-                <ol className="list-decimal list-inside text-[10.5px] text-text-headline font-semibold space-y-0.5 leading-normal">
-                  <li>Muhammad Jamal</li>
-                  <li>Zainab Irfan</li>
-                  <li>Laiba Khan</li>
-                  <li>Aqsa Haider</li>
-                  <li>Ujala Ashraf</li>
-                </ol>
-                <div className="border-t border-slate-100 pt-2.5 mt-2.5">
-                  <span className="text-[8.5px] text-text-muted font-mono block">Submission Contact</span>
-                  <strong className="text-[10px] text-purple-750 block mt-0.5">Helpline: +92 309 4530756</strong>
-                </div>
-              </div>
             </aside>
 
             {/* Column 2: Center View Module Component (Scrollable/Flexible) */}
-            <div className="col-span-12 lg:col-span-6 space-y-6">
+            <div className="col-span-12 lg:col-span-9 space-y-6">
               <AnimatePresence mode="wait">
                 {currentTab === 'dashboard' && (
                   <motion.div
@@ -761,31 +827,6 @@ export default function App() {
                     exit={{ opacity: 0, y: -15 }}
                     transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
                   >
-                    {sessionType === 'guest' && (
-                      <div className="mb-4">
-                        <div className="bg-purple-50 border border-purple-200/95 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm border-l-4 border-l-purple-500">
-                          <div className="flex items-center space-x-3 text-left">
-                            <div className="w-9 h-9 rounded-xl bg-purple-100 flex items-center justify-center border border-purple-200 shrink-0 text-purple-650">
-                              <ShieldAlert className="w-5 h-5 animate-pulse" />
-                            </div>
-                            <div>
-                              <strong className="text-xs font-bold text-text-headline block">
-                                Guest Session: 3 Days Remaining. Link Email to preserve data
-                              </strong>
-                              <span className="text-[10px] text-text-muted leading-relaxed">
-                                Your fitness logs, calories tracked, and progress milestones are stored on this device only. Please register to save them permanently.
-                              </span>
-                            </div>
-                          </div>
-                          <button
-                            onClick={() => setShowSignupUpgradeModal(true)}
-                            className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white text-[10px] font-extrabold rounded-xl shadow-sm transition active:scale-95 shrink-0 uppercase tracking-wider font-mono"
-                          >
-                            Register Free ✦
-                          </button>
-                        </div>
-                      </div>
-                    )}
                     <Dashboard
                       profile={profile}
                       metrics={metrics}
@@ -797,7 +838,6 @@ export default function App() {
                       loggedSteps={loggedSteps}
                       loggedSleep={loggedSleep}
                       onUpdateLogs={handleUpdateLogs}
-                      simpleMode={simpleMode}
                     />
                   </motion.div>
                 )}
@@ -889,88 +929,6 @@ export default function App() {
                 )}
               </AnimatePresence>
             </div>
-
-            {/* Column 3: Right Sidebar Summary (Desktop only) */}
-            <aside className="hidden lg:flex lg:col-span-3 flex-col space-y-6">
-              
-              {/* Mini AI Scan Simulator */}
-              <div className="bg-white border border-slate-100 rounded-3xl p-5 shadow-sm shadow-sky-500/[0.01] space-y-4">
-                <div className="flex justify-between items-center pb-2 border-b border-slate-100">
-                  <h4 className="text-xs font-extrabold text-text-headline flex items-center gap-1.5">
-                    <Camera className="w-4 h-4 text-purple-650" /> AI Food Scan Preview
-                  </h4>
-                  <button 
-                    onClick={() => setCurrentTab('meals')}
-                    className="text-[9px] font-mono text-purple-700 bg-purple-50 hover:bg-purple-100 px-2 py-0.5 rounded font-bold"
-                  >
-                    Open Tab
-                  </button>
-                </div>
-                <p className="text-[10px] text-text-muted leading-relaxed">
-                  Tap to scan our top localized dishes instantly:
-                </p>
-                <div className="grid grid-cols-2 gap-2 text-center text-[10px]">
-                  <button
-                    onClick={() => {
-                      setCurrentTab('meals');
-                      addToast("Opening AI Scanner", "Selected Moong Daal Soup scan placeholder. Complete the scanner simulation in the Diet view!", "info");
-                    }}
-                    className="p-2 border border-slate-100 hover:border-purple-300 rounded-xl bg-slate-50 text-left transition active:scale-95"
-                  >
-                    <strong className="block text-text-headline truncate">Moong Daal</strong>
-                    <span className="text-[8px] text-text-muted font-bold font-mono">320 kcal</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      setCurrentTab('meals');
-                      addToast("Opening AI Scanner", "Selected Chicken Kebab scan placeholder. Complete the scanner simulation in the Diet view!", "info");
-                    }}
-                    className="p-2 border border-slate-100 hover:border-purple-300 rounded-xl bg-slate-50 text-left transition active:scale-95"
-                  >
-                    <strong className="block text-text-headline truncate">Chicken Kebab</strong>
-                    <span className="text-[8px] text-text-muted font-bold font-mono">410 kcal</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Respiratory Breathing Pacing preview widget */}
-              <div className="bg-white border border-slate-100 rounded-3xl p-5 shadow-sm shadow-sky-500/[0.01] space-y-4">
-                <div className="flex justify-between items-center pb-2 border-b border-slate-100">
-                  <h4 className="text-xs font-extrabold text-text-headline flex items-center gap-1.5">
-                    <Brain className="w-4 h-4 text-purple-650" /> Live Stress Pacer
-                  </h4>
-                  <button 
-                    onClick={() => setCurrentTab('mind')}
-                    className="text-[9px] font-mono text-purple-700 bg-purple-50 hover:bg-purple-100 px-2 py-0.5 rounded font-bold"
-                  >
-                    Breathe
-                  </button>
-                </div>
-                <div className="flex flex-col items-center justify-center p-4 bg-slate-50/50 rounded-2xl border border-slate-100 relative">
-                  {/* Pulsing breathing bubble mockup */}
-                  <div className="w-10 h-10 rounded-full bg-purple-500/10 border border-purple-500/35 flex items-center justify-center animate-pulse">
-                    <div className="w-6 h-6 rounded-full bg-purple-500/20"></div>
-                  </div>
-                  <span className="text-[9px] font-mono text-purple-700 font-bold mt-3">4s Inhale Pace</span>
-                </div>
-              </div>
-
-              {/* Member stories */}
-              <div className="bg-white border border-slate-100 rounded-3xl p-5 shadow-sm shadow-sky-500/[0.01] space-y-3 text-left">
-                <h4 className="text-xs font-extrabold text-text-headline uppercase tracking-widest font-mono text-purple-650">★ USER STORIES</h4>
-                <div className="space-y-2 text-[10px] text-text-body">
-                  <div className="p-3 border border-slate-100 bg-slate-50/30 rounded-2xl leading-normal italic font-serif">
-                    "Traditional Moong Daal Soup keeps my sugar stable during the busy afternoons."
-                    <span className="block text-[8px] font-mono text-text-muted mt-1.5 font-bold not-italic">— Bilal, Lahore</span>
-                  </div>
-                  <div className="p-3 border border-slate-100 bg-slate-50/30 rounded-2xl leading-normal italic font-serif">
-                    "Knee-safe squats are gentle on my joints and easy to do at home!"
-                    <span className="block text-[8px] font-mono text-text-muted mt-1.5 font-bold not-italic">— Amina, Karachi</span>
-                  </div>
-                </div>
-              </div>
-
-            </aside>
 
           </div>
         ) : (

@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { UserProfile } from '../types';
 import { ArrowLeft, ArrowRight, Check, Sparkles, AlertCircle, Dumbbell, Flame, Heart, Activity, Sliders, Brain, Apple, CheckCircle2, ShieldAlert } from 'lucide-react';
+import { theme } from '../styles/theme';
+import '../styles/design-system.css';
+
+const { colors, fonts, fontSizes, radii, shadows, spacing } = theme;
 
 interface OnboardingProps {
   initialProfile: UserProfile | null;
@@ -15,6 +19,8 @@ export default function Onboarding({
 }: OnboardingProps) {
   const [step, setStep] = useState(1);
   const totalSteps = 3;
+  const [walkthroughStep, setWalkthroughStep] = useState<number | null>(null);
+  const [pendingProfile, setPendingProfile] = useState<UserProfile | null>(null);
 
   // Step 1: Bio-Metrics State
   const [age, setAge] = useState<number>(initialProfile?.age || 28);
@@ -128,7 +134,8 @@ export default function Onboarding({
       healthConditions,
       foodPreferences
     };
-    onComplete(finalProfile);
+    setPendingProfile(finalProfile);
+    setWalkthroughStep(1);
   };
 
   const toggleHealthCondition = (id: string) => {
@@ -142,6 +149,120 @@ export default function Onboarding({
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
     );
   };
+
+  if (walkthroughStep !== null) {
+    return (
+      <div className="w-full max-w-xl mx-auto px-4 py-8 flex flex-col justify-center min-h-[calc(100vh-8rem)] animate-fade-in">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[16], textAlign: 'left' }}>
+          
+          <div className="mb-4">
+            <div className="flex items-center justify-between text-[10px] font-mono text-text-muted mb-2 uppercase tracking-widest">
+              <span>App Walkthrough</span>
+              <span>Feature {walkthroughStep} of 3</span>
+            </div>
+            <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-purple-600 transition-all duration-300"
+                style={{ width: `${(walkthroughStep / 3) * 100}%` }}
+              />
+            </div>
+          </div>
+
+          <div
+            style={{
+              background: colors.white,
+              borderRadius: radii.card,
+              border: `1px solid ${colors.success}30`,
+              boxShadow: shadows.card,
+              padding: spacing[24],
+              display: 'flex',
+              flexDirection: 'column',
+              gap: spacing[16],
+            }}
+          >
+            {walkthroughStep === 1 && (
+              <>
+                <img
+                  src="/male_meal_prep.png"
+                  alt="Personalized Meals"
+                  style={{ width: '100%', height: '180px', objectFit: 'cover', borderRadius: radii.card }}
+                />
+                <h3 style={{ fontFamily: fonts.heading, fontSize: '1.25rem', fontWeight: 700, color: colors.text, margin: 0 }}>
+                  1. Personalized Pakistani Meals
+                </h3>
+                <p style={{ fontFamily: fonts.body, fontSize: fontSizes.sm, color: colors.muted, margin: 0, lineHeight: 1.5 }}>
+                  Access customized daily nutritional targets, portion recommendations, and traditional Pakistani recipes specifically tailored for weight control and health conditions.
+                </p>
+                <button
+                  onClick={() => setWalkthroughStep(2)}
+                  className="hch-btn hch-btn--primary"
+                  style={{ alignSelf: 'stretch', justifyContent: 'center', padding: '12px' }}
+                >
+                  Next: Workouts
+                </button>
+              </>
+            )}
+
+            {walkthroughStep === 2 && (
+              <>
+                <img
+                  src="/male_workout.png"
+                  alt="Joint-Safe Workouts"
+                  style={{ width: '100%', height: '180px', objectFit: 'cover', borderRadius: radii.card }}
+                />
+                <h3 style={{ fontFamily: fonts.heading, fontSize: '1.25rem', fontWeight: 700, color: colors.text, margin: 0 }}>
+                  2. Clinical Joint-Safe Workouts
+                </h3>
+                <p style={{ fontFamily: fonts.body, fontSize: fontSizes.sm, color: colors.muted, margin: 0, lineHeight: 1.5 }}>
+                  Access guided workout plans that adapt to knee-pain, heart conditions, and respiratory safeguards to keep physical training safe and effective.
+                </p>
+                <button
+                  onClick={() => setWalkthroughStep(3)}
+                  className="hch-btn hch-btn--primary"
+                  style={{ alignSelf: 'stretch', justifyContent: 'center', padding: '12px' }}
+                >
+                  Next: Mind Support
+                </button>
+              </>
+            )}
+
+            {walkthroughStep === 3 && (
+              <>
+                <img
+                  src="/mental_relaxation.png"
+                  alt="Mind & Stress Support"
+                  style={{ width: '100%', height: '180px', objectFit: 'cover', borderRadius: radii.card }}
+                />
+                <h3 style={{ fontFamily: fonts.heading, fontSize: '1.25rem', fontWeight: 700, color: colors.text, margin: 0 }}>
+                  3. Mind & Stress Support
+                </h3>
+                <p style={{ fontFamily: fonts.body, fontSize: fontSizes.sm, color: colors.muted, margin: 0, lineHeight: 1.5 }}>
+                  Soothe your stress with the Live Stress Pacer breathing guide, keep gratitude journals, and seek support from your dedicated AI Mind Coach.
+                </p>
+                <button
+                  onClick={() => {
+                    if (pendingProfile) {
+                      onComplete(pendingProfile);
+                    }
+                  }}
+                  className="hch-btn hch-btn--primary"
+                  style={{ alignSelf: 'stretch', justifyContent: 'center', padding: '12px' }}
+                >
+                  Complete & Enter Dashboard →
+                </button>
+              </>
+            )}
+          </div>
+          
+          {/* Medical disclaimer in footer of walkthrough */}
+          <p style={{ fontFamily: fonts.body, fontSize: '0.625rem', color: colors.muted, textAlign: 'center', marginTop: spacing[12] }}>
+            ⚠️ Disclaimer: Not a substitute for medical advice. Please consult a qualified health professional before starting any plan.
+          </p>
+
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-2xl mx-auto px-4 py-8 flex flex-col justify-center min-h-[calc(100vh-8rem)] animate-fade-in">
@@ -577,6 +698,11 @@ export default function Onboarding({
         )}
 
       </div>
+
+      {/* Medical Disclaimer */}
+      <p style={{ fontFamily: fonts.body, fontSize: '0.625rem', color: colors.muted, textAlign: 'center', marginTop: spacing[16], opacity: 0.8 }}>
+        ⚠️ Disclaimer: Not a substitute for medical advice. Please consult a qualified health professional before starting any plan.
+      </p>
     </div>
   );
 }

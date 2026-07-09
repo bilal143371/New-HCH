@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { UserProfile, LoggedActivity } from '../types';
 import LogsHistoryView from './LogsHistoryView';
+import { theme } from '../styles/theme';
+import '../styles/design-system.css';
 import { 
   Bell, 
   Droplet, 
@@ -31,6 +33,8 @@ import {
   LogOut
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+
+const { colors, fonts, fontSizes, radii, shadows, spacing } = theme;
 
 interface ReminderCenterViewProps {
   profile: UserProfile;
@@ -481,78 +485,152 @@ export default function ReminderCenterView({
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-6" id="reminder-center-view">
       
-      {/* Title Header Block */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-gradient-to-r from-gold-primary/10 via-white/[0.01] to-white/[0.01] border border-gold-primary/20 rounded-2xl shadow-deep">
-        <div className="space-y-1 text-left">
-          <div className="flex items-center space-x-2">
-            <span className="p-1.5 rounded-lg bg-gold-primary/15 text-gold-primary">
-              <Settings className="w-5 h-5" />
+      {/* TITLE HEADER BLOCK BANNER */}
+      <div
+        className="hero-banner-responsive flex flex-col md:flex-row md:items-end md:justify-between"
+        style={{
+          position: 'relative',
+          borderRadius: radii.card,
+          overflow: 'hidden',
+          boxShadow: shadows.card,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'flex-end',
+          padding: spacing[24],
+        }}
+      >
+        <img
+          src="/hero_mockup.png"
+          alt="Settings and activity center banner"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            zIndex: 0,
+          }}
+        />
+        {/* Brand overlay gradient */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: `linear-gradient(to top, ${colors.primary}f0 0%, ${colors.primary}99 70%, transparent 100%)`,
+            zIndex: 1,
+          }}
+        />
+
+        <div style={{ position: 'relative', zIndex: 2, textAlign: 'left' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: spacing[8] }}>
+            <div style={{
+              width: '28px',
+              height: '28px',
+              borderRadius: radii.button,
+              background: 'rgba(255, 255, 255, 0.2)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+              <Settings size={14} style={{ color: colors.white }} />
+            </div>
+            <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: colors.accent, textTransform: 'uppercase', fontFamily: fonts.body }}>
+              Settings & Activity Center
             </span>
-            <span className="text-[10px] font-bold text-text-gold uppercase tracking-widest font-mono">Settings & Activity Center</span>
           </div>
-          <h2 className="text-xl md:text-2xl font-bold font-sans text-text-headline tracking-tight">
+          <h2 style={{ fontFamily: fonts.heading, fontSize: '1.5rem', fontWeight: 750, color: colors.white, margin: `${spacing[8]} 0 0` }}>
             Hub Settings & History Logs
           </h2>
-          <p className="text-xs text-text-body max-w-xl">
+          <p style={{ fontFamily: fonts.body, fontSize: '0.75rem', color: '#FAF7F2df', margin: `${spacing[4]} 0 0`, maxWidth: '480px' }}>
             Configure system-wide reminders, manage wellness sound chimes, and view completed workout history.
           </p>
         </div>
         
         {/* Actions panel */}
-        <div className="flex flex-wrap items-center gap-3 shrink-0">
-          {/* Cloud Config Secured Badge */}
-          <div className="flex items-center space-x-2 bg-white/[0.02] border border-white/[0.05] px-3 py-1.5 rounded-lg">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span className="text-[10px] font-mono font-bold text-text-headline uppercase tracking-wider">
-              Cloud Config Secured
-            </span>
-          </div>
+        <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: spacing[8] }}>
+          <button
+            onClick={() => setIsPrintModalOpen(true)}
+            className="hch-btn hch-btn--primary"
+            style={{
+              fontSize: fontSizes.xs,
+              padding: '12px 20px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              background: colors.accent,
+              borderColor: colors.accent,
+              color: colors.white,
+              whiteSpace: 'nowrap',
+            }}
+          >
+            <Printer size={12} />
+            <span>Export PDF Ledger</span>
+          </button>
 
           <button
             onClick={onLogout}
-            className="flex items-center space-x-1.5 px-4 py-2.5 rounded-xl btn-3d-red text-[10px] font-mono font-extrabold uppercase tracking-wider cursor-pointer"
-            title="Log Out Hub"
+            className="hch-btn"
+            style={{
+              fontSize: fontSizes.xs,
+              padding: '12px 20px',
+              color: colors.white,
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              background: 'rgba(255, 255, 255, 0.1)',
+              whiteSpace: 'nowrap',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
           >
-            <LogOut className="w-3.5 h-3.5" />
-            <span>LOG OUT HUB</span>
+            <span>Log Out Hub</span>
           </button>
         </div>
       </div>
 
       {/* Sub-tab switcher */}
-      <div className="flex border-b border-white/[0.06] pb-1 space-x-6 text-left">
+      <div style={{ display: 'flex', borderBottom: `1.5px solid ${colors.success}30`, gap: spacing[24], paddingBottom: spacing[4], textAlign: 'left' }}>
         <button
           onClick={() => setActiveSubTab('reminders')}
-          className={`pb-3 text-xs font-bold tracking-wider uppercase transition-all duration-200 border-b-2 flex items-center space-x-2 ${
-            activeSubTab === 'reminders'
-              ? 'border-purple-500 text-purple-300 font-extrabold'
-              : 'border-transparent text-text-muted hover:text-text-headline'
-          }`}
+          style={{
+            background: 'none',
+            border: 'none',
+            borderBottom: activeSubTab === 'reminders' ? `2.5px solid ${colors.primary}` : '2.5px solid transparent',
+            color: activeSubTab === 'reminders' ? colors.primary : colors.muted,
+            paddingBottom: spacing[8],
+            fontSize: '0.75rem',
+            fontFamily: fonts.body,
+            fontWeight: 700,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: spacing[8],
+            transition: 'all 0.2s',
+          }}
         >
-          <Bell className="w-4 h-4" />
+          <Bell size={14} />
           <span>Reminders & Alerts Settings</span>
         </button>
         <button
           onClick={() => setActiveSubTab('logs')}
-          className={`pb-3 text-xs font-bold tracking-wider uppercase transition-all duration-200 border-b-2 flex items-center space-x-2 ${
-            activeSubTab === 'logs'
-              ? 'border-purple-500 text-purple-300 font-extrabold'
-              : 'border-transparent text-text-muted hover:text-text-headline'
-          }`}
+          style={{
+            background: 'none',
+            border: 'none',
+            borderBottom: activeSubTab === 'logs' ? `2.5px solid ${colors.primary}` : '2.5px solid transparent',
+            color: activeSubTab === 'logs' ? colors.primary : colors.muted,
+            paddingBottom: spacing[8],
+            fontSize: '0.75rem',
+            fontFamily: fonts.body,
+            fontWeight: 700,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: spacing[8],
+            transition: 'all 0.2s',
+          }}
         >
-          <Calendar className="w-4 h-4" />
+          <Calendar size={14} />
           <span>Workout & Activity Logs</span>
-        </button>
-        <button
-          onClick={() => setActiveSubTab('analytics')}
-          className={`pb-3 text-xs font-bold tracking-wider uppercase transition-all duration-200 border-b-2 flex items-center space-x-2 ${
-            activeSubTab === 'analytics'
-              ? 'border-purple-500 text-purple-300 font-extrabold'
-              : 'border-transparent text-text-muted hover:text-text-headline'
-          }`}
-        >
-          <TrendingUp className="w-4 h-4" />
-          <span>7-Day Health Analytics & PDF</span>
         </button>
       </div>
 
@@ -718,16 +796,35 @@ export default function ReminderCenterView({
       </AnimatePresence>
 
       {/* Sound Chimes & Volume Setting */}
-      <div className="p-4 bg-bg-card border border-white/[0.06] rounded-xl flex items-center justify-between text-left">
-        <div className="flex items-center space-x-3">
-          {soundEnabled ? (
-            <Volume2 className="w-5 h-5 text-gold-primary" />
-          ) : (
-            <VolumeX className="w-5 h-5 text-text-muted" />
-          )}
+      <div
+        style={{
+          background: colors.white,
+          border: `1px solid ${colors.success}30`,
+          borderRadius: radii.card,
+          boxShadow: shadows.card,
+          padding: spacing[16],
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          textAlign: 'left',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: spacing[12] }}>
+          <div style={{
+            width: '36px',
+            height: '36px',
+            borderRadius: radii.button,
+            background: `${colors.primary}10`,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: colors.primary,
+          }}>
+            {soundEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
+          </div>
           <div>
-            <h4 className="text-xs font-bold text-text-headline">Wellness Chime Sound</h4>
-            <p className="text-[10px] text-text-body">Play a gentle acoustic chime when a reminder is triggered.</p>
+            <h4 style={{ fontFamily: fonts.heading, fontSize: fontSizes.sm, fontWeight: 700, color: colors.text, margin: 0 }}>Wellness Chime Sound</h4>
+            <p style={{ fontFamily: fonts.body, fontSize: '0.6875rem', color: colors.muted, margin: 0 }}>Play a gentle acoustic chime when a reminder is triggered.</p>
           </div>
         </div>
 
@@ -736,7 +833,6 @@ export default function ReminderCenterView({
             const nextSound = !soundEnabled;
             setSoundEnabled(nextSound);
             if (nextSound) {
-              // Quick chime to demonstrate sound
               setTimeout(() => {
                 try {
                   const context = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -753,109 +849,177 @@ export default function ReminderCenterView({
               }, 100);
             }
           }}
-          className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition font-mono ${
-            soundEnabled 
-              ? 'bg-gold-primary/10 text-text-gold border border-gold-primary/30' 
-              : 'bg-white/5 text-text-muted border border-white/[0.08]'
-          }`}
+          className="hch-btn hch-btn--outline"
+          style={{
+            fontSize: fontSizes.xs,
+            padding: '12px 20px',
+            borderColor: soundEnabled ? colors.primary : `${colors.success}50`,
+            color: soundEnabled ? colors.primary : colors.muted,
+            whiteSpace: 'nowrap',
+          }}
         >
           {soundEnabled ? 'SOUND CHIMES: ON' : 'SOUND CHIMES: OFF'}
         </button>
       </div>
 
       {/* Grid of configurable Reminders */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: spacing[20], alignItems: 'stretch' }}>
         {reminders.map((rem) => {
           return (
             <div
               key={rem.id}
-              className={`p-5 bg-bg-card border rounded-2xl transition-all duration-300 relative overflow-hidden flex flex-col justify-between ${
-                rem.isActive 
-                  ? 'border-gold-primary/30 shadow-gold/10 shadow-md' 
-                  : 'border-white/[0.06] opacity-75 hover:opacity-100'
-              }`}
+              style={{
+                background: colors.white,
+                borderRadius: radii.card,
+                boxShadow: shadows.card,
+                padding: spacing[20],
+                border: rem.isActive ? `2px solid ${colors.primary}` : `1px solid ${colors.success}30`,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: spacing[16],
+                textAlign: 'left',
+              }}
             >
               {/* Header block with Icon, Title and Toggle */}
-              <div className="space-y-2">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center border transition-all ${
-                      rem.isActive 
-                        ? 'bg-gold-primary/15 border-gold-primary/20' 
-                        : 'bg-white/5 border-white/[0.08]'
-                    }`}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[12] }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: spacing[12] }}>
+                    <div style={{
+                       width: '36px',
+                       height: '36px',
+                       borderRadius: radii.button,
+                       display: 'flex',
+                       alignItems: 'center',
+                       justifyContent: 'center',
+                       background: rem.isActive ? `${colors.primary}15` : `${colors.primary}05`,
+                       border: `1px solid ${rem.isActive ? colors.primary : colors.success}20`,
+                       color: colors.primary,
+                    }}>
                       {renderReminderIcon(rem.iconName)}
                     </div>
                     <div>
-                      <h3 className="text-xs font-bold text-text-headline">{rem.name}</h3>
-                      <span className="text-[8px] font-mono text-text-muted uppercase">
+                      <h3 style={{ fontFamily: fonts.heading, fontSize: '0.875rem', fontWeight: 700, color: colors.text, margin: 0 }}>{rem.name}</h3>
+                      <span style={{ fontSize: '0.5625rem', fontFamily: fonts.body, color: colors.muted, textTransform: 'uppercase', fontWeight: 700 }}>
                         {rem.id.startsWith('custom_') ? 'USER CUSTOM REMINDER' : (rem.id === 'sehri' || rem.id === 'iftari' ? 'RAMADAN TRACKING' : 'DAILY WELLNESS')}
                       </span>
                     </div>
                   </div>
-
+ 
                   {/* Controls (Delete if Custom + Toggle Switch) */}
-                  <div className="flex items-center space-x-2 shrink-0">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: spacing[8] }}>
                     {rem.id.startsWith('custom_') && (
                       <button
                         type="button"
                         onClick={() => handleDeleteReminder(rem.id)}
-                        className="p-1 rounded-md bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 hover:text-red-300 transition"
+                        style={{
+                          padding: '4px',
+                          borderRadius: radii.button,
+                          background: '#d9534f10',
+                          border: '1px solid #d9534f30',
+                          color: '#d9534f',
+                          cursor: 'pointer',
+                        }}
                         title="Delete Custom Reminder"
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        <Trash2 size={12} />
                       </button>
                     )}
-
-                    {/* Toggle Switch */}
+ 
+                    {/* Toggle Switch with 44x44px Tap Target */}
                     <button
                       onClick={() => handleToggleReminder(rem.id)}
-                      className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors duration-300 focus:outline-none border ${
-                        rem.isActive 
-                          ? 'bg-gold-primary/20 border-gold-primary' 
-                          : 'bg-bg-deep border-white/[0.08]'
-                      }`}
+                      style={{
+                        width: '44px',
+                        height: '44px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        background: 'transparent',
+                        border: 'none',
+                        cursor: 'pointer',
+                        padding: 0,
+                      }}
                     >
                       <div
-                        className={`w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${
-                          rem.isActive 
-                            ? 'translate-x-5 bg-gold-primary' 
-                            : 'translate-x-0 bg-text-muted'
-                        }`}
-                      />
+                        style={{
+                          width: '40px',
+                          height: '22px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          borderRadius: radii.full,
+                          padding: '2px',
+                          background: rem.isActive ? colors.primary : '#FAF7F2',
+                          border: `1px solid ${rem.isActive ? colors.primary : `${colors.success}80`}`,
+                          transition: 'background-color 0.2s',
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: '16px',
+                            height: '16px',
+                            borderRadius: '50%',
+                            background: rem.isActive ? colors.white : colors.muted,
+                            transform: rem.isActive ? 'translateX(18px)' : 'translateX(0px)',
+                            transition: 'transform 0.2s',
+                          }}
+                        />
+                      </div>
                     </button>
                   </div>
                 </div>
-
-                <p className="text-[11px] text-text-body leading-relaxed min-h-[32px]">
+ 
+                <p style={{ fontFamily: fonts.body, fontSize: '0.75rem', color: colors.text, margin: 0, lineHeight: 1.4 }}>
                   {rem.subtitle}
                 </p>
               </div>
-
+ 
               {/* Configure options / display footer */}
-              <div className="mt-4 pt-3 border-t border-white/[0.04] flex flex-wrap items-center justify-between gap-2">
+              <div style={{ borderTop: `1px solid ${colors.success}30`, paddingTop: spacing[12], display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: spacing[8] }}>
                 
                 {/* Frequency selection dropdown */}
-                <div className="flex items-center space-x-2">
-                  <span className="text-[9px] font-mono text-text-muted uppercase">INTERVAL</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: spacing[8] }}>
+                  <span style={{ fontSize: '0.625rem', fontFamily: fonts.body, color: colors.muted, fontWeight: 700 }}>INTERVAL</span>
                   <select
                     disabled={!rem.isActive}
                     value={rem.frequencyMinutes}
                     onChange={(e) => handleFrequencyChange(rem.id, parseInt(e.target.value))}
-                    className="bg-bg-deep border border-white/[0.06] text-[10px] font-bold text-text-headline rounded p-1 outline-none focus:border-gold-primary/50 disabled:opacity-50"
+                    style={{
+                      background: '#FAF7F2',
+                      border: `1px solid ${colors.success}50`,
+                      borderRadius: radii.button,
+                      padding: '2px 6px',
+                      fontSize: '0.6875rem',
+                      fontFamily: fonts.body,
+                      color: colors.text,
+                      fontWeight: 600,
+                      outline: 'none',
+                      cursor: rem.isActive ? 'pointer' : 'not-allowed',
+                      opacity: rem.isActive ? 1 : 0.5,
+                    }}
                   >
                     {getFrequencyOptions(rem.id).map(opt => (
                       <option key={opt.value} value={opt.value}>{opt.label}</option>
                     ))}
                   </select>
                 </div>
-
+ 
                 {/* Countdown display status */}
-                <div className="text-[10px] font-mono font-semibold text-text-gold bg-gold-primary/5 border border-gold-primary/10 rounded px-2 py-0.5 flex items-center space-x-1.5">
-                  <Clock className="w-3 h-3 text-gold-primary shrink-0" />
+                <div style={{
+                  fontSize: '0.6875rem',
+                  fontFamily: fonts.body,
+                  fontWeight: 700,
+                  color: colors.primary,
+                  background: `${colors.primary}10`,
+                  padding: '2px 8px',
+                  borderRadius: radii.button,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: spacing[4],
+                }}>
+                  <Clock size={10} style={{ color: colors.accent }} />
                   <span>{getCountdownText(rem)}</span>
                 </div>
-
+ 
               </div>
             </div>
           );
@@ -1299,6 +1463,10 @@ export default function ReminderCenterView({
         </div>
       )}
 
+      {/* Medical Disclaimer */}
+      <p style={{ fontFamily: fonts.body, fontSize: '0.625rem', color: colors.muted, textAlign: 'center', marginTop: spacing[32], opacity: 0.8 }}>
+        ⚠️ Disclaimer: Not a substitute for medical advice. Please consult a qualified health professional before starting any plan.
+      </p>
     </div>
   );
 }

@@ -1,6 +1,10 @@
 import React from 'react';
 import { LoggedActivity } from '../types';
 import { Calendar, Trash2, Heart, Dumbbell, Flame, Award, Clock } from 'lucide-react';
+import { theme } from '../styles/theme';
+import '../styles/design-system.css';
+
+const { colors, fonts, fontSizes, radii, shadows, spacing } = theme;
 
 interface LogsHistoryViewProps {
   logs: LoggedActivity[];
@@ -94,73 +98,120 @@ export default function LogsHistoryView({
     <div className="w-full max-w-4xl mx-auto px-4 py-8 space-y-8 animate-fade-in text-left">
       
       {/* Header */}
-      <div className="border-b border-white/[0.06] pb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: `1.5px solid ${colors.success}30`, paddingBottom: spacing[16], gap: spacing[16] }} className="flex flex-col sm:flex-row">
         <div>
-          <h2 className="text-2xl font-sans font-extrabold text-text-headline">
-            📈 Workout & Activity Logs
-          </h2>
-          <p className="text-xs text-text-muted mt-1 leading-relaxed">
-            A chronological timeline of physical routines and mental exercises completed by you.
+          <h3 style={{ fontFamily: fonts.heading, fontSize: '1.25rem', fontWeight: 750, color: colors.text, margin: 0 }}>
+            Activity & Workout History
+          </h3>
+          <p style={{ fontFamily: fonts.body, fontSize: '0.75rem', color: colors.muted, margin: `${spacing[4]} 0 0` }}>
+            A chronological ledger of physical routines and mental exercises completed by you.
           </p>
         </div>
 
         {logs.length > 0 && (
           <button
             onClick={onClearLogs}
-            className="flex items-center px-4 py-2 border border-white/[0.08] hover:border-red-400/20 bg-bg-card hover:bg-white/[0.02] text-xs text-text-muted hover:text-red-400 rounded-lg transition font-mono cursor-pointer"
+            className="hch-btn hch-btn--outline"
+            style={{
+              fontSize: '0.6875rem',
+              padding: '6px 12px',
+              color: '#d9534f',
+              borderColor: '#d9534f30',
+              background: '#d9534f10',
+            }}
           >
-            <Trash2 className="w-3.5 h-3.5 mr-1.5" /> Clear All History
+            <Trash2 size={12} style={{ marginRight: spacing[4] }} />
+            <span>Clear History</span>
           </button>
         )}
       </div>
 
       {/* Gamification Streak & Badges Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr', mdGridTemplateColumns: '1fr 2fr', gap: spacing[24] }} className="grid grid-cols-1 md:grid-cols-3">
         {/* Streak banner */}
-        <div className="p-5 rounded-xl bg-bg-card border border-purple-500/15 flex flex-col justify-between shadow-card hover:border-purple-500/35 transition duration-200">
+        <div
+          style={{
+            background: colors.white,
+            borderRadius: radii.card,
+            boxShadow: shadows.card,
+            padding: spacing[20],
+            border: `1px solid ${colors.success}30`,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            gap: spacing[12],
+          }}
+        >
           <div>
-            <span className="text-[10px] font-bold text-purple-300/70 uppercase tracking-widest font-mono">Consistency Streak</span>
-            <h3 className="text-md font-bold text-text-headline mt-1">My Workout Fire</h3>
+            <span style={{ fontSize: '0.625rem', fontWeight: 700, color: colors.accent, uppercase: true, tracking: '0.04em', fontFamily: fonts.body }}>Consistency Streak</span>
+            <h4 style={{ fontFamily: fonts.heading, fontSize: fontSizes.sm, fontWeight: 700, color: colors.text, margin: `${spacing[4]} 0 0` }}>My Workout Fire</h4>
           </div>
           
-          <div className="flex items-center space-x-3 py-3">
-            <div className="w-12 h-12 rounded-full bg-purple-500/10 flex items-center justify-center border border-purple-500/25">
-              <Flame className={`w-7 h-7 text-purple-400 ${streak > 0 && 'animate-pulse'}`} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: spacing[12], padding: `${spacing[8]} 0` }}>
+            <div style={{
+              width: '44px',
+              height: '44px',
+              borderRadius: radii.full,
+              background: `${colors.accent}15`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: colors.accent,
+            }}>
+              <Flame size={20} className={streak > 0 ? 'animate-pulse' : ''} />
             </div>
             <div>
-              <span className="text-2xl font-mono font-extrabold text-text-headline block">
+              <span style={{ fontFamily: fonts.body, fontSize: fontSizes.xl, fontWeight: 800, color: colors.text, display: 'block' }}>
                 {streak} {streak === 1 ? 'Day' : 'Days'}
               </span>
-              <span className="text-[10px] text-text-muted">active daily streak</span>
+              <span style={{ fontSize: '0.6875rem', color: colors.muted }}>active daily streak</span>
             </div>
           </div>
 
-          <p className="text-[9px] font-mono text-text-muted">
+          <p style={{ fontFamily: fonts.body, fontSize: '0.6875rem', color: colors.muted, margin: 0 }}>
             {streak > 0 ? "Great job! Keep logging workouts daily to keep the fire burning!" : "No active streak. Complete a workout today to light the fire!"}
           </p>
         </div>
 
         {/* Badges dashboard - 2 cols span */}
-        <div className="md:col-span-2 p-5 rounded-xl bg-bg-card border border-white/[0.06] shadow-card flex flex-col space-y-3">
-          <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest font-mono">Unlockable Badges</span>
+        <div
+          className="md:col-span-2"
+          style={{
+            background: colors.white,
+            borderRadius: radii.card,
+            boxShadow: shadows.card,
+            padding: spacing[20],
+            border: `1px solid ${colors.success}30`,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: spacing[12],
+          }}
+        >
+          <span style={{ fontSize: '0.625rem', fontWeight: 700, color: colors.accent, uppercase: true, tracking: '0.04em', fontFamily: fonts.body }}>Unlockable Badges</span>
           
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: spacing[12] }}>
             {badgesList.map((badge) => (
               <div 
                 key={badge.id}
-                className={`p-3 rounded-xl border flex items-center space-x-2.5 transition ${
-                  badge.unlocked
-                    ? 'bg-purple-950/20 border-purple-500/30 text-purple-200 shadow-sm'
-                    : 'bg-white/[0.01] border-white/[0.04] opacity-40 grayscale'
-                }`}
+                style={{
+                  background: badge.unlocked ? `${colors.primary}10` : '#FAF7F2',
+                  border: badge.unlocked ? `1.5px solid ${colors.primary}` : `1px solid ${colors.success}30`,
+                  borderRadius: radii.card,
+                  padding: spacing[12],
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: spacing[8],
+                  transition: 'all 0.2s',
+                  opacity: badge.unlocked ? 1 : 0.5,
+                }}
                 title={badge.desc}
               >
-                <span className="text-xl shrink-0">{badge.icon}</span>
-                <div className="text-left leading-tight truncate">
-                  <span className={`text-[10px] font-extrabold block truncate ${badge.unlocked ? 'text-purple-300' : 'text-text-headline'}`}>
+                <span style={{ fontSize: '1.25rem' }}>{badge.icon}</span>
+                <div style={{ textAlign: 'left', lineHeight: 1.2, overflow: 'hidden' }}>
+                  <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: colors.text, display: 'block', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
                     {badge.name}
                   </span>
-                  <span className="text-[8px] text-text-muted font-mono">{badge.unlocked ? 'Unlocked ✓' : 'Locked'}</span>
+                  <span style={{ fontSize: '0.5625rem', color: colors.muted }}>{badge.unlocked ? 'Unlocked ✓' : 'Locked'}</span>
                 </div>
               </div>
             ))}
@@ -170,20 +221,20 @@ export default function LogsHistoryView({
 
       {/* Analytics stats row if logs exist */}
       {logs.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          <div className="p-4 rounded-xl bg-bg-card border border-white/[0.04]">
-            <span className="text-[11px] font-bold text-text-muted uppercase tracking-widest font-mono">Total Completed</span>
-            <div className="text-2xl font-bold text-text-gold font-mono mt-1">{logs.length}</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: spacing[16] }}>
+          <div style={{ background: colors.white, padding: spacing[16], borderRadius: radii.card, border: `1px solid ${colors.success}30`, boxShadow: shadows.card }}>
+            <span style={{ fontSize: '0.625rem', fontWeight: 700, color: colors.muted, uppercase: true, tracking: '0.04em', fontFamily: fonts.body }}>Total Completed</span>
+            <div style={{ fontSize: fontSizes.xl, fontWeight: 800, color: colors.primary, marginTop: spacing[4], fontFamily: fonts.body }}>{logs.length}</div>
           </div>
-          <div className="p-4 rounded-xl bg-bg-card border border-white/[0.04]">
-            <span className="text-[11px] font-bold text-text-muted uppercase tracking-widest font-mono">Physical Workouts</span>
-            <div className="text-2xl font-bold text-text-headline font-mono mt-1">
+          <div style={{ background: colors.white, padding: spacing[16], borderRadius: radii.card, border: `1px solid ${colors.success}30`, boxShadow: shadows.card }}>
+            <span style={{ fontSize: '0.625rem', fontWeight: 700, color: colors.muted, uppercase: true, tracking: '0.04em', fontFamily: fonts.body }}>Physical Workouts</span>
+            <div style={{ fontSize: fontSizes.xl, fontWeight: 800, color: colors.text, marginTop: spacing[4], fontFamily: fonts.body }}>
               {logs.filter(l => l.sphere === 'physical').length}
             </div>
           </div>
-          <div className="p-4 rounded-xl bg-bg-card border border-white/[0.04]">
-            <span className="text-[11px] font-bold text-text-muted uppercase tracking-widest font-mono">Mental Exercises</span>
-            <div className="text-2xl font-bold text-text-headline font-mono mt-1">
+          <div style={{ background: colors.white, padding: spacing[16], borderRadius: radii.card, border: `1px solid ${colors.success}30`, boxShadow: shadows.card }}>
+            <span style={{ fontSize: '0.625rem', fontWeight: 700, color: colors.muted, uppercase: true, tracking: '0.04em', fontFamily: fonts.body }}>Mental Exercises</span>
+            <div style={{ fontSize: fontSizes.xl, fontWeight: 800, color: colors.text, marginTop: spacing[4], fontFamily: fonts.body }}>
               {logs.filter(l => l.sphere === 'mental').length}
             </div>
           </div>
@@ -192,39 +243,74 @@ export default function LogsHistoryView({
 
       {/* Timeline view list */}
       {logs.length === 0 ? (
-        <div className="p-12 rounded-xl bg-bg-card border border-white/[0.06] text-center max-w-md mx-auto space-y-3">
-          <Calendar className="w-10 h-10 text-text-muted mx-auto animate-pulse" />
-          <h3 className="text-sm font-bold text-text-headline">No exercises logged today</h3>
-          <p className="text-xs text-text-body leading-relaxed">
-            Start a physical leg routine or standard mental breathing exercise from the Exercises tab to write your first log.
+        <div style={{ background: colors.white, border: `1px solid ${colors.success}30`, borderRadius: radii.card, padding: spacing[32], textAlign: 'center', maxWidth: '400px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: spacing[12] }}>
+          <Calendar size={32} style={{ color: colors.muted, margin: '0 auto' }} />
+          <h3 style={{ fontFamily: fonts.heading, fontSize: fontSizes.sm, fontWeight: 700, color: colors.text, margin: 0 }}>No exercises logged today</h3>
+          <p style={{ fontFamily: fonts.body, fontSize: '0.75rem', color: colors.muted, margin: 0, lineHeight: 1.4 }}>
+            Start a physical leg routine or mental breathing exercise to record your first completed activity ledger.
           </p>
         </div>
       ) : (
-        <div className="relative border-l border-white/[0.06] ml-4 pl-6 space-y-6">
+        <div style={{ position: 'relative', borderLeft: `2px solid ${colors.success}40`, marginLeft: spacing[16], paddingLeft: spacing[24], display: 'flex', flexDirection: 'column', gap: spacing[16] }}>
           {logs.map((log) => (
-            <div key={log.id} className="relative">
+            <div key={log.id} style={{ position: 'relative' }}>
               
               {/* Vertical timeline marker dot */}
-              <div className="absolute left-[-31px] top-1 w-3 h-3 rounded-full bg-purple-500 border-2 border-bg-deep shadow"></div>
+              <div style={{
+                position: 'absolute',
+                left: '-31px',
+                top: '12px',
+                width: '12px',
+                height: '12px',
+                borderRadius: '50%',
+                background: log.sphere === 'physical' ? colors.accent : colors.primary,
+                border: `2px solid ${colors.background}`,
+                boxShadow: shadows.card,
+              }}></div>
               
-              <div className="p-4 bg-bg-card border border-white/[0.06] rounded-xl hover:border-purple-500/15 transition duration-150 flex items-start justify-between gap-4">
-                <div className="flex items-start space-x-3">
-                  <div className={`p-2 rounded-lg ${log.sphere === 'physical' ? 'bg-orange-500/10 text-orange-400' : 'bg-indigo-500/10 text-indigo-400'}`}>
-                    {log.sphere === 'physical' ? <Dumbbell className="w-4 h-4" /> : <Heart className="w-4 h-4" />}
+              <div
+                style={{
+                  background: colors.white,
+                  border: `1px solid ${colors.success}30`,
+                  borderRadius: radii.card,
+                  padding: spacing[16],
+                  boxShadow: shadows.card,
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  gap: spacing[16],
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: spacing[12] }}>
+                  <div style={{
+                    padding: spacing[8],
+                    borderRadius: radii.button,
+                    background: log.sphere === 'physical' ? `${colors.accent}15` : `${colors.primary}15`,
+                    color: log.sphere === 'physical' ? colors.accent : colors.primary,
+                  }}>
+                    {log.sphere === 'physical' ? <Dumbbell size={14} /> : <Heart size={14} />}
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold text-text-headline">{log.name}</h4>
-                    <p className="text-[10px] text-text-muted font-mono uppercase mt-0.5 tracking-wider">
+                    <h4 style={{ fontFamily: fonts.heading, fontSize: '0.875rem', fontWeight: 700, color: colors.text, margin: 0 }}>{log.name}</h4>
+                    <p style={{ fontFamily: fonts.body, fontSize: '0.625rem', color: colors.muted, textTransform: 'uppercase', margin: 0, marginTop: '2px', fontWeight: 600 }}>
                       {log.sphere} · {log.category}
                     </p>
                   </div>
                 </div>
 
-                <div className="text-right flex flex-col justify-between items-end h-full">
-                  <span className="text-[10px] font-mono text-purple-300 font-bold bg-purple-500/5 px-2 py-0.5 rounded border border-purple-500/10">
+                <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', gap: spacing[4] }}>
+                  <span style={{
+                    fontSize: '0.625rem',
+                    fontFamily: fonts.body,
+                    fontWeight: 700,
+                    color: colors.primary,
+                    background: `${colors.primary}10`,
+                    padding: '2px 6px',
+                    borderRadius: radii.button,
+                  }}>
                     {log.duration}
                   </span>
-                  <span className="text-[9px] text-text-muted font-mono mt-2">
+                  <span style={{ fontSize: '0.625rem', color: colors.muted, fontFamily: fonts.body }}>
                     {log.timestamp}
                   </span>
                 </div>

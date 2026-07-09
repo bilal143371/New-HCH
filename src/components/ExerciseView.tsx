@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { UserProfile, Exercise, LoggedActivity } from '../types';
 import { EXERCISES } from '../data/exercises';
 import { EXERCISE_PLAN_VARIATIONS } from '../data/exercises';
+import { theme } from '../styles/theme';
+import '../styles/design-system.css';
 import { 
   Play, 
   Pause, 
@@ -23,6 +25,8 @@ import {
   Trash2,
   RefreshCw
 } from 'lucide-react';
+
+const { colors, fonts, fontSizes, radii, shadows, spacing } = theme;
 
 interface ExerciseViewProps {
   profile: UserProfile;
@@ -147,7 +151,7 @@ export default function ExerciseView({
   const [undoProgress, setUndoProgress] = useState(100);
 
   // Difficulty Filter State
-  const [selectedDifficulty, setSelectedDifficulty] = useState<'all' | 'Beginner' | 'Intermediate' | 'Advanced'>('all');
+  const [selectedDifficulty, setSelectedDifficulty] = useState<'Beginner' | 'Intermediate' | 'Advanced'>('Beginner');
   const [selectedExercisePresetId, setSelectedExercisePresetId] = useState<string>('fat-burn-cardio');
 
   const [generatingStep, setGeneratingStep] = useState(0);
@@ -687,135 +691,214 @@ export default function ExerciseView({
   return (
     <div className="w-full max-w-5xl mx-auto px-4 py-8 space-y-8 animate-fade-in text-left">
       
-      {/* HEADER ROW WITH ACTION BUTTONS */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-white/[0.06] pb-6 gap-4">
-        <div>
-          <h1 id="exercise-header-title" className="text-3xl font-sans font-extrabold text-text-headline tracking-tight">
-            Exercise at Home
-          </h1>
-          <p className="text-xs text-text-muted mt-1">
-            Simple exercises you can do at home — no gym, no equipment needed.
-          </p>
-        </div>
+      <div
+        className="hero-banner-responsive"
+        style={{
+          position: 'relative',
+          borderRadius: radii.card,
+          overflow: 'hidden',
+          boxShadow: shadows.card,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'flex-end',
+          padding: spacing[24],
+        }}
+      >
+        <img
+          src="/fitness_workout.png"
+          alt="Fitness workout banner"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            zIndex: 0,
+          }}
+        />
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: `linear-gradient(135deg, ${colors.primary}f2 0%, ${colors.primary}77 70%, transparent 100%)`,
+            zIndex: 1,
+          }}
+        />
+        <div style={{ position: 'relative', zIndex: 2, color: colors.white, display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-end', gap: spacing[16], width: '100%' }}>
+          <div>
+            <h2
+              className="hch-heading"
+              style={{
+                fontSize: '2rem',
+                fontWeight: 750,
+                color: colors.white,
+                margin: 0,
+              }}
+            >
+              Exercise at Home
+            </h2>
+            <p
+              style={{
+                fontFamily: fonts.body,
+                fontSize: fontSizes.sm,
+                color: 'rgba(255, 255, 255, 0.9)',
+                margin: `${spacing[8]} 0 0`,
+                maxWidth: '480px',
+                lineHeight: 1.5,
+              }}
+            >
+              Simple bodyweight activities and stretches you can perform safely in your own room.
+            </p>
+          </div>
 
-        <div className="flex items-center space-x-3 w-full sm:w-auto">
-          <button
-            onClick={handleRepeatLastWorkout}
-            disabled={activityLogs.length === 0}
-            className={`flex-1 sm:flex-initial py-2.5 px-4 rounded-xl text-xs font-bold font-sans flex items-center justify-center space-x-1.5 ${
-              activityLogs.length === 0
-                ? 'opacity-40 bg-transparent border border-white/[0.06] text-text-muted cursor-not-allowed'
-                : 'btn-3d-slate'
-            }`}
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Repeat Last Workout</span>
-          </button>
-
-          <button
-            onClick={() => setShowManualLog(true)}
-            className="flex-1 sm:flex-initial py-2.5 px-4 btn-3d-purple rounded-xl text-xs font-extrabold flex items-center justify-center space-x-1 uppercase tracking-wider"
-          >
-            <Plus className="w-4 h-4 stroke-[3]" />
-            <span>Manual Log Workout</span>
-          </button>
+          <div style={{ display: 'flex', gap: spacing[8] }}>
+            <button
+              onClick={handleRepeatLastWorkout}
+              disabled={activityLogs.length === 0}
+              className="hch-btn hch-btn--outline"
+              style={{
+                fontSize: fontSizes.xs,
+                padding: '12px 20px',
+                borderColor: 'rgba(255, 255, 255, 0.4)',
+                color: colors.white,
+                background: 'rgba(255, 255, 255, 0.1)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                opacity: activityLogs.length === 0 ? 0.4 : 1,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              <RotateCcw size={12} />
+              <span>Repeat Last Workout</span>
+            </button>
+            <button
+              onClick={() => setShowManualLog(true)}
+              className="hch-btn hch-btn--primary"
+              style={{
+                fontSize: fontSizes.xs,
+                padding: '12px 20px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              <Plus size={12} />
+              <span>Manual Log</span>
+            </button>
+          </div>
         </div>
       </div>
 
       {/* DYNAMIC SUCCESS/UNDO NOTIFICATIONS */}
       {successToast && (
-        <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs flex items-center shadow-md animate-fade-in">
-          <CheckCircle className="w-4 h-4 mr-2" /> {successToast}
+        <div style={{ background: `${colors.success}15`, border: `1px solid ${colors.success}40`, borderRadius: radii.button, padding: spacing[16], color: colors.primary, fontSize: fontSizes.xs, display: 'flex', alignItems: 'center', gap: spacing[8] }}>
+          <CheckCircle size={14} />
+          <span>{successToast}</span>
         </div>
       )}
 
-      {/* WEEKLY CALORIES BURNED GRAPHICAL CHART */}
-      <div className="relative flex flex-col p-5 bg-bg-card border border-white/[0.06] rounded-2xl shadow-card overflow-hidden">
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center space-x-2">
-            <TrendingUp className="w-4 h-4 text-gold-primary animate-pulse" />
-            <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest font-mono">
-              Weekly Calories Burned Chart
-            </span>
-          </div>
-          <span className="text-[10px] text-text-muted font-mono tracking-wider">
-            Previous 7 Days
-          </span>
-        </div>
-
-        <div className="relative h-44 flex flex-row">
-          {/* Grid lines */}
-          <div className="absolute inset-y-0 left-8 right-0 flex flex-col justify-between pointer-events-none pr-2">
-            {[1, 2, 3, 4].map((gridLine) => (
-              <div key={gridLine} className="w-full border-t border-white/[0.03]" />
-            ))}
-            <div className="w-full border-b border-white/[0.06]" />
-          </div>
-
-          {/* Y Axis Labels */}
-          <div className="w-8 h-40 flex flex-col justify-between text-[10px] font-mono text-text-muted pb-1 select-none pr-2 text-right">
-            <span>{maxCalories}</span>
-            <span>{Math.round(maxCalories * 0.75)}</span>
-            <span>{Math.round(maxCalories * 0.5)}</span>
-            <span>{Math.round(maxCalories * 0.25)}</span>
-            <span>0</span>
-          </div>
-
-          {/* Graphical Bars */}
-          <div className="flex-grow h-40 flex justify-around items-end pl-2">
-            {last7DaysChartData.map((day, idx) => {
-              const heightPercent = day.calories > 0 ? Math.max(8, (day.calories / maxCalories) * 100) : 0;
-              return (
-                <div key={idx} className="flex flex-col items-center flex-1 h-full justify-end group relative">
-                  {/* Hover tooltip */}
-                  <div className="absolute bottom-full mb-1.5 bg-bg-surface border border-white/[0.08] text-text-headline text-[10px] font-mono px-2 py-1 rounded shadow-lg opacity-0 group-hover:opacity-100 transition duration-150 whitespace-nowrap pointer-events-none z-10">
-                    {day.calories} kcal
-                  </div>
-                  
-                  {/* Track line background */}
-                  <div className="w-3 sm:w-5 h-full bg-white/[0.01] rounded-t-sm absolute bottom-0 pointer-events-none" />
-                  
-                  {/* Calorie bar */}
-                  {day.calories > 0 ? (
-                    <div 
-                      className="w-3 sm:w-5 bg-gold-primary hover:bg-gold-light rounded-t-sm transition-all duration-500 ease-out shadow-[0_0_8px_rgba(244,162,32,0.15)] z-2"
-                      style={{ height: `${heightPercent}%` }}
-                    />
-                  ) : (
-                    <div className="w-3 sm:w-5 h-1 bg-white/[0.04] rounded-t-sm z-2" />
-                  )}
-                  
-                  {/* Month/Day labels */}
-                  <span className="absolute top-full pt-2 text-[9px] text-text-muted font-mono uppercase tracking-wider">
-                    {day.dayName}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* TWO COLUMN GRID FOR CONTENT AND CONTROLS */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      {/* VERTICAL FLOW FOR CONTENT AND CONTROLS */}
+      <div className="flex flex-col gap-8 w-full">
         
-        {/* LEFT COLUMN: ACTIVE PERSONALIZATION, SPHERE SELECTOR, EXERCISES LIST */}
-        <div className="lg:col-span-8 space-y-6 flex flex-col justify-start">
+        {/* MAIN CONTENT: ACTIVE PERSONALIZATION, SPHERE SELECTOR, EXERCISES LIST */}
+        <div className="space-y-6 flex flex-col justify-start">
           
-          {/* ACTIVE PERSONALIZATION NOTIFICATION */}
-          <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div>
-              <span className="text-[10px] font-extrabold text-gold-primary uppercase tracking-wider font-mono block">
-                Active Personalization
-              </span>
-              <p className="text-xs text-text-headline mt-0.5">
-                Your plan is filtered for <span className="text-text-gold font-bold">{getGoalLabel(profile.goal)}</span>
-              </p>
-            </div>
-            <span className="text-[9px] font-mono font-bold text-text-muted tracking-widest uppercase sm:text-right mt-1 sm:mt-0">
-              Tap Any Exercise to Start
-            </span>
-          </div>
+          {/* TODAY'S RECOMMENDED WORKOUT CARD */}
+          {(() => {
+            const getRecommendedExercise = () => {
+              const isJoint = profile.healthConditions.includes('joint-pain') || profile.healthConditions.includes('back-pain');
+              const hasHeart = profile.healthConditions.includes('heart-condition');
+              const physicalExs = EXERCISES.filter(ex => ex.sphere === 'physical');
+              if (isJoint) {
+                return physicalExs.find(ex => ex.category === 'back' || ex.id === 'calf-raises') || physicalExs[0];
+              }
+              if (hasHeart) {
+                return physicalExs.find(ex => ex.difficulty === 'Beginner') || physicalExs[0];
+              }
+              if (profile.goal === 'lose-weight') {
+                return physicalExs.find(ex => ex.id === 'wall-squats') || physicalExs[0];
+              }
+              if (profile.goal === 'build-muscle') {
+                return physicalExs.find(ex => ex.id === 'pushups') || physicalExs[0];
+              }
+              return physicalExs[0];
+            };
+
+            const recommendedEx = getRecommendedExercise();
+
+            return (
+              <div
+                style={{
+                  background: colors.white,
+                  borderRadius: radii.card,
+                  boxShadow: shadows.card,
+                  border: `1px solid ${colors.success}30`,
+                  overflow: 'hidden',
+                  display: 'flex',
+                  flexDirection: 'column',
+                }}
+              >
+                {/* Image */}
+                <div style={{ position: 'relative', height: '140px', width: '100%' }}>
+                  <img
+                    src="/male_workout.png"
+                    alt="Recommended Workout"
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
+                  <div
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      background: `linear-gradient(to bottom, transparent, rgba(38,41,31,0.6))`,
+                    }}
+                  />
+                  <div style={{ position: 'absolute', bottom: spacing[12], left: spacing[16] }}>
+                    <span style={{ fontSize: '0.625rem', fontWeight: 700, color: colors.white, background: colors.accent, padding: '2px 8px', borderRadius: radii.full, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                      Recommended For You Today
+                    </span>
+                  </div>
+                </div>
+
+                {/* Details */}
+                <div style={{ padding: spacing[24], display: 'flex', flexDirection: 'column', gap: spacing[16] }}>
+                  <div>
+                    <h3 style={{ fontFamily: fonts.heading, fontSize: '1.125rem', fontWeight: 700, color: colors.text, margin: 0 }}>
+                      {recommendedEx.name}
+                    </h3>
+                    <p style={{ fontFamily: fonts.body, fontSize: '0.75rem', color: colors.muted, marginTop: spacing[4], margin: 0 }}>
+                      Based on your goal to **{getGoalLabel(profile.goal)}** and active safeguards ({profile.healthConditions.length > 0 ? profile.healthConditions.map(c => c.split('-').join(' ')).join(', ') : 'None'}).
+                    </p>
+                    <p style={{ fontFamily: fonts.body, fontSize: '0.75rem', color: colors.text, marginTop: spacing[12], lineHeight: 1.5, margin: 0 }}>
+                      {recommendedEx.description}
+                    </p>
+                  </div>
+
+                  <button
+                    id="start-recommended-btn"
+                    onClick={() => handleStartExercise(recommendedEx)}
+                    className="hch-btn hch-btn--primary"
+                    style={{
+                      alignSelf: 'flex-start',
+                      fontSize: fontSizes.xs,
+                      padding: '12px 20px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    <Play size={12} fill="currentColor" />
+                    <span>Start Recommended Workout ({recommendedEx.duration})</span>
+                  </button>
+                </div>
+              </div>
+            );
+          })()}
 
           {/* MAIN TABS SELECTOR (THREE WAY TOGGLE) */}
           <div className="flex bg-bg-card p-1 rounded-xl border border-white/[0.06] w-full">
@@ -895,33 +978,40 @@ export default function ExerciseView({
               )}
 
               {/* DIFFICULTY FILTER CONTROLS */}
-              <div className="flex flex-col sm:flex-row sm:items-start md:items-center justify-between gap-3 border-t border-b border-white/[0.04] py-3.5 text-left">
-                <div className="space-y-0.5">
-                  <span className="text-[10px] font-bold text-text-gold uppercase tracking-widest font-mono">Difficulty Filter</span>
-                  <h4 className="text-xs font-bold text-text-headline">Tailor Workout Challenge Level</h4>
-                  <p className="text-[10px] text-text-muted">Select a skill tier that matches your current endurance.</p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifySelf: 'stretch', justifyContent: 'space-between', gap: spacing[16], borderTop: `1px solid ${colors.success}30`, borderBottom: `1px solid ${colors.success}30`, padding: `${spacing[16]} 0`, textAlign: 'left' }}>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <h4 style={{ fontFamily: fonts.heading, fontSize: '0.875rem', fontWeight: 700, color: colors.text, margin: 0 }}>Difficulty Level</h4>
+                  <p style={{ fontFamily: fonts.body, fontSize: '0.6875rem', color: colors.muted, margin: 0 }}>Select a skill tier matching your endurance.</p>
                 </div>
                 
-                <div className="flex flex-wrap items-center gap-1.5 shrink-0">
-                  {(['all', 'Beginner', 'Intermediate', 'Advanced'] as const).map((diff) => {
+                <div style={{ display: 'flex', gap: spacing[8] }}>
+                  {(['Beginner', 'Intermediate', 'Advanced'] as const).map((diff) => {
                     const isHeartRestricted = profile.healthConditions.includes('heart-condition') && !bypassHeartRestriction && activeTab === 'physical';
-                    const isDisabled = isHeartRestricted && diff !== 'all' && diff !== 'Beginner';
+                    const isDisabled = isHeartRestricted && diff !== 'Beginner';
+                    
+                    const isActive = selectedDifficulty === diff;
                     
                     return (
                       <button
                         key={diff}
                         disabled={isDisabled}
                         onClick={() => setSelectedDifficulty(diff)}
-                        className={`px-3 py-1.5 rounded-lg text-[10px] font-bold font-mono transition flex items-center space-x-1.5 ${
-                          isDisabled 
-                            ? 'opacity-25 cursor-not-allowed bg-transparent border border-white/[0.02] text-text-muted'
-                            : selectedDifficulty === diff
-                              ? 'bg-gold-primary text-bg-deep font-extrabold shadow-md'
-                              : 'bg-white/5 border border-white/[0.05] text-text-muted hover:text-text-headline hover:bg-white/10'
-                        }`}
-                        title={isDisabled ? 'Locked due to Heart Condition (Beginner-only safety limit)' : ''}
+                        style={{
+                          padding: `6px ${spacing[12]}`,
+                          borderRadius: radii.button,
+                          border: isActive ? `1.5px solid ${colors.primary}` : `1px solid ${colors.success}40`,
+                          background: isActive ? colors.primary : colors.white,
+                          color: isActive ? colors.white : colors.text,
+                          cursor: isDisabled ? 'not-allowed' : 'pointer',
+                          opacity: isDisabled ? 0.35 : 1,
+                          fontSize: '0.6875rem',
+                          fontFamily: fonts.body,
+                          fontWeight: 700,
+                          transition: 'all 0.2s',
+                        }}
+                        title={isDisabled ? 'Locked for safety (Heart Condition)' : ''}
                       >
-                        <span>{diff === 'all' ? 'ALL LEVELS' : diff.toUpperCase()}</span>
+                        <span>{diff.toUpperCase()}</span>
                       </button>
                     );
                   })}
@@ -929,100 +1019,175 @@ export default function ExerciseView({
               </div>
 
               {/* HORIZONTAL CATEGORY PILLS */}
-              <div className="flex items-center space-x-2 overflow-x-auto no-scrollbar py-1">
-                {getCategoriesList().map((cat) => (
-                  <button
-                    key={cat}
-                    onClick={() => setActiveCategory(cat)}
-                    className={`px-4 py-1.5 rounded-full text-xs font-medium font-mono whitespace-nowrap border transition ${
-                      activeCategory === cat
-                        ? 'bg-gold-primary/10 border-gold-primary text-gold-primary font-bold'
-                        : 'bg-bg-card border-white/[0.04] text-text-muted hover:border-white/[0.08] hover:text-text-body'
-                    }`}
-                  >
-                    {cat.toUpperCase()}
-                  </button>
-                ))}
+              <div style={{ display: 'flex', gap: spacing[8], overflowX: 'auto', paddingBottom: spacing[4] }} className="no-scrollbar">
+                {getCategoriesList().map((cat) => {
+                  const isActive = activeCategory === cat;
+                  return (
+                    <button
+                      key={cat}
+                      onClick={() => setActiveCategory(cat)}
+                      style={{
+                        padding: `6px ${spacing[16]}`,
+                        borderRadius: radii.full,
+                        border: isActive ? `1.5px solid ${colors.primary}` : `1px solid ${colors.success}40`,
+                        background: isActive ? colors.primary : colors.white,
+                        color: isActive ? colors.white : colors.muted,
+                        cursor: 'pointer',
+                        fontSize: '0.6875rem',
+                        fontFamily: fonts.body,
+                        fontWeight: 600,
+                        transition: 'all 0.2s',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {cat.toUpperCase()}
+                    </button>
+                  );
+                })}
               </div>
 
-              {/* EXERCISE CARDS GRID */}
+              {/* GROUPED EXERCISE SECTIONS */}
               {filteredList.length === 0 ? (
-                <div className="text-center py-12 bg-bg-card border border-white/[0.04] rounded-xl">
-                  <p className="text-xs text-text-muted font-mono">No matching exercises available in this category.</p>
+                <div style={{ background: colors.white, padding: spacing[24], borderRadius: radii.card, textAlign: 'center', border: `1px solid ${colors.success}30` }}>
+                  <p style={{ fontFamily: fonts.body, fontSize: fontSizes.xs, color: colors.muted, margin: 0 }}>No matching exercises available in this category.</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {filteredList.map((ex) => {
-                    const showBackPainWarning = profile.healthConditions.includes('back-pain') && ex.isHeavyLift;
-                    const showAsthmaWarning = profile.healthConditions.includes('asthma') && ex.category === 'full-body';
-                    const isStrechForBack = profile.healthConditions.includes('back-pain') && ex.category === 'back';
-                    const isBreathingForAsthma = profile.healthConditions.includes('asthma') && ex.category === 'breathing';
+                <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[32] }}>
+                  {(() => {
+                    const categoriesInActiveTab = activeTab === 'physical'
+                      ? ['legs', 'arms', 'core', 'back', 'chest', 'full-body']
+                      : ['breathing', 'meditation', 'sleep', 'stress', 'energy'];
 
-                    return (
-                      <div
-                        key={ex.id}
-                        className="p-5 rounded-xl bg-bg-card border border-white/[0.06] hover:border-gold-primary/20 shadow-card transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between"
-                      >
-                        <div>
-                          <div className="flex justify-between items-start gap-4 mb-3">
-                            <div className="flex items-center space-x-3">
-                              <div className="w-10 h-10 rounded-full bg-gold-primary/10 flex items-center justify-center text-lg border border-gold-primary/10">
-                                {ex.category === 'legs' ? '🦵' : ex.category === 'arms' ? '💪' : ex.category === 'chest' ? '👕' : ex.category === 'back' ? '🧘' : ex.category === 'core' ? '🏋️' : '🧠'}
-                              </div>
-                              <div>
-                                <h3 className="text-sm font-bold text-text-headline flex items-center flex-wrap gap-1">
-                                  <span>{ex.name}</span>
-                                  {isStrechForBack && (
-                                    <span className="bg-emerald-500/10 text-emerald-400 text-[8px] font-bold px-1.5 py-0.5 rounded uppercase font-mono">
-                                      Posture Stretch
-                                    </span>
-                                  )}
-                                  {isBreathingForAsthma && (
-                                    <span className="bg-emerald-500/10 text-emerald-400 text-[8px] font-bold px-1.5 py-0.5 rounded uppercase font-mono">
-                                      Recommended
-                                    </span>
-                                  )}
-                                </h3>
-                                <p className="text-[11px] text-text-muted font-mono uppercase tracking-wider mt-0.5">
-                                  {ex.category} · {ex.difficulty}
-                                </p>
-                              </div>
-                            </div>
+                    return categoriesInActiveTab.map(cat => {
+                      const exercisesInCat = filteredList.filter(ex => ex.category === cat);
+                      if (exercisesInCat.length === 0) return null;
 
-                            <span className="text-[10px] font-mono text-text-gold font-bold bg-gold-primary/5 px-2 py-0.5 rounded border border-gold-primary/10 whitespace-nowrap">
-                              {ex.duration}
-                            </span>
+                      let catFriendlyName = cat.charAt(0).toUpperCase() + cat.slice(1);
+                      if (cat === 'legs') catFriendlyName = 'Leg Exercises';
+                      else if (cat === 'arms') catFriendlyName = 'Arm Workouts';
+                      else if (cat === 'core') catFriendlyName = 'Core & Abs';
+                      else if (cat === 'back') catFriendlyName = 'Back & Posture';
+                      else if (cat === 'chest') catFriendlyName = 'Chest Exercises';
+                      else if (cat === 'full-body') catFriendlyName = 'Full Body Conditioning';
+                      else if (cat === 'breathing') catFriendlyName = 'Breathing Stretches';
+                      else if (cat === 'meditation') catFriendlyName = 'Mindfulness & Meditation';
+                      else if (cat === 'sleep') catFriendlyName = 'Sleep Stretches';
+                      else if (cat === 'stress') catFriendlyName = 'Stress Relief Stretches';
+                      else if (cat === 'energy') catFriendlyName = 'Energy Builders';
+
+                      return (
+                        <div key={cat} style={{ display: 'flex', flexDirection: 'column', gap: spacing[16] }}>
+                          <h3 style={{ fontFamily: fonts.heading, fontSize: '1rem', fontWeight: 700, color: colors.text, margin: 0, borderBottom: `1.5px solid ${colors.success}40`, paddingBottom: spacing[8] }}>
+                            {catFriendlyName}
+                          </h3>
+
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: spacing[24] }}>
+                            {exercisesInCat.map((ex) => {
+                              const showBackPainWarning = profile.healthConditions.includes('back-pain') && ex.isHeavyLift;
+                              const showAsthmaWarning = profile.healthConditions.includes('asthma') && ex.category === 'full-body';
+                              const isStrechForBack = profile.healthConditions.includes('back-pain') && ex.category === 'back';
+                              const isBreathingForAsthma = profile.healthConditions.includes('asthma') && ex.category === 'breathing';
+
+                              // Category Image Mapping
+                              let cardImg = '/mental_relaxation.png';
+                              if (activeTab === 'physical') {
+                                if (cat === 'legs' || cat === 'core') cardImg = '/male_workout.png';
+                                else if (cat === 'arms' || cat === 'chest') cardImg = '/fitness_workout.png';
+                                else cardImg = '/hero_mockup.png';
+                              }
+
+                              return (
+                                <div
+                                  key={ex.id}
+                                  style={{
+                                    background: colors.white,
+                                    borderRadius: radii.card,
+                                    boxShadow: shadows.card,
+                                    overflow: 'hidden',
+                                    border: `1px solid ${colors.success}30`,
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    justifyContent: 'space-between',
+                                    transition: 'transform 0.2s ease',
+                                  }}
+                                  onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                                  onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; }}
+                                >
+                                  <div>
+                                    <div style={{ height: '120px', position: 'relative' }}>
+                                      <img
+                                        src={cardImg}
+                                        alt={ex.name}
+                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                      />
+                                      <div style={{
+                                        position: 'absolute',
+                                        top: spacing[8],
+                                        right: spacing[8],
+                                        background: colors.primary,
+                                        color: colors.white,
+                                        padding: '2px 8px',
+                                        borderRadius: radii.button,
+                                        fontSize: '0.625rem',
+                                        fontWeight: 700,
+                                      }}>
+                                        {ex.difficulty}
+                                      </div>
+                                    </div>
+
+                                    <div style={{ padding: spacing[16] }}>
+                                      <h4 style={{ fontFamily: fonts.heading, fontSize: '0.9375rem', fontWeight: 700, color: colors.text, margin: 0, display: 'flex', flexWrap: 'wrap', gap: spacing[4], alignItems: 'center' }}>
+                                        <span>{ex.name}</span>
+                                        {isStrechForBack && (
+                                          <span style={{ fontSize: '0.5625rem', background: `${colors.success}20`, color: colors.primary, padding: '1px 6px', borderRadius: radii.full, fontWeight: 700 }}>
+                                            Safe Back Stretch
+                                          </span>
+                                        )}
+                                        {isBreathingForAsthma && (
+                                          <span style={{ fontSize: '0.5625rem', background: `${colors.success}20`, color: colors.primary, padding: '1px 6px', borderRadius: radii.full, fontWeight: 700 }}>
+                                            Lung Friendly
+                                          </span>
+                                        )}
+                                      </h4>
+
+                                      <p style={{ fontFamily: fonts.body, fontSize: '0.75rem', color: colors.muted, lineHeight: 1.5, marginTop: spacing[8], margin: 0 }}>
+                                        {ex.description}
+                                      </p>
+
+                                      {showBackPainWarning && (
+                                        <div style={{ background: '#fff9db', border: '1px solid #ffe066', borderRadius: radii.button, padding: spacing[8], marginTop: spacing[12], display: 'flex', gap: spacing[4], alignItems: 'flex-start' }}>
+                                          <AlertTriangle size={14} style={{ color: '#f59f00', flexShrink: 0 }} />
+                                          <span style={{ fontSize: '0.625rem', color: '#f59f00', fontWeight: 600 }}>Avoid curving your spine. Lift slowly.</span>
+                                        </div>
+                                      )}
+
+                                      {showAsthmaWarning && (
+                                        <div style={{ background: '#fff9db', border: '1px solid #ffe066', borderRadius: radii.button, padding: spacing[8], marginTop: spacing[12], display: 'flex', gap: spacing[4], alignItems: 'flex-start' }}>
+                                          <AlertTriangle size={14} style={{ color: '#f59f00', flexShrink: 0 }} />
+                                          <span style={{ fontSize: '0.625rem', color: '#f59f00', fontWeight: 600 }}>High stamina exercise. Keep inhaler nearby.</span>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+
+                                  <div style={{ padding: `0 ${spacing[16]} ${spacing[16]}` }}>
+                                    <button
+                                      onClick={() => handleStartExercise(ex)}
+                                      className="hch-btn hch-btn--outline"
+                                      style={{ width: '100%', fontSize: fontSizes.xs, padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', whiteSpace: 'nowrap' }}
+                                    >
+                                      <Clock size={12} />
+                                      <span>Start Workout ({ex.duration})</span>
+                                    </button>
+                                  </div>
+                                </div>
+                              );
+                            })}
                           </div>
-
-                          <p className="text-xs text-text-body leading-relaxed mb-4">
-                            {ex.description}
-                          </p>
-
-                          {showBackPainWarning && (
-                            <div className="p-2 rounded bg-yellow-500/5 border border-yellow-500/10 text-[10px] text-yellow-500 mb-4 font-sans flex items-start space-x-1">
-                              <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
-                              <span>⚠️ Warning: Lift carefully. Do not curve spine (Back Pain).</span>
-                            </div>
-                          )}
-
-                          {showAsthmaWarning && (
-                            <div className="p-2 rounded bg-yellow-500/5 border border-yellow-500/10 text-[10px] text-yellow-500 mb-4 font-sans flex items-start space-x-1">
-                              <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
-                              <span>⚠️ High intensity: Keep inhaler nearby (Asthma warning).</span>
-                            </div>
-                          )}
                         </div>
-
-                        <button
-                          onClick={() => handleStartExercise(ex)}
-                          className="w-full mt-4 py-2 bg-gold-primary/10 hover:bg-gold-primary hover:text-bg-deep border border-gold-primary/20 text-gold-primary font-bold text-xs rounded-lg transition duration-150 flex items-center justify-center space-x-1"
-                        >
-                          <Clock className="w-3.5 h-3.5" />
-                          <span>Start Workout</span>
-                        </button>
-                      </div>
-                    );
-                  })}
+                      );
+                    });
+                  })()}
                 </div>
               )}
             </div>
@@ -1254,9 +1419,16 @@ export default function ExerciseView({
               {planSubTab === 'past' && (
                 <div className="space-y-4">
                   {savedExercisePlans.length === 0 ? (
-                    <div className="p-8 rounded-xl bg-bg-card border border-white/[0.04] text-center text-xs text-text-muted font-mono py-12">
-                      <Calendar className="w-6 h-6 mx-auto opacity-30 mb-2" />
-                      <span>No saved routines yet. Click "Save Routine" in your active program to create an archive.</span>
+                    <div style={{ textAlign: 'center', padding: spacing[24], background: '#FAF7F2', border: `1.5px dashed ${colors.success}50`, borderRadius: radii.card, display: 'flex', flexDirection: 'column', gap: spacing[12], alignItems: 'center' }}>
+                      <Calendar className="w-8 h-8" style={{ color: colors.muted }} />
+                      <span style={{ fontFamily: fonts.body, fontSize: fontSizes.xs, color: colors.text }}>No saved workouts in your history yet. Archive your active routine to see it here.</span>
+                      <button
+                        onClick={handleSaveExercisePlan}
+                        className="hch-btn hch-btn--primary"
+                        style={{ fontSize: fontSizes.xs, padding: '12px 20px', whiteSpace: 'nowrap' }}
+                      >
+                        Save Current Workout Program
+                      </button>
                     </div>
                   ) : (
                     <div className="space-y-3">
@@ -1296,8 +1468,8 @@ export default function ExerciseView({
 
         </div>
 
-        {/* RIGHT COLUMN: REST TIMER, TODAY'S HISTORY LOGS */}
-        <div className="lg:col-span-4 space-y-6 flex flex-col justify-start">
+        {/* BOTTOM FULL-WIDTH SECTIONS: SAFEGUARDS, MATCHER, REST TIMER, LOGS */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-start w-full pt-8 border-t border-white/[0.06]">
           
           {/* INTERACTIVE BODY MAP CARD */}
           <div className="p-5 rounded-xl bg-bg-card border border-white/[0.06] shadow-card flex flex-col space-y-4">
@@ -1410,19 +1582,19 @@ export default function ExerciseView({
                 <div className="space-y-2">
                   <div className="flex justify-between items-center text-xs">
                     <span className="text-text-body">🚶 Brisk Walking</span>
-                    <span className="font-bold text-text-headline font-mono">{Math.round(getBurnFoodCalories() / 5)} mins</span>
+                    <span className="font-bold text-text-headline font-mono whitespace-nowrap shrink-0">{Math.round(getBurnFoodCalories() / 5)} mins</span>
                   </div>
                   <div className="flex justify-between items-center text-xs">
                     <span className="text-text-body">🦵 Body Squats</span>
-                    <span className="font-bold text-text-headline font-mono">{Math.round(getBurnFoodCalories() / 10)} mins</span>
+                    <span className="font-bold text-text-headline font-mono whitespace-nowrap shrink-0">{Math.round(getBurnFoodCalories() / 10)} mins</span>
                   </div>
                   <div className="flex justify-between items-center text-xs">
                     <span className="text-text-body">🧘 Soothing Yoga</span>
-                    <span className="font-bold text-text-headline font-mono">{Math.round(getBurnFoodCalories() / 3)} mins</span>
+                    <span className="font-bold text-text-headline font-mono whitespace-nowrap shrink-0">{Math.round(getBurnFoodCalories() / 3)} mins</span>
                   </div>
                   <div className="flex justify-between items-center text-xs">
                     <span className="text-text-body">🏃 High Knees Cardio</span>
-                    <span className="font-bold text-text-headline font-mono">{Math.round(getBurnFoodCalories() / 12)} mins</span>
+                    <span className="font-bold text-text-headline font-mono whitespace-nowrap shrink-0">{Math.round(getBurnFoodCalories() / 12)} mins</span>
                   </div>
                 </div>
               </div>
@@ -1437,8 +1609,11 @@ export default function ExerciseView({
             </div>
 
             <div className="flex flex-col items-center justify-center py-4 relative">
-              <div className="relative w-32 h-32 flex items-center justify-center">
-                <svg className="absolute w-full h-full transform -rotate-90">
+              <div 
+                className="relative w-32 h-32 flex items-center justify-center"
+                style={{ minWidth: '120px', minHeight: '120px', flexShrink: 0 }}
+              >
+                <svg className="absolute w-full h-full transform -rotate-90" viewBox="0 0 128 128">
                   <circle
                     cx="64"
                     cy="64"
@@ -1461,7 +1636,7 @@ export default function ExerciseView({
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                   <span className="text-3xl font-extrabold font-mono text-text-headline">{restSeconds}</span>
-                  <span className="text-[9px] text-text-muted font-mono uppercase tracking-widest">Seconds</span>
+                  <span className="text-[9px] text-text-muted font-mono uppercase tracking-widest whitespace-nowrap">Seconds</span>
                 </div>
               </div>
 
@@ -1516,30 +1691,44 @@ export default function ExerciseView({
             </span>
 
             {logsToday.length === 0 ? (
-              <div className="text-center py-6 text-xs text-text-muted font-mono">
-                No workouts logged yet today.
+              <div style={{ textAlign: 'center', padding: spacing[16], background: '#FAF7F2', border: `1.5px dashed ${colors.success}30`, borderRadius: radii.card, display: 'flex', flexDirection: 'column', gap: spacing[8], alignItems: 'center' }}>
+                <span style={{ fontFamily: fonts.body, fontSize: '0.75rem', color: colors.muted }}>You haven't logged any exercises yet today. Let's get active!</span>
+                <button
+                  onClick={() => {
+                    const recBtn = document.getElementById('start-recommended-btn');
+                    if (recBtn) {
+                      recBtn.click();
+                    } else {
+                      window.scrollTo({ top: 300, behavior: 'smooth' });
+                    }
+                  }}
+                  className="hch-btn hch-btn--primary"
+                  style={{ fontSize: fontSizes.xs, padding: '12px 20px', whiteSpace: 'nowrap' }}
+                >
+                  Start Recommended Workout
+                </button>
               </div>
             ) : (
               <div className="space-y-2.5 max-h-72 overflow-y-auto no-scrollbar pr-1">
                 {logsToday.map((log) => (
                   <div 
                     key={log.id}
-                    className="p-3 rounded-lg bg-white/[0.01] border border-white/[0.04] flex items-center justify-between"
+                    className="p-3 rounded-lg bg-white/[0.01] border border-white/[0.04] flex items-center justify-between gap-3 min-w-0"
                   >
-                    <div className="flex items-center space-x-2.5">
+                    <div className="flex items-center space-x-2.5 min-w-0 flex-1">
                       <div className="w-5 h-5 rounded-full bg-gold-primary/10 flex items-center justify-center text-[10px] shrink-0 text-gold-primary">
                         ✓
                       </div>
-                      <div className="text-left">
-                        <span className="text-xs font-bold text-text-headline block truncate max-w-[120px] sm:max-w-[155px]">
+                      <div className="text-left min-w-0 flex-1">
+                        <span className="text-xs font-bold text-text-headline block truncate">
                           {log.name}
                         </span>
-                        <span className="text-[9px] text-text-muted font-mono uppercase tracking-wider">
+                        <span className="text-[9px] text-text-muted font-mono uppercase tracking-wider block truncate">
                           {log.category} · {log.duration}
                         </span>
                       </div>
                     </div>
-                    <span className="text-[9px] text-text-gold font-mono whitespace-nowrap">
+                    <span className="text-[9px] text-text-gold font-mono whitespace-nowrap shrink-0">
                       {log.timestamp}
                     </span>
                   </div>
@@ -1801,19 +1990,93 @@ export default function ExerciseView({
         </div>
       )}
 
+      {/* WEEKLY ENERGY BURNED CHART (Below the fold) */}
+      <div
+        style={{
+          background: colors.white,
+          borderRadius: radii.card,
+          boxShadow: shadows.card,
+          padding: spacing[24],
+          border: `1px solid ${colors.success}30`,
+          marginTop: spacing[32],
+        }}
+      >
+        <div style={{ display: 'flex', justifySelf: 'stretch', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing[24] }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: spacing[8] }}>
+            <TrendingUp size={16} style={{ color: colors.primary }} />
+            <span style={{ fontFamily: fonts.body, fontSize: fontSizes.xs, fontWeight: 700, color: colors.text, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              Weekly Energy Burned (kcal)
+            </span>
+          </div>
+          <span style={{ fontFamily: fonts.body, fontSize: '0.6875rem', color: colors.muted }}>
+            Last 7 Days Challenge
+          </span>
+        </div>
+
+        <div style={{ position: 'relative', height: '140px', display: 'flex', flexDirection: 'row' }}>
+          {/* Grid lines */}
+          <div style={{ position: 'absolute', inset: `0 0 0 32px`, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', pointerEvents: 'none' }}>
+            <div style={{ borderTop: `1px dashed ${colors.success}30`, width: '100%' }} />
+            <div style={{ borderBottom: `1.5px solid ${colors.success}60`, width: '100%' }} />
+          </div>
+
+          {/* Y Axis Labels */}
+          <div style={{ width: '32px', height: '120px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', fontSize: '0.625rem', fontFamily: fonts.body, color: colors.muted, textAlign: 'right', paddingRight: spacing[8] }}>
+            <span>{maxCalories}</span>
+            <span>0</span>
+          </div>
+
+          {/* Graphical Bars */}
+          <div style={{ flexGrow: 1, height: '120px', display: 'flex', justifyContent: 'space-around', alignItems: 'end' }}>
+            {last7DaysChartData.map((day, idx) => {
+              const heightPercent = day.calories > 0 ? Math.max(8, (day.calories / maxCalories) * 100) : 0;
+              return (
+                <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, height: '100%', justifyContent: 'flex-end', position: 'relative' }} className="group">
+                  {/* Tooltip */}
+                  <div style={{ position: 'absolute', bottom: '100%', marginBottom: '4px', background: colors.text, color: colors.white, fontSize: '0.625rem', padding: '2px 6px', borderRadius: radii.button, opacity: 0, pointerEvents: 'none', transition: 'opacity 0.15s' }} className="group-hover:opacity-100">
+                    {day.calories} kcal
+                  </div>
+                  
+                  {/* Bar */}
+                  {day.calories > 0 ? (
+                    <div 
+                      style={{
+                        width: '18px',
+                        height: `${heightPercent}%`,
+                        background: colors.primary,
+                        borderRadius: `${radii.button} ${radii.button} 0 0`,
+                        transition: 'all 0.4s ease',
+                      }}
+                    />
+                  ) : (
+                    <div style={{ width: '18px', height: '4px', background: `${colors.success}30`, borderRadius: radii.button }} />
+                  )}
+                  
+                  {/* Day label */}
+                  <span style={{ position: 'absolute', top: '100%', marginTop: spacing[8], fontSize: '0.625rem', color: colors.muted, fontWeight: 650 }}>
+                    {day.dayName}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
       {/* 5-SECOND FLUID UNDO TOAST NOTIFICATION */}
       {showUndoToast && (
-        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 w-11/12 max-w-md bg-bg-surface border border-gold-primary/30 rounded-2xl shadow-deep p-4 space-y-3 animate-slide-up">
+        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 w-11/12 max-w-md bg-bg-surface border border-gold-primary/30 rounded-2xl shadow-deep p-4 space-y-3 animate-slide-up" style={{ background: colors.white, border: `1px solid ${colors.success}40` }}>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 rounded-full bg-gold-primary animate-ping" />
-              <p className="text-xs text-text-headline font-medium">
+              <div className="w-2 h-2 rounded-full bg-gold-primary animate-ping" style={{ background: colors.accent }} />
+              <p className="text-xs text-text-headline font-medium" style={{ color: colors.text }}>
                 {undoMessage}
               </p>
             </div>
             <button
               onClick={handleUndo}
-              className="px-3 py-1.5 bg-gold-primary text-bg-deep font-extrabold text-[10px] uppercase rounded-lg hover:bg-gold-light transition flex items-center space-x-1"
+              className="px-3 py-1.5 text-white font-extrabold text-[10px] uppercase rounded-lg transition flex items-center space-x-1"
+              style={{ background: colors.accent }}
             >
               <span>Undo Action</span>
             </button>
@@ -1822,8 +2085,8 @@ export default function ExerciseView({
           {/* Slipped Smooth Linear Countdown Slider Bar */}
           <div className="h-1 w-full bg-white/[0.04] rounded-full overflow-hidden">
             <div 
-              className="h-full bg-gradient-to-r from-gold-primary to-gold-light transition-all duration-100 ease-linear"
-              style={{ width: `${undoProgress}%` }}
+              className="h-full transition-all duration-100 ease-linear"
+              style={{ width: `${undoProgress}%`, background: colors.accent }}
             />
           </div>
         </div>

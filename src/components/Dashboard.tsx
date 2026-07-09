@@ -1,25 +1,41 @@
+/**
+ * Dashboard.tsx — Blended Wellness Home Screen
+ * ═══════════════════════════════════════════════
+ *
+ * Visual blend of three wellness-app patterns:
+ *   - MyFitnessPal: circular progress rings, one primary number per card, clean diary list
+ *   - Noom: warm coach-like tone, encouraging microcopy, streak celebration
+ *   - Headspace: soft rounded shapes, calm gradients, generous whitespace, micro-animations
+ */
+
 import React, { useState, useEffect } from 'react';
 import { UserProfile, UserMetrics } from '../types';
-import { 
-  Footprints, 
-  Droplet, 
-  Flame, 
-  Check, 
-  RotateCcw, 
-  Award, 
-  AlertTriangle 
+import { theme } from '../styles/theme';
+import '../styles/design-system.css';
+import {
+  Footprints,
+  Droplet,
+  Flame,
+  RotateCcw,
+  Plus,
+  Minus,
+  ChevronRight,
+  Sparkles,
+  Heart,
+  Clock,
 } from 'lucide-react';
 
+const { colors, fonts, fontSizes, radii, shadows, spacing } = theme;
+
+/* ─── Types ──────────────────────────────────────────────────────── */
 interface DashboardProps {
   profile: UserProfile;
   metrics: UserMetrics;
   onOpenOnboarding: () => void;
   setCurrentTab: (tab: string) => void;
-  
-  // States of logged items passed down from App
   loggedCalories: number;
   loggedProtein: number;
-  loggedWater: number; // in Liters
+  loggedWater: number;
   loggedSteps: number;
   loggedSleep: number;
   onUpdateLogs: (updates: {
@@ -32,14 +48,100 @@ interface DashboardProps {
   simpleMode?: boolean;
 }
 
-const HEALTH_QUOTES = [
-  "A healthy body is a home for a peaceful mind. Take care of yourself today.",
-  "Your health is your greatest wealth. Every step forward is a victory.",
-  "Eat to nourish, move to strengthen, rest to restore.",
-  "Consistency is the secret to lifetime wellness. Keep it simple and safe.",
-  "Wellness is a journey, not a destination. Celebrate small daily wins!"
-];
+/* ─── Coach Messages (Noom-style encouraging copy) ───────────────── */
+const COACH_MESSAGES = {
+  morning: [
+    "Rise and shine! 🌅 Today's a fresh start — let's make it count.",
+    "Good morning! Your body will thank you for every healthy choice today.",
+    "A new day, a new chance to feel amazing. You've got this! ✨",
+  ],
+  afternoon: [
+    "You're doing great today! Keep that momentum going. 💪",
+    "Halfway through the day — stay hydrated and keep moving!",
+    "Afternoon check-in: remember, small steps lead to big changes. 🌿",
+  ],
+  evening: [
+    "Winding down — great job today! Review your progress below. 🌙",
+    "Evening already! Let's see how your day shaped up.",
+    "Almost done for today — you showed up, and that matters. 💚",
+  ],
+};
 
+const getCoachMessage = () => {
+  const h = new Date().getHours();
+  const bucket = h < 12 ? 'morning' : h < 18 ? 'afternoon' : 'evening';
+  const msgs = COACH_MESSAGES[bucket];
+  return msgs[new Date().getDate() % msgs.length];
+};
+
+const getGreeting = () => {
+  const h = new Date().getHours();
+  if (h < 12) return 'Good morning';
+  if (h < 18) return 'Good afternoon';
+  return 'Good evening';
+};
+
+/* ─── Animated Progress Ring (MyFitnessPal-style) ────────────────── */
+const ProgressRing: React.FC<{
+  progress: number;
+  color: string;
+  trackColor?: string;
+  size?: number;
+  strokeWidth?: number;
+  children?: React.ReactNode;
+}> = ({ progress, color, trackColor, size = 100, strokeWidth = 7, children }) => {
+  const r = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * r;
+  const clampedProgress = Math.min(Math.max(progress, 0), 1);
+  const offset = circumference - circumference * clampedProgress;
+
+  return (
+    <div style={{ position: 'relative', width: size, height: size, flexShrink: 0 }}>
+      <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
+        {/* Track */}
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          fill="transparent"
+          stroke={trackColor || `${colors.success}30`}
+          strokeWidth={strokeWidth}
+        />
+        {/* Fill */}
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          fill="transparent"
+          stroke={color}
+          strokeWidth={strokeWidth}
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          strokeLinecap="round"
+          style={{
+            transition: 'stroke-dashoffset 1s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+          }}
+        />
+      </svg>
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        {children}
+      </div>
+    </div>
+  );
+};
+
+/* ═══════════════════════════════════════════════════════════════════
+   MAIN DASHBOARD COMPONENT
+   ═══════════════════════════════════════════════════════════════════ */
 export default function Dashboard({
   profile,
   metrics,
@@ -51,524 +153,718 @@ export default function Dashboard({
   loggedSteps,
   loggedSleep,
   onUpdateLogs,
-  simpleMode = false
 }: DashboardProps) {
-  
-  // Habits checks state
-  const [habitsChecked, setHabitsChecked] = useState<{
-    water: boolean;
-    steps: boolean;
-    sleep: boolean;
-  }>({
-    water: false,
-    steps: false,
-    sleep: false
-  });
 
-  // Undo System State
-  const [lastActionSnapshot, setLastActionSnapshot] = useState<{
-    calories: number;
-    protein: number;
-    water: number;
-    steps: number;
-    sleep: number;
+  /* Undo system */
+  const [lastSnapshot, setLastSnapshot] = useState<{
+    calories: number; protein: number; water: number; steps: number; sleep: number;
   } | null>(null);
-  const [undoTimer, setUndoTimer] = useState<number>(0);
-  const [showUndoToast, setShowUndoToast] = useState<boolean>(false);
-  const [undoMessage, setUndoMessage] = useState<string>('');
+  const [undoTimer, setUndoTimer] = useState(0);
+  const [showUndo, setShowUndo] = useState(false);
+  const [undoMsg, setUndoMsg] = useState('');
 
-  // Undo Timer Loop
   useEffect(() => {
-    let interval: any;
-    if (showUndoToast && undoTimer > 0) {
-      interval = setInterval(() => {
-        setUndoTimer((prev) => {
-          if (prev <= 1) {
-            setShowUndoToast(false);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [showUndoToast, undoTimer]);
+    if (!showUndo || undoTimer <= 0) return;
+    const id = setInterval(() => {
+      setUndoTimer((t) => {
+        if (t <= 1) { setShowUndo(false); return 0; }
+        return t - 1;
+      });
+    }, 1000);
+    return () => clearInterval(id);
+  }, [showUndo, undoTimer]);
 
-  const triggerUndoableAction = (
-    message: string,
-    newUpdates: {
-      calories?: number;
-      protein?: number;
-      water?: number;
-      steps?: number;
-      sleep?: number;
-    }
-  ) => {
-    const snapshot = {
-      calories: loggedCalories,
-      protein: loggedProtein,
-      water: loggedWater,
-      steps: loggedSteps,
-      sleep: loggedSleep,
-    };
-
-    setLastActionSnapshot(snapshot);
-    setUndoMessage(message);
+  const doUndoable = (msg: string, updates: Partial<{ calories: number; protein: number; water: number; steps: number; sleep: number }>) => {
+    setLastSnapshot({ calories: loggedCalories, protein: loggedProtein, water: loggedWater, steps: loggedSteps, sleep: loggedSleep });
+    setUndoMsg(msg);
     setUndoTimer(5);
-    setShowUndoToast(true);
-
-    onUpdateLogs(newUpdates);
+    setShowUndo(true);
+    onUpdateLogs(updates);
   };
 
   const handleUndo = () => {
-    if (lastActionSnapshot) {
-      onUpdateLogs(lastActionSnapshot);
-      setLastActionSnapshot(null);
-      setShowUndoToast(false);
-    }
+    if (lastSnapshot) { onUpdateLogs(lastSnapshot); setLastSnapshot(null); setShowUndo(false); }
   };
 
-  // Automatically check off habits if targets are achieved
-  useEffect(() => {
-    const isWaterMet = loggedWater >= metrics.water;
-    const isStepsMet = loggedSteps >= metrics.steps;
-    const isSleepMet = loggedSleep >= metrics.sleep;
-    
-    setHabitsChecked(prev => ({
-      water: isWaterMet ? true : prev.water,
-      steps: isStepsMet ? true : prev.steps,
-      sleep: isSleepMet ? true : prev.sleep
-    }));
-  }, [loggedWater, loggedSteps, loggedSleep, metrics]);
+  /* Adjusters */
+  const addSteps = (n: number) => doUndoable(`Steps ${n > 0 ? '+' : ''}${n.toLocaleString()}`, { steps: Math.max(0, loggedSteps + n) });
+  const addWater = (ml: number) => doUndoable(`Water ${ml > 0 ? '+' : ''}${ml}ml`, { water: Math.max(0, Math.round((loggedWater + ml / 1000) * 100) / 100) });
 
-  // Adjusters
-  const handleAdjustSteps = (amount: number) => {
-    const targetSteps = Math.max(0, loggedSteps + amount);
-    triggerUndoableAction(`Steps adjusted (${amount > 0 ? '+' : ''}${amount.toLocaleString()})`, {
-      steps: targetSteps
+  /* Derived */
+  const stepsProgress = metrics.steps > 0 ? loggedSteps / metrics.steps : 0;
+  const calProgress = metrics.calories > 0 ? loggedCalories / metrics.calories : 0;
+  const waterCups = Math.round(loggedWater / 0.25);
+  const waterProgress = waterCups / 8;
+  const firstName = profile.name.split(' ')[0];
+
+  /* Streak (simple mock based on date) */
+  const streakDays = Math.max(1, new Date().getDate() % 7 + 1);
+
+  /* Diary items — combine logged data into a timeline */
+  const diaryItems: { time: string; icon: React.ReactNode; label: string; detail: string; color: string }[] = [];
+  if (loggedCalories > 0) {
+    diaryItems.push({
+      time: 'Today',
+      icon: <Flame size={16} />,
+      label: 'Meals logged',
+      detail: `${loggedCalories.toLocaleString()} kcal · ${loggedProtein}g protein`,
+      color: colors.accent,
     });
-  };
-
-  const handleAddWaterMl = (ml: number) => {
-    const currentLitres = loggedWater;
-    const additionalLitres = ml / 1000;
-    const targetWater = Math.max(0, Math.round((currentLitres + additionalLitres) * 100) / 100);
-    triggerUndoableAction(`Water logged (${ml > 0 ? '+' : ''}${ml}ml)`, {
-      water: targetWater
+  }
+  if (loggedSteps > 0) {
+    diaryItems.push({
+      time: 'Today',
+      icon: <Footprints size={16} />,
+      label: 'Steps taken',
+      detail: `${loggedSteps.toLocaleString()} steps`,
+      color: colors.primary,
     });
-  };
-
-  const handleClearTodayLogs = () => {
-    if (confirm('Are you sure you want to clear your logged progress for today?')) {
-      onUpdateLogs({
-        calories: 0,
-        protein: 0,
-        water: 0,
-        steps: 0,
-        sleep: 0
-      });
-      setHabitsChecked({
-        water: false,
-        steps: false,
-        sleep: false
-      });
-    }
-  };
-
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'Good Morning, Champion! 🌅';
-    if (hour < 18) return 'Good Afternoon, Champion! ☀️';
-    return 'Good Evening, Champion! 🌙';
-  };
-
-  const todayQuote = HEALTH_QUOTES[new Date().getDate() % HEALTH_QUOTES.length];
-  const habitsCountDone = Object.values(habitsChecked).filter(Boolean).length;
+  }
+  if (loggedWater > 0) {
+    diaryItems.push({
+      time: 'Today',
+      icon: <Droplet size={16} />,
+      label: 'Water intake',
+      detail: `${waterCups} cups (${(loggedWater * 1000).toFixed(0)}ml)`,
+      color: colors.blue,
+    });
+  }
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-4 py-8 lg:py-12 space-y-8 lg:space-y-10 animate-fade-in text-left">
-      
-      {/* 1. Dynamic Greeting Header Banner */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-slate-100 pb-6">
-        <div>
-          <h2 className="text-xl md:text-3xl font-sans font-extrabold tracking-tight text-text-headline">
-            {getGreeting()}
-          </h2>
-          <p className="text-xs text-text-muted mt-1.5 italic font-sans">
-            "{todayQuote}"
-          </p>
-        </div>
+    <div
+      style={{
+        width: '100%',
+        maxWidth: '800px',
+        margin: '0 auto',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: spacing[24],
+        paddingBottom: spacing[48],
+      }}
+    >
+      {/* ═══════════════════════════════════════════════════════
+          1. GREETING + COACH MESSAGE (Noom-style warm header)
+         ═══════════════════════════════════════════════════════ */}
+      <div
+        className="hch-animate-in"
+        style={{
+          background: `linear-gradient(135deg, ${colors.primary} 0%, #3d6b43 60%, #4a7d52 100%)`,
+          borderRadius: radii.card,
+          padding: spacing[32],
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
+        {/* Decorative blob (Headspace feel) */}
+        <div style={{
+          position: 'absolute',
+          top: '-40px',
+          right: '-20px',
+          width: '180px',
+          height: '180px',
+          borderRadius: '50%',
+          background: 'rgba(255,255,255,0.06)',
+          pointerEvents: 'none',
+        }} />
+        <div style={{
+          position: 'absolute',
+          bottom: '-30px',
+          left: '-10px',
+          width: '120px',
+          height: '120px',
+          borderRadius: '50%',
+          background: 'rgba(242,134,94,0.1)',
+          pointerEvents: 'none',
+        }} />
 
-        <div className="flex space-x-2 shrink-0">
-          <button
-            onClick={handleClearTodayLogs}
-            className="flex items-center px-4 py-2 border border-slate-200 hover:border-red-400/20 bg-white hover:bg-slate-50 text-[10px] text-text-muted hover:text-red-650 rounded-lg transition font-mono min-h-[48px] cursor-pointer"
-            title="Reset daily counts"
-          >
-            Reset Logs
-          </button>
-          <button
-            onClick={onOpenOnboarding}
-            className="flex items-center px-4 py-2 btn-3d-purple text-[10px] font-bold rounded-lg active:scale-95 shadow-sm font-sans min-h-[48px] cursor-pointer"
-          >
-            <RotateCcw className="w-3 h-3 mr-1.5 animate-spin-hover" /> Recalculate
-          </button>
-        </div>
-      </div>
+        {/* Date */}
+        <span style={{
+          fontFamily: fonts.body,
+          fontSize: fontSizes.xs,
+          color: `${colors.success}`,
+          fontWeight: 500,
+          letterSpacing: '0.04em',
+          textTransform: 'uppercase',
+          position: 'relative',
+          zIndex: 1,
+        }}>
+          {new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long' })}
+        </span>
 
-      {/* Health Conditions Triggered Warnings Banner */}
-      {profile.healthConditions.length > 0 && (
-        <div className="p-4 rounded-3xl bg-amber-50/60 border border-amber-250 flex items-start space-x-3 text-left">
-          <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-          <div>
-            <h4 className="text-xs font-bold text-amber-800">Health Profile Adaptive Mode Triggered</h4>
-            <p className="text-xs text-text-body mt-0.5 leading-relaxed font-sans">
-              Your limits and fitness goals are dynamically customized for: {profile.healthConditions.map(c => c.split('-').join(' ')).join(', ')}.
-            </p>
-          </div>
-        </div>
-      )}
+        {/* Greeting */}
+        <h1 style={{
+          fontFamily: fonts.heading,
+          fontSize: '1.75rem',
+          fontWeight: 700,
+          color: colors.white,
+          margin: `${spacing[8]} 0 ${spacing[4]}`,
+          lineHeight: 1.2,
+          position: 'relative',
+          zIndex: 1,
+        }}>
+          {getGreeting()}, {firstName} 👋
+        </h1>
 
-      {/* 2. Primary Metrics Row (At-a-Glance) */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        
-        {/* Metric 1: Steps Taken */}
-        <div className="bg-white/80 backdrop-blur-md border border-slate-100 p-6 rounded-3xl shadow-xl shadow-slate-100/50 flex items-center justify-between">
-          <div className="space-y-1">
-            <span className="text-[10px] font-bold text-[#64748B] uppercase tracking-widest font-mono block">Steps Taken</span>
-            {simpleMode ? (
-              <span className={`text-xs font-extrabold block leading-tight py-1 ${loggedSteps >= metrics.steps ? 'text-emerald-600' : 'text-slate-500'}`}>
-                {loggedSteps >= metrics.steps ? '✓ Walk Completed 🟢' : '🚶 Keep Walking'}
-              </span>
-            ) : (
-              <div className="text-xl lg:text-2xl font-extrabold text-text-headline font-mono">
-                {loggedSteps.toLocaleString()} <span className="text-xs text-text-muted font-normal font-sans">/ {metrics.steps.toLocaleString()} steps</span>
-              </div>
-            )}
-            
-            {/* Inline Logs Incrementor */}
-            <div className="flex items-center space-x-1.5 pt-1">
-              <button
-                onClick={() => handleAdjustSteps(-1000)}
-                className="w-7 h-7 rounded-full bg-slate-100/80 hover:bg-slate-200 border border-slate-200/50 flex items-center justify-center text-xs font-bold text-text-headline active:scale-90 transition cursor-pointer"
-                title="Subtract 1,000 steps"
-              >
-                -
-              </button>
-              <button
-                onClick={() => handleAdjustSteps(1000)}
-                className="w-7 h-7 rounded-full bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-700 flex items-center justify-center text-xs font-bold active:scale-90 transition cursor-pointer"
-                title="Add 1,000 steps"
-              >
-                +
-              </button>
-            </div>
-          </div>
+        {/* Coach message (Noom-style) */}
+        <p style={{
+          fontFamily: fonts.body,
+          fontSize: fontSizes.sm,
+          color: 'rgba(255,255,255,0.85)',
+          margin: `${spacing[4]} 0 0`,
+          lineHeight: 1.6,
+          maxWidth: '480px',
+          position: 'relative',
+          zIndex: 1,
+        }}>
+          {getCoachMessage()}
+        </p>
 
-          {/* Icon/Circle Indicator */}
-          {!simpleMode && (
-            <div className="relative w-16 h-16 shrink-0 flex items-center justify-center">
-              <svg className="w-full h-full transform -rotate-90">
-                <circle cx="32" cy="32" r="26" className="stroke-slate-100" strokeWidth="4.5" fill="transparent" />
-                <circle cx="32" cy="32" r="26" className="stroke-sky-500 transition-all duration-1000 ease-out" strokeWidth="4.5" fill="transparent" strokeDasharray="163.3" strokeDashoffset={163.3 - (163.3 * Math.min(loggedSteps, metrics.steps)) / metrics.steps} strokeLinecap="round" />
-              </svg>
-              <span className="absolute text-sm">👟</span>
-            </div>
-          )}
-        </div>
-
-        {/* Metric 2: Calorie Budget */}
-        <div className="bg-white/80 backdrop-blur-md border border-slate-100 p-6 rounded-3xl shadow-xl shadow-slate-100/50 flex items-center justify-between">
-          <div className="space-y-1">
-            <span className="text-[10px] font-bold text-[#64748B] uppercase tracking-widest font-mono block">Calorie Budget</span>
-            {simpleMode ? (
-              <span className={`text-xs font-extrabold block leading-tight py-1 ${loggedCalories <= metrics.calories && loggedCalories > 0 ? 'text-emerald-600' : loggedCalories === 0 ? 'text-slate-500' : 'text-red-500'}`}>
-                {loggedCalories <= metrics.calories && loggedCalories > 0 ? '✓ Good Diet 🟢' : loggedCalories === 0 ? '🍽️ Eat Healthy' : '⚠️ Limit Exceeded'}
-              </span>
-            ) : (
-              <div className="text-xl lg:text-2xl font-extrabold text-text-headline font-mono">
-                {loggedCalories.toLocaleString()} <span className="text-xs text-text-muted font-normal font-sans">/ {metrics.calories.toLocaleString()} kcal</span>
-              </div>
-            )}
-            <span className="text-[10px] text-text-muted block pt-1.5 font-mono">Log meals inside Kitchen</span>
-          </div>
-
-          {/* Icon/Circle Indicator */}
-          {!simpleMode && (
-            <div className="relative w-16 h-16 shrink-0 flex items-center justify-center">
-              <svg className="w-full h-full transform -rotate-90">
-                <circle cx="32" cy="32" r="26" className="stroke-slate-100" strokeWidth="4.5" fill="transparent" />
-                <circle cx="32" cy="32" r="26" className="stroke-emerald-500 transition-all duration-1000 ease-out" strokeWidth="4.5" fill="transparent" strokeDasharray="163.3" strokeDashoffset={163.3 - (163.3 * Math.min(loggedCalories, metrics.calories)) / metrics.calories} strokeLinecap="round" />
-              </svg>
-              <span className="absolute text-sm">🥗</span>
-            </div>
-          )}
-        </div>
-
-        {/* Metric 3: Water Track */}
-        <div className="bg-white/80 backdrop-blur-md border border-slate-100 p-6 rounded-3xl shadow-xl shadow-slate-100/50 flex items-center justify-between">
-          <div className="space-y-1">
-            <span className="text-[10px] font-bold text-[#64748B] uppercase tracking-widest font-mono block">Water Track</span>
-            {simpleMode ? (
-              <span className={`text-xs font-extrabold block leading-tight py-1 ${loggedWater >= metrics.water ? 'text-emerald-600' : 'text-slate-500'}`}>
-                {loggedWater >= metrics.water ? '✓ Good Hydration 🟢' : '🥛 Drink Water'}
-              </span>
-            ) : (
-              <div className="text-xl lg:text-2xl font-extrabold text-text-headline font-mono">
-                {Math.round(loggedWater / 0.25)} <span className="text-xs text-text-muted font-normal font-sans">/ 8 Cups</span>
-              </div>
-            )}
-            
-            {/* Inline Logs Incrementor */}
-            <div className="flex items-center space-x-1.5 pt-1">
-              <button
-                onClick={() => handleAddWaterMl(-250)}
-                className="w-7 h-7 rounded-full bg-slate-100/80 hover:bg-slate-200 border border-slate-200/50 flex items-center justify-center text-xs font-bold text-text-headline active:scale-90 transition cursor-pointer"
-                title="Subtract 1 cup (250ml)"
-              >
-                -
-              </button>
-              <button
-                onClick={() => handleAddWaterMl(250)}
-                className="w-7 h-7 rounded-full bg-[#E0F2FE] hover:bg-[#BAE6FD] border border-[#bae6fd] text-[#0369a1] flex items-center justify-center text-xs font-bold active:scale-90 transition cursor-pointer"
-                title="Add 1 cup (250ml)"
-              >
-                +
-              </button>
-            </div>
-          </div>
-
-          {/* Icon/Circle Indicator */}
-          {!simpleMode && (
-            <div className="relative w-16 h-16 shrink-0 flex items-center justify-center">
-              <svg className="w-full h-full transform -rotate-90">
-                <circle cx="32" cy="32" r="26" className="stroke-slate-100" strokeWidth="4.5" fill="transparent" />
-                <circle cx="32" cy="32" r="26" className="stroke-blue-500 transition-all duration-1000 ease-out" strokeWidth="4.5" fill="transparent" strokeDasharray="163.3" strokeDashoffset={163.3 - (163.3 * Math.min(loggedWater, metrics.water)) / metrics.water} strokeLinecap="round" />
-              </svg>
-              <span className="absolute text-sm">💧</span>
-            </div>
-          )}
-        </div>
-
-      </div>
-
-      {/* 3. Three Isolated Primary Goal Gateway Action Buttons */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        
-        {/* Gateway 1: Open Nutrition Kitchen */}
-        <button
-          onClick={() => setCurrentTab('meals')}
-          className="p-8 bg-white/80 backdrop-blur-md border border-slate-100 hover:border-emerald-300 rounded-3xl shadow-xl shadow-slate-100/50 hover:shadow-emerald-100/30 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] text-left flex flex-col justify-between space-y-5 cursor-pointer group"
-        >
-          <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl shadow-sm border border-emerald-100 transition-colors group-hover:bg-emerald-100">
-            🥗
-          </div>
-          <div>
-            <h4 className="text-md font-sans font-extrabold text-text-headline group-hover:text-emerald-700 transition">
-              Open Nutrition Kitchen
-            </h4>
-            <p className="text-xs text-text-body mt-1 leading-relaxed font-sans">
-              Explore portion sizes, search local recipes, and run AI snap recommendations.
-            </p>
-          </div>
-          <span className="text-xs font-bold text-emerald-600 flex items-center">
-            Open Kitchen →
-          </span>
-        </button>
-
-        {/* Gateway 2: Start Joint-Safe Workout */}
-        <button
-          onClick={() => setCurrentTab('exercises')}
-          className="p-8 bg-white/80 backdrop-blur-md border border-slate-100 hover:border-sky-300 rounded-3xl shadow-xl shadow-slate-100/50 hover:shadow-sky-100/30 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] text-left flex flex-col justify-between space-y-5 cursor-pointer group"
-        >
-          <div className="w-12 h-12 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center text-xl shadow-sm border border-sky-100 transition-colors group-hover:bg-sky-100">
-            🏃
-          </div>
-          <div>
-            <h4 className="text-md font-sans font-extrabold text-text-headline group-hover:text-sky-700 transition">
-              Start Joint-Safe Workout
-            </h4>
-            <p className="text-xs text-text-body mt-1 leading-relaxed font-sans">
-              Begin joint-safe bodyweight stretches or custom workouts with simple wind-down timers.
-            </p>
-          </div>
-          <span className="text-xs font-bold text-sky-600 flex items-center">
-            Start Workout →
-          </span>
-        </button>
-
-        {/* Gateway 3: Begin Relaxation Session */}
-        <button
-          onClick={() => setCurrentTab('mind')}
-          className="p-8 bg-white/80 backdrop-blur-md border border-slate-100 hover:border-purple-300 rounded-3xl shadow-xl shadow-slate-100/50 hover:shadow-purple-100/30 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] text-left flex flex-col justify-between space-y-5 cursor-pointer group"
-        >
-          <div className="w-12 h-12 rounded-2xl bg-purple-50 text-purple-650 flex items-center justify-center text-xl shadow-sm border border-purple-100 transition-colors group-hover:bg-purple-100">
-            🧠
-          </div>
-          <div>
-            <h4 className="text-md font-sans font-extrabold text-text-headline group-hover:text-purple-750 transition">
-              Begin Relaxation Session
-            </h4>
-            <p className="text-xs text-text-body mt-1 leading-relaxed font-sans">
-              Relax your mind using 4-7-8 breathing exercises and visual metronome bubbles.
-            </p>
-          </div>
-          <span className="text-xs font-bold text-purple-650 flex items-center">
-            Relax Now →
-          </span>
-        </button>
-
-      </div>
-
-      {/* 4. DAILY HABITS INTERACTIVE LIST */}
-      <div className="bg-white/80 backdrop-blur-md border border-slate-100 rounded-3xl p-8 shadow-xl shadow-slate-100/50 space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <span className="text-[10px] font-bold text-[#64748B] uppercase tracking-widest font-mono block">Daily Habits</span>
-            <p className="text-xs text-text-body mt-0.5 font-sans">Tick the boxes as you complete them throughout the day!</p>
-          </div>
-          <span className="px-2.5 py-1 bg-purple-50 text-purple-700 rounded-full text-[10px] font-bold font-mono flex items-center">
-            <Check className="w-3 h-3 mr-1" /> {habitsCountDone} / 3 Complete
+        {/* Streak badge (Noom-style) */}
+        <div style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: spacing[8],
+          marginTop: spacing[16],
+          padding: '8px 16px',
+          borderRadius: radii.button,
+          background: 'rgba(255,255,255,0.15)',
+          backdropFilter: 'blur(8px)',
+          position: 'relative',
+          zIndex: 1,
+        }}>
+          <span style={{ fontSize: '1rem' }}>🔥</span>
+          <span style={{
+            fontFamily: fonts.body,
+            fontSize: fontSizes.xs,
+            fontWeight: 600,
+            color: colors.white,
+          }}>
+            {streakDays} day streak — keep it going!
           </span>
         </div>
-
-        <div className="space-y-2.5">
-          {/* Habit 1: Water */}
-          <button
-            onClick={() => setHabitsChecked(p => ({ ...p, water: !p.water }))}
-            className={`w-full p-3.5 rounded-2xl border flex items-center justify-between text-left transition-all active:scale-[0.98] cursor-pointer ${
-              habitsChecked.water 
-                ? 'bg-purple-50/50 border-purple-250 shadow-sm' 
-                : 'bg-slate-50/50 border-slate-100 hover:border-purple-200'
-            }`}
-            style={{ minHeight: '48px' }}
-          >
-            <div className="flex items-center space-x-3">
-              <span className="text-xl">🥛</span>
-              <div>
-                <h4 className="text-xs font-bold text-text-headline">Water Cup</h4>
-                <p className="text-[10.5px] text-text-body mt-0.5 font-sans">Drinking water is essential for your body. Drink water to stay active! ({Math.round(loggedWater * 1000)}ml logged)</p>
-              </div>
-            </div>
-            <div className={`w-5 h-5 rounded border flex items-center justify-center transition shrink-0 ${
-              habitsChecked.water 
-                ? 'bg-purple-600 border-purple-500 text-white' 
-                : 'border-slate-300 hover:border-purple-400'
-            }`}>
-              {habitsChecked.water && <Check className="w-3.5 h-3.5 stroke-[3]" />}
-            </div>
-          </button>
-
-          {/* Habit 2: Steps */}
-          <button
-            onClick={() => setHabitsChecked(p => ({ ...p, steps: !p.steps }))}
-            className={`w-full p-3.5 rounded-2xl border flex items-center justify-between text-left transition-all active:scale-[0.98] cursor-pointer ${
-              habitsChecked.steps 
-                ? 'bg-purple-50/50 border-purple-250 shadow-sm' 
-                : 'bg-slate-50/50 border-slate-100 hover:border-purple-200'
-            }`}
-            style={{ minHeight: '48px' }}
-          >
-            <div className="flex items-center space-x-3">
-              <span className="text-xl">👟</span>
-              <div>
-                <h4 className="text-xs font-bold text-text-headline">Step Shoe</h4>
-                <p className="text-[10.5px] text-text-body mt-0.5 font-sans">Walking helps keep your muscles active. Walk at your own pace! ({loggedSteps.toLocaleString()} steps logged)</p>
-              </div>
-            </div>
-            <div className={`w-5 h-5 rounded border flex items-center justify-center transition shrink-0 ${
-              habitsChecked.steps 
-                ? 'bg-purple-600 border-purple-500 text-white' 
-                : 'border-slate-300 hover:border-purple-400'
-            }`}>
-              {habitsChecked.steps && <Check className="w-3.5 h-3.5 stroke-[3]" />}
-            </div>
-          </button>
-
-          {/* Habit 3: Sleep */}
-          <button
-            onClick={() => setHabitsChecked(p => ({ ...p, sleep: !p.sleep }))}
-            className={`w-full p-3.5 rounded-2xl border flex items-center justify-between text-left transition-all active:scale-[0.98] cursor-pointer ${
-              habitsChecked.sleep 
-                ? 'bg-purple-50/50 border-purple-250 shadow-sm' 
-                : 'bg-slate-50/50 border-slate-100 hover:border-purple-200'
-            }`}
-            style={{ minHeight: '48px' }}
-          >
-            <div className="flex items-center space-x-3">
-              <span className="text-xl">⏰</span>
-              <div>
-                <h4 className="text-xs font-bold text-text-headline">Sleep Clock</h4>
-                <p className="text-[10.5px] text-text-body mt-0.5 font-sans">Restful sleep refreshes your brain and restores energy. Sleep well tonight! ({metrics.sleep} hours target)</p>
-              </div>
-            </div>
-            <div className={`w-5 h-5 rounded border flex items-center justify-center transition shrink-0 ${
-              habitsChecked.sleep 
-                ? 'bg-purple-600 border-purple-500 text-white' 
-                : 'border-slate-300 hover:border-purple-400'
-            }`}>
-              {habitsChecked.sleep && <Check className="w-3.5 h-3.5 stroke-[3]" />}
-            </div>
-          </button>
-        </div>
-
-        <div className="pt-2 flex justify-between text-[10px] font-mono text-text-muted">
-          <span>Progress: {Math.round((habitsCountDone / 3) * 100)}%</span>
-          <span>{new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'short' })}</span>
-        </div>
       </div>
 
-      {/* 5. Project Development Team credits attribution */}
-      <div className="bg-white/80 backdrop-blur-md border border-slate-100 rounded-3xl p-8 shadow-xl shadow-slate-100/50 text-left grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <h4 className="text-[10px] font-mono font-bold uppercase tracking-widest text-purple-650">✦ Project Development Team</h4>
-          <p className="text-[11px] text-text-body mt-1.5 leading-relaxed font-sans">
-            This project is proudly designed and developed by:
-          </p>
-          <ol className="list-decimal list-inside text-[11px] text-text-headline font-semibold space-y-0.5 mt-2 font-sans">
-            <li>Muhammad Jamal</li>
-            <li>Zainab Irfan</li>
-            <li>Laiba Khan</li>
-            <li>Aqsa Haider</li>
-            <li>Ujala Ashraf</li>
-          </ol>
-        </div>
-        <div className="flex flex-col justify-between items-start sm:items-end text-left sm:text-right">
+      {/* ═══════════════════════════════════════════════════════
+          2. PROGRESS RINGS (MyFitnessPal-style, one number each)
+         ═══════════════════════════════════════════════════════ */}
+      <div
+        className="hch-animate-in"
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(3, 1fr)',
+          gap: spacing[16],
+        }}
+      >
+        {/* Steps Ring */}
+        <div style={{
+          background: colors.white,
+          borderRadius: radii.card,
+          boxShadow: shadows.card,
+          padding: spacing[24],
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: spacing[12],
+          textAlign: 'center',
+        }}>
+          <ProgressRing progress={stepsProgress} color={colors.primary} size={90} strokeWidth={7}>
+            <span style={{ fontFamily: fonts.heading, fontSize: '1.25rem', fontWeight: 700, color: colors.text, lineHeight: 1 }}>
+              {loggedSteps > 0 ? (loggedSteps / 1000).toFixed(1) + 'k' : '0'}
+            </span>
+          </ProgressRing>
           <div>
-            <span className="text-[9px] font-mono text-text-muted uppercase tracking-wider block">Official Submission Contact</span>
-            <strong className="text-xs text-purple-750 block mt-1">Support Helpline: +92 309 4530756</strong>
+            <span style={{ fontFamily: fonts.body, fontSize: fontSizes.xs, fontWeight: 600, color: colors.muted, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              Steps
+            </span>
+            <span style={{ display: 'block', fontFamily: fonts.body, fontSize: '0.6875rem', color: colors.muted, marginTop: '2px' }}>
+              of {(metrics.steps / 1000).toFixed(0)}k goal
+            </span>
           </div>
-          <span className="text-[9.5px] text-text-muted font-mono mt-3 sm:mt-0">Health Care Hub Regional Welfare Pilot System</span>
-        </div>
-      </div>
-
-      {/* 5-SECOND UNDO TOAST NOTIFICATION */}
-      {showUndoToast && (
-        <div className="fixed bottom-6 right-6 z-50 p-4 rounded-xl bg-slate-900 border border-purple-200/90 shadow-lg max-w-sm w-[90vw] flex flex-col space-y-3 animate-fade-in text-white text-left">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center space-x-2">
-              <span className="text-xs font-semibold">
-                {undoMessage}
-              </span>
-            </div>
+          <div style={{ display: 'flex', gap: spacing[8] }}>
             <button
-              onClick={handleUndo}
-              className="px-3 py-1 bg-purple-600 hover:bg-purple-500 text-white font-extrabold text-[10px] rounded transition flex items-center shrink-0 active:scale-95 shadow cursor-pointer"
+              onClick={() => addSteps(-1000)}
+              style={{
+                width: '32px', height: '32px', borderRadius: radii.full,
+                border: `1.5px solid ${colors.success}60`, background: 'transparent',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', color: colors.muted, transition: 'all 0.2s',
+              }}
             >
-              <RotateCcw className="w-3 h-3 mr-1" /> Undo ({undoTimer}s)
+              <Minus size={14} />
+            </button>
+            <button
+              onClick={() => addSteps(1000)}
+              style={{
+                width: '32px', height: '32px', borderRadius: radii.full,
+                border: `1.5px solid ${colors.primary}50`, background: `${colors.primary}10`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', color: colors.primary, transition: 'all 0.2s',
+              }}
+            >
+              <Plus size={14} />
             </button>
           </div>
-          <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-purple-500 transition-all duration-1000 ease-linear" 
-              style={{ width: `${(undoTimer / 5) * 100}%` }}
-            ></div>
+        </div>
+
+        {/* Calories Ring */}
+        <div style={{
+          background: colors.white,
+          borderRadius: radii.card,
+          boxShadow: shadows.card,
+          padding: spacing[24],
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: spacing[12],
+          textAlign: 'center',
+        }}>
+          <ProgressRing progress={calProgress} color={colors.accent} size={90} strokeWidth={7}>
+            <span style={{ fontFamily: fonts.heading, fontSize: '1.25rem', fontWeight: 700, color: colors.text, lineHeight: 1 }}>
+              {loggedCalories > 0 ? loggedCalories.toLocaleString() : '0'}
+            </span>
+          </ProgressRing>
+          <div>
+            <span style={{ fontFamily: fonts.body, fontSize: fontSizes.xs, fontWeight: 600, color: colors.muted, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              Calories
+            </span>
+            <span style={{ display: 'block', fontFamily: fonts.body, fontSize: '0.6875rem', color: colors.muted, marginTop: '2px' }}>
+              of {metrics.calories.toLocaleString()} kcal
+            </span>
+          </div>
+          <div style={{ display: 'flex', gap: spacing[8] }}>
+            <button
+              onClick={() => doUndoable('-100 kcal', { calories: Math.max(0, loggedCalories - 100) })}
+              style={{
+                width: '32px', height: '32px', borderRadius: radii.full,
+                border: `1.5px solid ${colors.success}60`, background: 'transparent',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', color: colors.muted, transition: 'all 0.2s',
+              }}
+            >
+              <Minus size={14} />
+            </button>
+            <button
+              onClick={() => doUndoable('+100 kcal', { calories: loggedCalories + 100 })}
+              style={{
+                width: '32px', height: '32px', borderRadius: radii.full,
+                border: `1.5px solid ${colors.accent}50`, background: `${colors.accent}10`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', color: colors.accent, transition: 'all 0.2s',
+              }}
+            >
+              <Plus size={14} />
+            </button>
+          </div>
+        </div>
+
+        {/* Water Ring */}
+        <div style={{
+          background: colors.white,
+          borderRadius: radii.card,
+          boxShadow: shadows.card,
+          padding: spacing[24],
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: spacing[12],
+          textAlign: 'center',
+        }}>
+          <ProgressRing progress={waterProgress} color={colors.blue} size={90} strokeWidth={7}>
+            <span style={{ fontFamily: fonts.heading, fontSize: '1.25rem', fontWeight: 700, color: colors.text, lineHeight: 1 }}>
+              {waterCups}
+            </span>
+          </ProgressRing>
+          <div>
+            <span style={{ fontFamily: fonts.body, fontSize: fontSizes.xs, fontWeight: 600, color: colors.muted, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              Water
+            </span>
+            <span style={{ display: 'block', fontFamily: fonts.body, fontSize: '0.6875rem', color: colors.muted, marginTop: '2px' }}>
+              {waterCups} of 8 cups
+            </span>
+          </div>
+          <div style={{ display: 'flex', gap: spacing[8] }}>
+            <button
+              onClick={() => addWater(-250)}
+              style={{
+                width: '32px', height: '32px', borderRadius: radii.full,
+                border: `1.5px solid ${colors.success}60`, background: 'transparent',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', color: colors.muted, transition: 'all 0.2s',
+              }}
+            >
+              <Minus size={14} />
+            </button>
+            <button
+              onClick={() => addWater(250)}
+              style={{
+                width: '32px', height: '32px', borderRadius: radii.full,
+                border: `1.5px solid ${colors.blue}50`, background: `${colors.blue}10`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', color: colors.blue, transition: 'all 0.2s',
+              }}
+            >
+              <Plus size={14} />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ═══════════════════════════════════════════════════════
+          3. COACH ENCOURAGEMENT CARD (Headspace-style gradient)
+         ═══════════════════════════════════════════════════════ */}
+      <div
+        className="hch-animate-in"
+        style={{
+          background: `linear-gradient(135deg, ${colors.success}40 0%, ${colors.success}15 100%)`,
+          borderRadius: radii.card,
+          padding: spacing[24],
+          display: 'flex',
+          alignItems: 'center',
+          gap: spacing[16],
+        }}
+      >
+        <div style={{
+          width: '48px', height: '48px', borderRadius: radii.full,
+          background: colors.white,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          flexShrink: 0,
+          boxShadow: '0 2px 8px rgba(47,82,51,0.1)',
+        }}>
+          <Sparkles size={22} color={colors.primary} />
+        </div>
+        <div style={{ flex: 1 }}>
+          <p style={{
+            fontFamily: fonts.body,
+            fontSize: fontSizes.sm,
+            fontWeight: 600,
+            color: colors.primary,
+            margin: 0,
+            lineHeight: 1.5,
+          }}>
+            {calProgress >= 0.5 && stepsProgress >= 0.3
+              ? `Amazing progress today, ${firstName}! You're already past halfway on calories and getting those steps in. 🎉`
+              : calProgress >= 0.3
+              ? `Nice start! You've logged some meals already. Keep going — every bite logged helps you stay on track.`
+              : `Your day is just beginning! Start by logging a meal or taking a quick walk. Small wins add up. 🌱`
+            }
+          </p>
+        </div>
+      </div>
+
+      {/* ═══════════════════════════════════════════════════════
+          4. TODAY'S DIARY (MyFitnessPal-style activity list)
+         ═══════════════════════════════════════════════════════ */}
+      <div className="hch-animate-in">
+        <h2 style={{
+          fontFamily: fonts.heading,
+          fontSize: fontSizes.xl,
+          fontWeight: 700,
+          color: colors.text,
+          margin: `0 0 ${spacing[16]}`,
+        }}>
+          Today's diary
+        </h2>
+
+        {diaryItems.length > 0 ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[8] }}>
+            {diaryItems.map((item, i) => (
+              <div
+                key={i}
+                style={{
+                  background: colors.white,
+                  borderRadius: radii.card,
+                  boxShadow: shadows.card,
+                  padding: `${spacing[16]} ${spacing[20]}`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: spacing[16],
+                  transition: 'all 0.25s ease',
+                }}
+              >
+                <div style={{
+                  width: '40px', height: '40px', borderRadius: '12px',
+                  background: `${item.color}12`,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: item.color, flexShrink: 0,
+                }}>
+                  {item.icon}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <span style={{
+                    fontFamily: fonts.body,
+                    fontSize: fontSizes.sm,
+                    fontWeight: 600,
+                    color: colors.text,
+                    display: 'block',
+                  }}>
+                    {item.label}
+                  </span>
+                  <span style={{
+                    fontFamily: fonts.body,
+                    fontSize: fontSizes.xs,
+                    color: colors.muted,
+                    display: 'block',
+                    marginTop: '2px',
+                  }}>
+                    {item.detail}
+                  </span>
+                </div>
+                <Clock size={14} color={colors.muted} style={{ opacity: 0.4, flexShrink: 0 }} />
+              </div>
+            ))}
+          </div>
+        ) : (
+          /* Headspace-style empty state with mascot */
+          <div style={{
+            background: colors.white,
+            borderRadius: radii.card,
+            boxShadow: shadows.card,
+            padding: spacing[48],
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: spacing[16],
+            textAlign: 'center',
+          }}>
+            <div style={{ fontSize: '3rem', lineHeight: 1 }}>🥑</div>
+            <h3 style={{
+              fontFamily: fonts.heading,
+              fontSize: fontSizes.lg,
+              fontWeight: 600,
+              color: colors.text,
+              margin: 0,
+            }}>
+              Nothing logged yet — that's okay!
+            </h3>
+            <p style={{
+              fontFamily: fonts.body,
+              fontSize: fontSizes.sm,
+              color: colors.muted,
+              lineHeight: 1.6,
+              margin: 0,
+              maxWidth: '320px',
+            }}>
+              Start your day by logging a meal, adding some steps, or grabbing a glass of water. Every small action counts.
+            </p>
+            <button
+              onClick={() => setCurrentTab('meals')}
+              className="hch-btn hch-btn--accent"
+              style={{ marginTop: spacing[8] }}
+            >
+              <Plus size={16} /> Log your first meal
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* ═══════════════════════════════════════════════════════
+          5. EXPLORE SHORTCUTS (Headspace-style navigation cards)
+         ═══════════════════════════════════════════════════════ */}
+      <div className="hch-animate-in">
+        <h2 style={{
+          fontFamily: fonts.heading,
+          fontSize: fontSizes.xl,
+          fontWeight: 700,
+          color: colors.text,
+          margin: `0 0 ${spacing[16]}`,
+        }}>
+          Explore
+        </h2>
+
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: spacing[12],
+        }}>
+          {[
+            { label: 'Meal Planner', desc: 'Pakistani recipes & nutrition tracking', tab: 'meals', emoji: '🥗', image: '/quick_action_meal.png' },
+            { label: 'Workouts', desc: 'Joint-safe exercises for every level', tab: 'exercises', emoji: '💪', image: '/quick_action_workout.png' },
+            { label: 'Mind Support', desc: 'Breathing, meditation & coach chat', tab: 'mind', emoji: '🧘', image: '/quick_action_coach.png' },
+          ].map((item) => (
+            <button
+              key={item.tab}
+              onClick={() => setCurrentTab(item.tab)}
+              style={{
+                position: 'relative',
+                borderRadius: radii.card,
+                overflow: 'hidden',
+                border: 'none',
+                cursor: 'pointer',
+                textAlign: 'left',
+                minHeight: '160px',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'flex-end',
+                transition: 'transform 0.25s ease, box-shadow 0.25s ease',
+                boxShadow: shadows.card,
+                width: '100%',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-3px)';
+                e.currentTarget.style.boxShadow = '0 6px 24px rgba(38,41,31,0.14)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = shadows.card;
+              }}
+            >
+              <img
+                src={item.image}
+                alt={item.label}
+                style={{
+                  position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover',
+                }}
+              />
+              <div style={{
+                position: 'absolute', inset: 0,
+                background: 'linear-gradient(0deg, rgba(38,41,31,0.78) 0%, rgba(38,41,31,0.2) 50%, transparent 100%)',
+              }} />
+              <div style={{ position: 'relative', padding: spacing[20], zIndex: 1 }}>
+                <h3 style={{
+                  fontFamily: fonts.heading,
+                  fontSize: fontSizes.base,
+                  fontWeight: 700,
+                  color: colors.white,
+                  margin: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: spacing[8],
+                }}>
+                  {item.label} <ChevronRight size={14} style={{ opacity: 0.6 }} />
+                </h3>
+                <p style={{
+                  fontFamily: fonts.body,
+                  fontSize: fontSizes.xs,
+                  color: 'rgba(255,255,255,0.75)',
+                  margin: `${spacing[4]} 0 0`,
+                  lineHeight: 1.4,
+                }}>
+                  {item.desc}
+                </p>
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ═══════════════════════════════════════════════════════
+          6. DAILY TIP (warm, Noom-style coaching tip)
+         ═══════════════════════════════════════════════════════ */}
+      <div
+        className="hch-animate-in"
+        style={{
+          background: colors.white,
+          borderRadius: radii.card,
+          boxShadow: shadows.card,
+          padding: spacing[24],
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: spacing[16],
+        }}
+      >
+        <div style={{
+          width: '40px', height: '40px', borderRadius: '12px',
+          background: `${colors.accent}12`,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          flexShrink: 0,
+        }}>
+          <Heart size={18} color={colors.accent} />
+        </div>
+        <div>
+          <h4 style={{
+            fontFamily: fonts.heading,
+            fontSize: fontSizes.sm,
+            fontWeight: 700,
+            color: colors.text,
+            margin: `0 0 ${spacing[4]}`,
+          }}>
+            Today's wellness tip
+          </h4>
+          <p style={{
+            fontFamily: fonts.body,
+            fontSize: fontSizes.sm,
+            color: colors.muted,
+            lineHeight: 1.65,
+            margin: 0,
+          }}>
+            Drinking a glass of warm water first thing in the morning kickstarts your metabolism, aids digestion, and keeps your hydration on track. Try it tomorrow! 💧
+          </p>
+        </div>
+      </div>
+
+      {/* ═══════════════════════════════════════════════════════
+          7. RECALCULATE GOALS (subtle, non-intrusive)
+         ═══════════════════════════════════════════════════════ */}
+      <div style={{ textAlign: 'center' }}>
+        <button
+          onClick={onOpenOnboarding}
+          className="hch-btn hch-btn--ghost"
+          style={{ fontSize: fontSizes.xs }}
+        >
+          <RotateCcw size={12} /> Recalculate my goals
+        </button>
+      </div>
+
+      {/* ═══════════════════════════════════════════════════════
+          UNDO TOAST
+         ═══════════════════════════════════════════════════════ */}
+      {showUndo && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: spacing[24],
+            right: spacing[24],
+            zIndex: 50,
+            background: colors.text,
+            color: colors.white,
+            borderRadius: radii.card,
+            padding: spacing[16],
+            boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
+            maxWidth: '340px',
+            width: '90vw',
+            fontFamily: fonts.body,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: spacing[8],
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: spacing[8] }}>
+            <span style={{ fontSize: fontSizes.sm, fontWeight: 500 }}>{undoMsg}</span>
+            <button
+              onClick={handleUndo}
+              style={{
+                padding: '10px 20px',
+                borderRadius: radii.button,
+                border: 'none',
+                background: colors.accent,
+                color: colors.white,
+                fontWeight: 700,
+                fontSize: fontSizes.xs,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                flexShrink: 0,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              <RotateCcw size={11} /> Undo ({undoTimer}s)
+            </button>
+          </div>
+          <div style={{ width: '100%', height: '3px', background: 'rgba(255,255,255,0.12)', borderRadius: radii.full, overflow: 'hidden' }}>
+            <div
+              style={{
+                height: '100%',
+                background: colors.accent,
+                borderRadius: radii.full,
+                transition: 'width 1s linear',
+                width: `${(undoTimer / 5) * 100}%`,
+              }}
+            />
           </div>
         </div>
       )}
-
     </div>
   );
 }

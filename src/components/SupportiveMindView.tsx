@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { UserProfile } from '../types';
+import { theme } from '../styles/theme';
+import '../styles/design-system.css';
 import { 
   Brain, 
   Heart, 
@@ -24,6 +26,8 @@ import {
   Coffee
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+
+const { colors, fonts, fontSizes, radii, shadows, spacing } = theme;
 
 interface SupportiveMindViewProps {
   profile: UserProfile;
@@ -584,81 +588,152 @@ export default function SupportiveMindView({ profile }: SupportiveMindViewProps)
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-6" id="supportive-mind-view">
       
-      {/* Title Header Block */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-gradient-to-r from-gold-primary/10 via-white/[0.01] to-white/[0.01] border border-gold-primary/20 rounded-2xl shadow-deep">
-        <div className="space-y-1">
-          <div className="flex items-center space-x-2">
-            <span className="p-1.5 rounded-lg bg-gold-primary/15 text-gold-primary">
-              <Brain className="w-5 h-5 animate-pulse" />
-            </span>
-            <span className="text-[10px] font-bold text-text-gold uppercase tracking-widest font-mono">Mind & Self-Care Hub</span>
+      {/* HEADER IMAGE BANNER */}
+      <div
+        className="hero-banner-responsive"
+        style={{
+          position: 'relative',
+          borderRadius: radii.card,
+          overflow: 'hidden',
+          boxShadow: shadows.card,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'flex-end',
+          padding: spacing[24],
+        }}
+      >
+        <img
+          src="/mental_relaxation.png"
+          alt="Calming Mind & Self-Care banner"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            zIndex: 0,
+          }}
+        />
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: `linear-gradient(135deg, ${colors.primary}f2 0%, ${colors.primary}77 70%, transparent 100%)`,
+            zIndex: 1,
+          }}
+        />
+        <div style={{ position: 'relative', zIndex: 2, color: colors.white, display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-end', gap: spacing[16], width: '100%' }}>
+          <div>
+            <h2
+              className="hch-heading"
+              style={{
+                fontSize: '2rem',
+                fontWeight: 750,
+                color: colors.white,
+                margin: 0,
+              }}
+            >
+              Supportive Mind & Self-Care
+            </h2>
+            <p
+              style={{
+                fontFamily: fonts.body,
+                fontSize: fontSizes.sm,
+                color: 'rgba(255, 255, 255, 0.9)',
+                margin: `${spacing[8]} 0 0`,
+                maxWidth: '520px',
+                lineHeight: 1.5,
+              }}
+            >
+              A supportive companion who listens when you are stressed, worried, or feeling low. Practice reframing thoughts or journal your gratitude.
+            </p>
           </div>
-          <h2 className="text-xl md:text-2xl font-bold font-sans text-text-headline tracking-tight">
-            Talk to Your Mind Coach
-          </h2>
-          <p className="text-xs text-text-body max-w-xl">
-            A supportive companion who listens when you are stressed, worried, or feeling low. Practice reframing thoughts or journal your gratitude.
-          </p>
-        </div>
-        
-        {/* Quick status box */}
-        <div className="flex items-center space-x-3 bg-white/[0.02] border border-white/[0.05] p-3 rounded-xl shrink-0">
-          <Heart className="w-4 h-4 text-rose-500 fill-rose-500/20" />
-          <div className="text-left">
-            <span className="text-[9px] font-bold text-text-muted uppercase tracking-wider block font-mono">Current Wellbeing</span>
-            <span className="text-xs text-text-headline font-bold font-mono">
-              {selfCareLogs.length > 0 ? `${selfCareLogs[0].mood} Mood` : 'Warmly Active'}
-            </span>
+
+          <div style={{ background: 'rgba(255, 255, 255, 0.1)', padding: spacing[12], borderRadius: radii.card, border: '1px solid rgba(255, 255, 255, 0.2)', display: 'flex', alignItems: 'center', gap: spacing[8] }}>
+            <Heart size={16} style={{ color: colors.accent, fill: colors.accent }} />
+            <div style={{ textAlign: 'left' }}>
+              <span style={{ fontSize: '0.625rem', color: 'rgba(255, 255, 255, 0.7)', textTransform: 'uppercase', display: 'block', fontWeight: 700 }}>Current Wellbeing</span>
+              <span style={{ fontSize: '0.75rem', color: colors.white, fontWeight: 700 }}>
+                {selfCareLogs.length > 0 ? `${selfCareLogs[0].mood} Mood` : 'Warmly Active'}
+              </span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Primary Sub-navigation Tabs */}
-      <div className="flex border-b border-white/[0.08]">
-        <button
-          onClick={() => setActiveSubTab('chat')}
-          className={`flex items-center space-x-2 px-5 py-3 text-xs font-semibold transition-all border-b-2 relative ${
-            activeSubTab === 'chat'
-              ? 'border-purple-500 text-purple-300 font-bold'
-              : 'border-transparent text-text-muted hover:text-text-headline'
-          }`}
-        >
-          <Smile className="w-4 h-4" />
-          <span>Talk to Your Coach</span>
-        </button>
-        <button
-          onClick={() => setActiveSubTab('notebook')}
-          className={`flex items-center space-x-2 px-5 py-3 text-xs font-semibold transition-all border-b-2 relative ${
-            activeSubTab === 'notebook'
-              ? 'border-purple-500 text-purple-300 font-bold'
-              : 'border-transparent text-text-muted hover:text-text-headline'
-          }`}
-        >
-          <BookOpen className="w-4 h-4" />
-          <span>Coach's Notebook (What I Remember)</span>
-        </button>
-        <button
-          onClick={() => setActiveSubTab('logs')}
-          className={`flex items-center space-x-2 px-5 py-3 text-xs font-semibold transition-all border-b-2 relative ${
-            activeSubTab === 'logs'
-              ? 'border-purple-500 text-purple-300 font-bold'
-              : 'border-transparent text-text-muted hover:text-text-headline'
-          }`}
-        >
-          <SmilePlus className="w-4 h-4" />
-          <span>+ My Self-Care Logs</span>
-        </button>
-        <button
-          onClick={() => setActiveSubTab('relax')}
-          className={`flex items-center space-x-2 px-5 py-3 text-xs font-semibold transition-all border-b-2 relative ${
-            activeSubTab === 'relax'
-              ? 'border-purple-500 text-purple-300 font-bold'
-              : 'border-transparent text-text-muted hover:text-text-headline'
-          }`}
-        >
-          <Wind className="w-4 h-4" />
-          <span>Zen Breathing & Soundscapes</span>
-        </button>
+      {/* Primary Sub-navigation Tabs (Simplified large grid buttons) */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: spacing[16] }}>
+        {[
+          {
+            id: 'chat' as const,
+            title: 'Talk to Coach',
+            description: 'Chat with your AI companion for CBT guidance and listening support.',
+            icon: Smile,
+          },
+          {
+            id: 'notebook' as const,
+            title: 'Notebook',
+            description: 'Review your triggers, coping strategies, and mental goals.',
+            icon: BookOpen,
+          },
+          {
+            id: 'logs' as const,
+            title: 'Self-Log',
+            description: 'Log your mood, anxiety, and gratitude for reflection.',
+            icon: SmilePlus,
+          },
+          {
+            id: 'relax' as const,
+            title: 'Sounds & Breathing',
+            description: 'Breathing exercises and ambient sound mixer.',
+            icon: Wind,
+          },
+        ].map((tab) => {
+          const isActive = activeSubTab === tab.id;
+          const TabIcon = tab.icon;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveSubTab(tab.id)}
+              style={{
+                background: colors.white,
+                borderRadius: radii.card,
+                boxShadow: shadows.card,
+                border: isActive ? `2px solid ${colors.primary}` : `1px solid ${colors.success}30`,
+                padding: spacing[16],
+                textAlign: 'left',
+                cursor: 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: spacing[8],
+                transition: 'all 0.2s',
+              }}
+              onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.borderColor = colors.primary + '50'; }}
+              onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.borderColor = colors.success + '30'; }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: spacing[8] }}>
+                <div style={{
+                  background: isActive ? colors.primary : `${colors.primary}10`,
+                  color: isActive ? colors.white : colors.primary,
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: radii.button,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                  <TabIcon size={16} />
+                </div>
+                <span style={{ fontFamily: fonts.heading, fontSize: fontSizes.sm, fontWeight: 700, color: colors.text }}>
+                  {tab.title}
+                </span>
+              </div>
+              <p style={{ fontFamily: fonts.body, fontSize: '0.6875rem', color: colors.muted, margin: 0, lineHeight: 1.4 }}>
+                {tab.description}
+              </p>
+            </button>
+          );
+        })}
       </div>
 
       {/* Tab Content 1: TALK TO YOUR COACH (CHAT) */}
@@ -690,21 +765,48 @@ export default function SupportiveMindView({ profile }: SupportiveMindViewProps)
           </div>
 
           {/* Chat Container Box */}
-          <div className="bg-bg-card border border-white/[0.06] rounded-2xl shadow-deep overflow-hidden flex flex-col h-[520px]">
+          <div
+            style={{
+              background: colors.white,
+              border: `1px solid ${colors.success}30`,
+              borderRadius: radii.card,
+              boxShadow: shadows.card,
+              display: 'flex',
+              flexDirection: 'column',
+              height: '520px',
+              overflow: 'hidden',
+            }}
+          >
             {/* Chat header */}
-            <div className="p-4 bg-white/[0.02] border-b border-white/[0.06] flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 rounded-full bg-gold-primary/15 flex items-center justify-center border border-gold-primary/20">
-                  <Brain className="w-4.5 h-4.5 text-gold-primary" />
+            <div
+              style={{
+                padding: spacing[16],
+                borderBottom: `1px solid ${colors.success}30`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: spacing[12] }}>
+                <div style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: radii.full,
+                  background: `${colors.primary}10`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                  <Brain size={18} style={{ color: colors.primary }} />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold text-text-headline">
+                  <h4 style={{ fontFamily: fonts.heading, fontSize: fontSizes.sm, fontWeight: 700, color: colors.text, margin: 0 }}>
                     {counselMode === 'CBT Coach' && 'CBT Reframe Specialist'}
                     {counselMode === 'Deep Listen' && 'Empathic Listener'}
                     {counselMode === 'Friend Mode' && 'Wellness Best Friend'}
                   </h4>
-                  <span className="text-[9px] font-mono text-gold-primary flex items-center">
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5 animate-pulse"></span>
+                  <span style={{ fontSize: '0.6875rem', fontFamily: fonts.body, color: colors.primary, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ width: '6px', height: '6px', borderRadius: radii.full, background: '#2f5233', display: 'inline-block', animation: 'pulse 1.5s infinite' }}></span>
                     Ready to guide you
                   </span>
                 </div>
@@ -712,47 +814,85 @@ export default function SupportiveMindView({ profile }: SupportiveMindViewProps)
               
               <button 
                 onClick={handleClearChat}
-                className="text-text-muted hover:text-red-400 text-xs font-semibold py-1 px-2 hover:bg-white/[0.03] rounded-lg transition"
-                title="Clear current conversations"
+                style={{
+                  fontSize: '0.6875rem',
+                  fontFamily: fonts.body,
+                  fontWeight: 600,
+                  color: colors.muted,
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: `4px ${spacing[8]}`,
+                  borderRadius: radii.button,
+                  transition: 'background 0.2s',
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = `${colors.primary}10`}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
               >
                 Clear History
               </button>
             </div>
 
             {/* Chat messages stream */}
-            <div className="flex-grow overflow-y-auto p-4 space-y-4 scrollbar-thin">
+            <div style={{ flexGrow: 1, overflowY: 'auto', padding: spacing[24], display: 'flex', flexDirection: 'column', gap: spacing[16] }} className="scrollbar-thin">
               {messages.map((msg) => {
                 const isBot = msg.role === 'assistant';
                 return (
                   <div
                     key={msg.id}
-                    className={`flex ${isBot ? 'justify-start' : 'justify-end'} animate-fade-in`}
+                    style={{
+                      display: 'flex',
+                      justifyContent: isBot ? 'flex-start' : 'flex-end',
+                      width: '100%',
+                    }}
                   >
-                    <div className={`max-w-[85%] flex items-start space-x-2.5 ${!isBot && 'flex-row-reverse space-x-reverse'}`}>
+                    <div style={{ maxWidth: '75%', display: 'flex', alignItems: 'flex-start', gap: spacing[12], flexDirection: isBot ? 'row' : 'row-reverse' }}>
                       {/* Avatar */}
-                      <div className={`w-7 h-7 rounded-full shrink-0 flex items-center justify-center text-[11px] font-bold ${
-                        isBot 
-                          ? 'bg-gold-primary/10 border border-gold-primary/20 text-gold-primary' 
-                          : 'bg-white/5 border border-white/10 text-text-headline'
-                      }`}>
+                      <div
+                        style={{
+                          width: '32px',
+                          height: '32px',
+                          borderRadius: radii.full,
+                          background: isBot ? `${colors.primary}15` : `${colors.accent}15`,
+                          border: `1px solid ${isBot ? colors.primary : colors.accent}30`,
+                          color: isBot ? colors.primary : colors.accent,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '0.6875rem',
+                          fontWeight: 700,
+                          flexShrink: 0,
+                        }}
+                      >
                         {isBot ? 'CO' : 'ME'}
                       </div>
 
                       {/* Bubble */}
-                      <div className={`rounded-2xl p-3.5 text-xs leading-relaxed space-y-1 ${
-                        isBot 
-                          ? 'bg-bg-deep text-text-body rounded-tl-none border border-white/[0.03]' 
-                          : 'bg-gold-primary text-bg-deep font-medium rounded-tr-none shadow-md'
-                      }`}>
-                        <div className="whitespace-pre-line">{msg.content}</div>
+                      <div
+                        style={{
+                          borderRadius: radii.card,
+                          padding: `${spacing[12]} ${spacing[16]}`,
+                          fontSize: '0.75rem',
+                          fontFamily: fonts.body,
+                          lineHeight: 1.5,
+                          background: isBot ? '#FAF7F2' : colors.primary,
+                          color: isBot ? colors.text : colors.white,
+                          border: `1px solid ${isBot ? `${colors.success}60` : 'transparent'}`,
+                          boxShadow: shadows.card,
+                          borderTopLeftRadius: isBot ? 0 : radii.card,
+                          borderTopRightRadius: isBot ? radii.card : 0,
+                          textAlign: 'left',
+                        }}
+                      >
+                        <div style={{ whiteSpace: 'pre-line' }}>{msg.content}</div>
                         
                         {/* Timestamp or mode indicator */}
-                        <div className={`text-[8px] flex items-center space-x-1.5 ${isBot ? 'text-text-muted' : 'text-bg-deep/70'}`}>
+                        <div style={{ fontSize: '0.625rem', marginTop: spacing[4], display: 'flex', alignItems: 'center', gap: spacing[8], opacity: 0.7 }}>
                           <span>
                             {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </span>
                           {isBot && msg.mode && (
-                            <span className="px-1.5 py-0.5 bg-white/5 rounded-full text-[7px] font-mono">
+                            <span style={{ fontSize: '0.5625rem', background: `${colors.success}30`, color: colors.primary, padding: '1px 6px', borderRadius: radii.full, fontWeight: 700 }}>
                               {msg.mode}
                             </span>
                           )}
@@ -765,16 +905,38 @@ export default function SupportiveMindView({ profile }: SupportiveMindViewProps)
 
               {/* Typing indicator */}
               {isTyping && (
-                <div className="flex justify-start animate-pulse">
-                  <div className="flex items-start space-x-2.5">
-                    <div className="w-7 h-7 rounded-full bg-gold-primary/10 border border-gold-primary/20 flex items-center justify-center text-[10px] text-gold-primary font-bold">
+                <div style={{ display: 'flex', justifyContent: 'flex-start', width: '100%' }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: spacing[12] }}>
+                    <div style={{
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: radii.full,
+                      background: `${colors.primary}15`,
+                      border: `1px solid ${colors.primary}30`,
+                      color: colors.primary,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '0.6875rem',
+                      fontWeight: 700,
+                    }}>
                       CO
                     </div>
-                    <div className="bg-bg-deep text-text-muted rounded-2xl rounded-tl-none p-4 text-xs italic border border-white/[0.03] flex items-center space-x-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-gold-primary animate-bounce"></span>
-                      <span className="w-1.5 h-1.5 rounded-full bg-gold-primary animate-bounce [animation-delay:0.2s]"></span>
-                      <span className="w-1.5 h-1.5 rounded-full bg-gold-primary animate-bounce [animation-delay:0.4s]"></span>
-                      <span className="text-[10px]">Coach is reflecting...</span>
+                    <div style={{
+                      borderRadius: radii.card,
+                      padding: `${spacing[12]} ${spacing[16]}`,
+                      background: '#FAF7F2',
+                      color: colors.muted,
+                      border: `1px solid ${colors.success}60`,
+                      fontSize: '0.75rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: spacing[8],
+                    }}>
+                      <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: colors.primary, display: 'inline-block', animation: 'bounce 1.4s infinite ease-in-out' }}></span>
+                      <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: colors.primary, display: 'inline-block', animation: 'bounce 1.4s infinite ease-in-out 0.2s' }}></span>
+                      <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: colors.primary, display: 'inline-block', animation: 'bounce 1.4s infinite ease-in-out 0.4s' }}></span>
+                      <span style={{ fontSize: '0.6875rem' }}>Coach is reflecting...</span>
                     </div>
                   </div>
                 </div>
@@ -784,12 +946,30 @@ export default function SupportiveMindView({ profile }: SupportiveMindViewProps)
 
             {/* Suggested quick Prompts */}
             {messages.length <= 2 && (
-              <div className="px-4 py-2 bg-white/[0.01] border-t border-white/[0.04] overflow-x-auto whitespace-nowrap flex space-x-2">
+              <div style={{ padding: `${spacing[8]} ${spacing[16]}`, borderTop: `1px solid ${colors.success}30`, display: 'flex', gap: spacing[8], overflowX: 'auto' }} className="no-scrollbar">
                 {SUGGESTED_PROMPTS.map((p, idx) => (
                   <button
                     key={idx}
                     onClick={() => handleSendMessage(p)}
-                    className="inline-block py-1.5 px-3 bg-bg-deep hover:bg-gold-primary/10 border border-white/[0.05] hover:border-gold-primary/30 rounded-full text-[10px] text-text-body hover:text-text-gold transition cursor-pointer"
+                    style={{
+                      padding: '4px 12px',
+                      background: '#FAF7F2',
+                      border: `1px solid ${colors.success}50`,
+                      color: colors.primary,
+                      borderRadius: radii.full,
+                      fontSize: '0.6875rem',
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap',
+                      transition: 'all 0.2s',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = colors.primary;
+                      e.currentTarget.style.color = colors.white;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = '#FAF7F2';
+                      e.currentTarget.style.color = colors.primary;
+                    }}
                   >
                     {p}
                   </button>
@@ -798,13 +978,21 @@ export default function SupportiveMindView({ profile }: SupportiveMindViewProps)
             )}
 
             {/* Chat Input Bar */}
-            <div className="p-3 bg-white/[0.01] border-t border-white/[0.06]">
+            <div style={{ padding: spacing[16], borderTop: `1px solid ${colors.success}30` }}>
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
                   handleSendMessage();
                 }}
-                className="flex items-center space-x-2 bg-bg-deep border border-white/[0.06] rounded-xl p-2 focus-within:border-gold-primary/50 transition-all"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: spacing[8],
+                  background: '#FAF7F2',
+                  border: `1px solid ${colors.success}50`,
+                  borderRadius: radii.card,
+                  padding: spacing[8],
+                }}
               >
                 <textarea
                   value={inputText}
@@ -816,20 +1004,35 @@ export default function SupportiveMindView({ profile }: SupportiveMindViewProps)
                     }
                   }}
                   rows={1}
-                  placeholder="Ask standard mindful questions, or write 'how to manage stress' / 'give me a breathing exercise'"
-                  className="flex-grow bg-transparent outline-none border-none text-xs text-text-headline placeholder-text-muted resize-none px-2 py-1 max-h-16"
+                  placeholder="Ask CBT questions, or share what's on your mind..."
+                  style={{
+                    flexGrow: 1,
+                    background: 'transparent',
+                    outline: 'none',
+                    border: 'none',
+                    fontSize: '0.75rem',
+                    fontFamily: fonts.body,
+                    color: colors.text,
+                    resize: 'none',
+                    padding: `4px ${spacing[8]}`,
+                    maxHeight: '64px',
+                  }}
                 />
                 
                 <button
                   type="submit"
                   disabled={!inputText.trim()}
-                  className={`p-2.5 rounded-lg transition-all ${
-                    inputText.trim() 
-                      ? 'bg-gold-primary text-bg-deep cursor-pointer hover:bg-gold-light hover:scale-105 active:scale-95' 
-                      : 'bg-white/5 text-text-muted cursor-not-allowed'
-                  }`}
+                  style={{
+                    padding: '8px 16px',
+                    borderRadius: radii.button,
+                    background: inputText.trim() ? colors.primary : `${colors.primary}30`,
+                    color: colors.white,
+                    cursor: inputText.trim() ? 'pointer' : 'not-allowed',
+                    border: 'none',
+                    transition: 'all 0.2s',
+                  }}
                 >
-                  <Send className="w-3.5 h-3.5" />
+                  <Send size={12} />
                 </button>
               </form>
               <div className="text-[9px] text-text-muted font-mono mt-1 px-1 flex items-center">
@@ -1193,21 +1396,34 @@ export default function SupportiveMindView({ profile }: SupportiveMindViewProps)
 
       {/* Tab Content 4: ZEN BREATHING & SOUNDSCAPES */}
       {activeSubTab === 'relax' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in text-left">
           
-          {/* Interactive Breathing Bubble */}
-          <div className="p-6 bg-bg-card border border-white/[0.06] rounded-2xl shadow-card flex flex-col justify-between items-center space-y-6 text-center">
-            <div className="text-left w-full">
-              <span className="text-[10px] font-bold text-purple-300/70 uppercase tracking-widest font-mono block">Breathing Visualizer</span>
-              <h3 className="text-md font-bold text-text-headline mt-0.5">Zen Deep Breathing Bubble</h3>
-              <p className="text-[10px] text-text-muted mt-1 leading-relaxed">
+          {/* Interactive Breathing Bubble (Live Stress Pacer) */}
+          <div
+            style={{
+              background: colors.white,
+              border: `1px solid ${colors.success}30`,
+              borderRadius: radii.card,
+              boxShadow: shadows.card,
+              padding: spacing[24],
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              gap: spacing[24],
+            }}
+          >
+            <div style={{ alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: spacing[4] }}>
+              <span style={{ fontSize: '0.625rem', fontWeight: 700, color: colors.accent, uppercase: true, tracking: '0.04em', fontFamily: fonts.body }}>Breathing Visualizer</span>
+              <h3 style={{ fontFamily: fonts.heading, fontSize: fontSizes.lg, fontWeight: 700, color: colors.text, margin: 0 }}>Live Stress Pacer</h3>
+              <p style={{ fontFamily: fonts.body, fontSize: '0.75rem', color: colors.muted, margin: 0, lineHeight: 1.4 }}>
                 Choose a custom breathing pattern. Follow the circle size and text prompts to relax.
               </p>
             </div>
 
             {/* Pattern Selection Dropdown */}
-            <div className="w-full text-left">
-              <label className="block text-[8px] font-mono font-bold text-text-muted uppercase tracking-wider mb-1.5">Select Pattern</label>
+            <div style={{ width: '100%' }}>
+              <label style={{ fontSize: '0.625rem', fontFamily: fonts.body, fontWeight: 700, color: colors.text, textTransform: 'uppercase', display: 'block', marginBottom: spacing[8] }}>Select Pattern</label>
               <select
                 value={breathingPattern}
                 disabled={breathingActive}
@@ -1216,7 +1432,19 @@ export default function SupportiveMindView({ profile }: SupportiveMindViewProps)
                   setBreathingPattern(pat);
                   setBreathingSeconds(pat === 'calm' ? 5 : 4);
                 }}
-                className="w-full bg-bg-surface border border-white/[0.06] rounded-xl p-2.5 text-xs text-text-headline font-semibold cursor-pointer outline-none"
+                style={{
+                  width: '100%',
+                  background: '#FAF7F2',
+                  border: `1px solid ${colors.success}50`,
+                  borderRadius: radii.button,
+                  padding: spacing[12],
+                  fontSize: '0.75rem',
+                  fontFamily: fonts.body,
+                  color: colors.text,
+                  fontWeight: 600,
+                  outline: 'none',
+                  cursor: 'pointer',
+                }}
               >
                 <option value="478">🧘 4-7-8 Breathing (Deep De-Stress)</option>
                 <option value="box">📦 Box Breathing (Tactical Focus)</option>
@@ -1228,29 +1456,32 @@ export default function SupportiveMindView({ profile }: SupportiveMindViewProps)
             <div className="relative w-44 h-44 flex items-center justify-center">
               {/* Outer pulsing glow circle */}
               <div 
-                className="absolute rounded-full transition-all duration-[1000ms] ease-in-out bg-purple-500/10 border border-purple-500/20"
+                className="absolute rounded-full transition-all duration-[1000ms] ease-in-out"
                 style={{
+                  background: `${colors.primary}10`,
+                  border: `1px solid ${colors.primary}20`,
                   width: breathingState === 'inhale' ? '170px' : breathingState === 'hold' ? '170px' : '90px',
                   height: breathingState === 'inhale' ? '170px' : breathingState === 'hold' ? '170px' : '90px',
-                  boxShadow: breathingState === 'inhale' || breathingState === 'hold' ? '0 0 30px rgba(124, 58, 237, 0.25)' : 'none'
+                  boxShadow: breathingState === 'inhale' || breathingState === 'hold' ? `0 0 30px ${colors.primary}40` : 'none'
                 }}
               />
               
               {/* Inner solid circle */}
               <div 
-                className="rounded-full flex flex-col items-center justify-center text-center transition-all duration-[1000ms] ease-in-out shadow-lg bg-gradient-to-br from-purple-500 to-purple-700"
+                className="rounded-full flex flex-col items-center justify-center text-center transition-all duration-[1000ms] ease-in-out shadow-lg"
                 style={{
+                  background: `linear-gradient(to bottom right, ${colors.primary}, ${colors.text})`,
                   width: breathingState === 'inhale' ? '130px' : breathingState === 'hold' ? '130px' : '75px',
                   height: breathingState === 'inhale' ? '130px' : breathingState === 'hold' ? '130px' : '75px',
                 }}
               >
-                <span className="text-[10px] font-bold font-mono text-bg-deep uppercase tracking-wider block opacity-75">
+                <span style={{ fontSize: '0.625rem', fontWeight: 700, color: colors.white, textTransform: 'uppercase', opacity: 0.8, letterSpacing: '0.04em' }}>
                   {breathingState === 'idle' && 'READY'}
                   {breathingState === 'inhale' && 'Breathe In'}
                   {breathingState === 'hold' && 'HOLD'}
                   {breathingState === 'exhale' && 'Breathe Out'}
                 </span>
-                <span className="text-2xl font-extrabold text-bg-deep font-mono tracking-tight pt-0.5">
+                <span style={{ fontSize: fontSizes.lg, fontWeight: 800, color: colors.white, marginTop: spacing[4] }}>
                   {breathingActive ? `${breathingSeconds}s` : '🧘'}
                 </span>
               </div>
@@ -1258,20 +1489,26 @@ export default function SupportiveMindView({ profile }: SupportiveMindViewProps)
 
             {/* Cycles counter */}
             {breathingActive && (
-              <span className="text-[9px] font-mono text-purple-300 font-bold uppercase tracking-wider">
+              <span style={{ fontSize: '0.75rem', fontFamily: fonts.body, color: colors.primary, fontWeight: 700 }}>
                 ✓ Completed Cycles: {breathingCycles}
               </span>
             )}
 
             {/* Controls */}
-            <div className="flex space-x-3 w-full">
+            <div style={{ width: '100%' }}>
               <button
                 onClick={() => setBreathingActive(!breathingActive)}
-                className={`flex-grow py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center space-x-1.5 active:scale-95 shadow cursor-pointer ${
-                  breathingActive
-                    ? 'bg-transparent border border-red-500/25 hover:bg-red-500/10 text-red-400'
-                    : 'bg-purple-600 hover:bg-purple-500 text-purple-50'
-                }`}
+                className={breathingActive ? "hch-btn hch-btn--outline" : "hch-btn hch-btn--primary"}
+                style={{
+                  width: '100%',
+                  fontSize: fontSizes.xs,
+                  padding: '12px 20px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  whiteSpace: 'nowrap',
+                }}
               >
                 {breathingActive ? 'Stop Session' : 'Start Breathing Exercise'}
               </button>
@@ -1279,26 +1516,38 @@ export default function SupportiveMindView({ profile }: SupportiveMindViewProps)
           </div>
 
           {/* Offline Soundscape Mixer */}
-          <div className="p-6 bg-bg-card border border-white/[0.06] rounded-2xl shadow-card flex flex-col justify-between space-y-6">
-            <div className="text-left">
-              <span className="text-[10px] font-bold text-purple-300/70 uppercase tracking-widest font-mono block">Ambient Soundscapes</span>
-              <h3 className="text-md font-bold text-text-headline mt-0.5">Offline Soundscapes Mixer</h3>
-              <p className="text-[10px] text-text-muted mt-1 leading-relaxed">
+          <div
+            style={{
+              background: colors.white,
+              border: `1px solid ${colors.success}30`,
+              borderRadius: radii.card,
+              boxShadow: shadows.card,
+              padding: spacing[24],
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              gap: spacing[24],
+            }}
+          >
+            <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[4] }}>
+              <span style={{ fontSize: '0.625rem', fontWeight: 700, color: colors.accent, uppercase: true, tracking: '0.04em', fontFamily: fonts.body }}>Ambient Soundscapes</span>
+              <h3 style={{ fontFamily: fonts.heading, fontSize: fontSizes.lg, fontWeight: 700, color: colors.text, margin: 0 }}>Offline Soundscapes Mixer</h3>
+              <p style={{ fontFamily: fonts.body, fontSize: '0.75rem', color: colors.muted, margin: 0, lineHeight: 1.4 }}>
                 Adjust sliders to mix relaxing sounds. Web audio generates noise loops locally.
               </p>
             </div>
 
-            <div className="space-y-4">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[16] }}>
               {[
-                { id: 'rain', label: '🌧️ Gentle Summer Rain', vol: rainVol },
-                { id: 'ocean', label: '🌊 Tidal Ocean Waves', vol: oceanVol },
-                { id: 'wind', label: '🍃 Forest Tree Wind', vol: windVol },
-                { id: 'brown', label: '🎚️ Relaxing Brown Noise', vol: brownVol }
+                { id: 'rain', label: 'Gentle Summer Rain', vol: rainVol },
+                { id: 'ocean', label: 'Tidal Ocean Waves', vol: oceanVol },
+                { id: 'wind', label: 'Forest Tree Wind', vol: windVol },
+                { id: 'brown', label: 'Relaxing Brown Noise', vol: brownVol }
               ].map((sound) => (
-                <div key={sound.id} className="space-y-1.5 text-left">
-                  <div className="flex justify-between text-[11px] font-semibold text-text-headline">
+                <div key={sound.id} style={{ display: 'flex', flexDirection: 'column', gap: spacing[8] }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 600, color: colors.text }}>
                     <span>{sound.label}</span>
-                    <span className="font-mono text-purple-300">{sound.vol}%</span>
+                    <span style={{ fontFamily: fonts.body, color: colors.primary, fontWeight: 700 }}>{sound.vol}%</span>
                   </div>
                   <input
                     type="range"
@@ -1307,22 +1556,42 @@ export default function SupportiveMindView({ profile }: SupportiveMindViewProps)
                     value={sound.vol}
                     onChange={(e) => updateVolume(sound.id, parseInt(e.target.value, 10))}
                     className="w-full h-1 bg-white/[0.04] rounded-lg appearance-none cursor-pointer accent-purple-500 focus:outline-none"
+                    style={{ accentColor: colors.primary }}
                   />
                 </div>
               ))}
             </div>
 
             {/* Quick action: singing bowl */}
-            <div className="p-3 bg-bg-deep/45 border border-white/[0.04] rounded-xl flex items-center justify-between">
-              <div className="text-left">
-                <span className="text-[9px] font-mono text-purple-300 font-bold uppercase tracking-wider block">Tibetan singing bowl</span>
-                <span className="text-[11px] text-text-body block mt-0.5">Play clean 432 Hz chime tone</span>
+            <div
+              style={{
+                padding: spacing[12],
+                background: '#FAF7F2',
+                border: `1px solid ${colors.success}50`,
+                borderRadius: radii.card,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
+              <div style={{ textAlign: 'left' }}>
+                <span style={{ fontSize: '0.625rem', fontFamily: fonts.body, color: colors.primary, fontWeight: 700, textTransform: 'uppercase', display: 'block' }}>Tibetan singing bowl</span>
+                <span style={{ fontSize: '0.6875rem', color: colors.muted, display: 'block', marginTop: '2px' }}>Play clean 432 Hz chime tone</span>
               </div>
               <button
                 onClick={playSingingBowl}
-                className="py-1.5 px-4 bg-purple-900/30 hover:bg-purple-900/50 border border-purple-500/20 hover:border-purple-500/35 text-purple-200 text-xs font-bold rounded-lg transition active:scale-95 cursor-pointer flex items-center space-x-1"
+                className="hch-btn hch-btn--outline"
+                style={{
+                  padding: '12px 20px',
+                  fontSize: fontSizes.xs,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  whiteSpace: 'nowrap',
+                }}
               >
-                <span>🔔 Strike Bowl</span>
+                <span>Strike Bowl</span>
               </button>
             </div>
           </div>
