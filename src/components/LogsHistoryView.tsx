@@ -9,11 +9,13 @@ const { colors, fonts, fontSizes, radii, shadows, spacing } = theme;
 interface LogsHistoryViewProps {
   logs: LoggedActivity[];
   onClearLogs: () => void;
+  setCurrentTab?: (tab: string) => void;
 }
 
 export default function LogsHistoryView({
   logs,
-  onClearLogs
+  onClearLogs,
+  setCurrentTab
 }: LogsHistoryViewProps) {
   
   // Calculate workout streak
@@ -243,12 +245,32 @@ export default function LogsHistoryView({
 
       {/* Timeline view list */}
       {logs.length === 0 ? (
-        <div style={{ background: colors.white, border: `1px solid ${colors.success}30`, borderRadius: radii.card, padding: spacing[32], textAlign: 'center', maxWidth: '400px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: spacing[12] }}>
-          <Calendar size={32} style={{ color: colors.muted, margin: '0 auto' }} />
+        <div style={{ background: colors.white, border: `1px solid ${colors.success}30`, borderRadius: radii.card, padding: spacing[32], textAlign: 'center', maxWidth: '400px', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: spacing[12] }}>
+          <div style={{ width: '120px', height: '120px', borderRadius: '50%', overflow: 'hidden', border: `2px solid ${colors.success}20`, marginBottom: spacing[8] }}>
+            <img src="/logs_empty_state.png" alt="Lacing running shoes" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          </div>
           <h3 style={{ fontFamily: fonts.heading, fontSize: fontSizes.sm, fontWeight: 700, color: colors.text, margin: 0 }}>No exercises logged today</h3>
           <p style={{ fontFamily: fonts.body, fontSize: '0.75rem', color: colors.muted, margin: 0, lineHeight: 1.4 }}>
             Start a physical leg routine or mental breathing exercise to record your first completed activity ledger.
           </p>
+          {setCurrentTab && (
+            <button
+              onClick={() => setCurrentTab('exercises')}
+              className="hch-btn hch-btn--primary"
+              style={{
+                fontSize: fontSizes.xs,
+                padding: '10px 18px',
+                marginTop: spacing[8],
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: spacing[8]
+              }}
+            >
+              <Dumbbell className="w-3.5 h-3.5" />
+              <span>Explore Workouts</span>
+            </button>
+          )}
         </div>
       ) : (
         <div style={{ position: 'relative', borderLeft: `2px solid ${colors.success}40`, marginLeft: spacing[16], paddingLeft: spacing[24], display: 'flex', flexDirection: 'column', gap: spacing[16] }}>

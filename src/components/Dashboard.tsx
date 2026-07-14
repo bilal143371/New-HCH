@@ -201,6 +201,110 @@ export default function Dashboard({
   /* Streak (simple mock based on date) */
   const streakDays = Math.max(1, new Date().getDate() % 7 + 1);
 
+  // Dynamic Background based on time of day
+  const getGreetingBgImage = () => {
+    const h = new Date().getHours();
+    if (h < 12) return mediaMap.bg_morning;
+    if (h < 18) return mediaMap.bg_afternoon;
+    return mediaMap.bg_evening;
+  };
+
+  // Dashboard Greeting Carousel (Phase 5 wellness moments set)
+  const dashboardCarouselImages = [
+    mediaMap.dashboard_hero_1,
+    mediaMap.dashboard_hero_2,
+    mediaMap.dashboard_hero_3,
+    mediaMap.dashboard_hero_4
+  ];
+
+  const [dashboardCarouselIndex, setDashboardCarouselIndex] = useState(0);
+  const [loadedDashboardImages, setLoadedDashboardImages] = useState<string[]>([mediaMap.dashboard_hero_1]);
+
+  // Lazy-load dashboard background images after initial frame paint to optimize boot time
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const remaining = [
+        mediaMap.dashboard_hero_2,
+        mediaMap.dashboard_hero_3,
+        mediaMap.dashboard_hero_4
+      ];
+      remaining.forEach((src) => {
+        const img = new Image();
+        img.src = src;
+        img.onload = () => {
+          setLoadedDashboardImages((prev) => {
+            if (prev.includes(src)) return prev;
+            return [...prev, src];
+          });
+        };
+      });
+    }, 1200);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Auto-rotate dashboard greeting carousel (6 seconds cycle, 1.5s cross-fade)
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (mediaQuery.matches) return;
+
+    let intervalId: NodeJS.Timeout;
+
+    const startRotation = () => {
+      intervalId = setInterval(() => {
+        setDashboardCarouselIndex((prev) => (prev + 1) % dashboardCarouselImages.length);
+      }, 6000);
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        clearInterval(intervalId);
+      } else {
+        startRotation();
+      }
+    };
+
+    if (!document.hidden) {
+      startRotation();
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+
+  // Dynamic Focus Thumbnail based on time of day
+  const getTodayFocus = () => {
+    const h = new Date().getHours();
+    if (h < 12) {
+      return {
+        image: mediaMap.focus_meal,
+        label: "Power Breakfast",
+        actionText: "Log Breakfast Portion",
+        tab: "meals"
+      };
+    }
+    if (h < 18) {
+      return {
+        image: mediaMap.focus_workout,
+        label: "Midday Workouts",
+        actionText: "Check Joint-Safe Routine",
+        tab: "exercises"
+      };
+    }
+    return {
+      image: mediaMap.focus_calm,
+      label: "Evening Calm Down",
+      actionText: "Practice Breathing Pacer",
+      tab: "mind"
+    };
+  };
+
+  const todayFocus = getTodayFocus();
+
   /* Diary items — combine logged data into a timeline */
   const diaryItems: { time: string; icon: React.ReactNode; label: string; detail: string; color: string }[] = [];
   if (loggedCalories > 0) {
@@ -249,99 +353,156 @@ export default function Dashboard({
       <div
         className="hch-animate-in"
         style={{
-          background: `linear-gradient(135deg, ${colors.primary} 0%, #3d6b43 60%, #4a7d52 100%)`,
           borderRadius: radii.card,
           padding: spacing[32],
           position: 'relative',
           overflow: 'hidden',
+          boxShadow: shadows.card,
+          background: colors.success, // Safe fallback
         }}
       >
-        {/* Decorative blob (Headspace feel) */}
+        {/* Full-bleed rotating background carousel */}
+        <div style={{ position: 'absolute', inset: 0, zIndex: 0, overflow: 'hidden' }}>
+          {dashboardCarouselImages.map((src, index) => {
+            const isActive = index === dashboardCarouselIndex;
+            const isLoaded = loadedDashboardImages.includes(src);
+            return (
+              <div
+                key={src}
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  backgroundImage: `url(${isLoaded ? src : dashboardCarouselImages[0]})`,
+                  backgroundPosition: 'center center',
+                  backgroundSize: 'cover',
+                  backgroundRepeat: 'no-repeat',
+                  opacity: isActive ? 1 : 0,
+                  transition: 'opacity 1500ms ease-in-out',
+                }}
+              />
+            );
+          })}
+          {/* Dark overlay for contrast */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.5) 100%)',
+            }}
+          />
+        </div>
+
         <div style={{
-          position: 'absolute',
-          top: '-40px',
-          right: '-20px',
-          width: '180px',
-          height: '180px',
-          borderRadius: '50%',
-          background: 'rgba(255,255,255,0.06)',
-          pointerEvents: 'none',
-        }} />
-        <div style={{
-          position: 'absolute',
-          bottom: '-30px',
-          left: '-10px',
-          width: '120px',
-          height: '120px',
-          borderRadius: '50%',
-          background: 'rgba(242,134,94,0.1)',
-          pointerEvents: 'none',
-        }} />
-
-        {/* Date */}
-        <span style={{
-          fontFamily: fonts.body,
-          fontSize: fontSizes.xs,
-          color: `${colors.success}`,
-          fontWeight: 500,
-          letterSpacing: '0.04em',
-          textTransform: 'uppercase',
-          position: 'relative',
-          zIndex: 1,
-        }}>
-          {new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long' })}
-        </span>
-
-        {/* Greeting */}
-        <h1 style={{
-          fontFamily: fonts.heading,
-          fontSize: '1.75rem',
-          fontWeight: 700,
-          color: colors.white,
-          margin: `${spacing[8]} 0 ${spacing[4]}`,
-          lineHeight: 1.2,
-          position: 'relative',
-          zIndex: 1,
-        }}>
-          {getGreeting()}, {firstName} 👋
-        </h1>
-
-        {/* Coach message (Noom-style) */}
-        <p style={{
-          fontFamily: fonts.body,
-          fontSize: fontSizes.sm,
-          color: 'rgba(255,255,255,0.85)',
-          margin: `${spacing[4]} 0 0`,
-          lineHeight: 1.6,
-          maxWidth: '480px',
-          position: 'relative',
-          zIndex: 1,
-        }}>
-          {getCoachMessage()}
-        </p>
-
-        {/* Streak badge (Noom-style) */}
-        <div style={{
-          display: 'inline-flex',
+          display: 'flex',
+          flexDirection: 'row',
+          flexWrap: 'wrap',
+          justifyContent: 'space-between',
           alignItems: 'center',
-          gap: spacing[8],
-          marginTop: spacing[16],
-          padding: '8px 16px',
-          borderRadius: radii.button,
-          background: 'rgba(255,255,255,0.15)',
-          backdropFilter: 'blur(8px)',
+          gap: spacing[24],
           position: 'relative',
           zIndex: 1,
         }}>
-          <span style={{ fontSize: '1rem' }}>🔥</span>
-          <span style={{
-            fontFamily: fonts.body,
-            fontSize: fontSizes.xs,
-            fontWeight: 600,
-            color: colors.white,
-          }}>
-            {streakDays} day streak — keep it going!
-          </span>
+          {/* Left Column: Greeting & Info */}
+          <div style={{ flex: '1 1 300px', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', textAlign: 'left' }}>
+            {/* Date */}
+            <span style={{
+              fontFamily: fonts.body,
+              fontSize: fontSizes.xs,
+              color: colors.success,
+              fontWeight: 700,
+              letterSpacing: '0.04em',
+              textTransform: 'uppercase',
+            }}>
+              {new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long' })}
+            </span>
+
+            {/* Greeting */}
+            <h1 style={{
+              fontFamily: fonts.heading,
+              fontSize: '1.75rem',
+              fontWeight: 800,
+              color: colors.white,
+              margin: `${spacing[8]} 0 ${spacing[4]}`,
+              lineHeight: 1.2,
+            }}>
+              {getGreeting()}, {firstName} 👋
+            </h1>
+
+            {/* Coach message (Noom-style) */}
+            <p style={{
+              fontFamily: fonts.body,
+              fontSize: fontSizes.sm,
+              color: 'rgba(255,255,255,0.9)',
+              margin: `${spacing[4]} 0 0`,
+              lineHeight: 1.6,
+              maxWidth: '480px',
+            }}>
+              {getCoachMessage()}
+            </p>
+
+            {/* Streak badge (Noom-style) */}
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: spacing[8],
+              marginTop: spacing[16],
+              padding: '8px 16px',
+              borderRadius: radii.button,
+              background: 'rgba(0, 0, 0, 0.45)',
+              border: '1px solid rgba(255, 255, 255, 0.25)',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+              backdropFilter: 'blur(4px)',
+            }}>
+              <span style={{ fontSize: '1rem' }}>🔥</span>
+              <span style={{
+                fontFamily: fonts.body,
+                fontSize: fontSizes.xs,
+                fontWeight: 700,
+                color: colors.white,
+              }}>
+                {streakDays} day streak — keep it going!
+              </span>
+            </div>
+          </div>
+
+          {/* Right Column: Focus Thumbnail Card */}
+          <button
+            onClick={() => setCurrentTab(todayFocus.tab)}
+            style={{
+              flex: '0 1 auto',
+              background: 'rgba(0, 0, 0, 0.45)',
+              backdropFilter: 'blur(12px)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              borderRadius: radii.card,
+              padding: '12px 16px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: spacing[12],
+              textAlign: 'left',
+              cursor: 'pointer',
+              transition: 'transform 0.2s ease, background 0.2s ease',
+              width: '100%',
+              maxWidth: '260px',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.background = 'rgba(0, 0, 0, 0.55)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.background = 'rgba(0, 0, 0, 0.45)';
+            }}
+          >
+            <div style={{ width: '48px', height: '48px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0, border: '1px solid rgba(255, 255, 255, 0.2)' }}>
+              <img src={todayFocus.image} alt="Today's Focus" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            </div>
+            <div>
+              <span style={{ fontSize: '8px', fontWeight: 800, color: colors.success, textTransform: 'uppercase', tracking: '0.05em', fontFamily: fonts.body, display: 'block' }}>TODAY'S FOCUS</span>
+              <strong style={{ display: 'block', fontSize: '11px', color: colors.white, fontWeight: 700, fontFamily: fonts.heading, marginTop: '2px', lineHeight: '1.2' }}>{todayFocus.label}</strong>
+              <span style={{ display: 'block', fontSize: '9px', color: 'rgba(255, 255, 255, 0.7)', fontWeight: 600, marginTop: '4px', textDecoration: 'underline' }}>{todayFocus.actionText} →</span>
+            </div>
+          </button>
         </div>
       </div>
 

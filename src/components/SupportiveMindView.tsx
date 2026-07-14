@@ -740,6 +740,19 @@ export default function SupportiveMindView({ profile }: SupportiveMindViewProps)
       {activeSubTab === 'chat' && (
         <div className="space-y-4">
           
+          {/* Header Image Card */}
+          <div className="bg-bg-card border border-white/[0.06] p-4 rounded-xl flex items-center gap-4 text-left">
+            <div className="w-[72px] h-[72px] rounded-lg overflow-hidden shrink-0 border border-white/[0.08]">
+              <img src="/coach_talk.png" alt="Talk to Coach" className="w-full h-full object-cover" />
+            </div>
+            <div>
+              <h3 className="text-xs font-bold text-text-headline">Talk to Your AI Mind Coach</h3>
+              <p className="text-[10.5px] text-text-body mt-1 leading-relaxed">
+                Seek guidance, chat about your feelings, and practice CBT exercises in a safe, confidential space.
+              </p>
+            </div>
+          </div>
+
           {/* Chat mode selection panel */}
           <div className="bg-bg-card border border-white/[0.06] p-4 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
@@ -1048,6 +1061,19 @@ export default function SupportiveMindView({ profile }: SupportiveMindViewProps)
       {activeSubTab === 'notebook' && (
         <div className="space-y-6 animate-fade-in">
           
+          {/* Header Image Card */}
+          <div className="bg-bg-card border border-white/[0.06] p-4 rounded-xl flex items-center gap-4 text-left">
+            <div className="w-[72px] h-[72px] rounded-lg overflow-hidden shrink-0 border border-white/[0.08]">
+              <img src="/coach_notebook.png" alt="Coach's Notebook" className="w-full h-full object-cover" />
+            </div>
+            <div>
+              <h3 className="text-xs font-bold text-text-headline">Coach's Notebook & Memory Vault</h3>
+              <p className="text-[10.5px] text-text-body mt-1 leading-relaxed">
+                Review active coping strategies, track triggers, and manage goals automatically saved from your chat sessions.
+              </p>
+            </div>
+          </div>
+
           <div className="bg-bg-card border border-white/[0.06] p-5 rounded-2xl space-y-4">
             <div className="flex items-center space-x-2.5">
               <BookOpen className="w-5 h-5 text-gold-primary" />
@@ -1155,6 +1181,19 @@ export default function SupportiveMindView({ profile }: SupportiveMindViewProps)
       {activeSubTab === 'logs' && (
         <div className="space-y-6 animate-fade-in">
           
+          {/* Header Image Card */}
+          <div className="bg-bg-card border border-white/[0.06] p-4 rounded-xl flex items-center gap-4 text-left">
+            <div className="w-[72px] h-[72px] rounded-lg overflow-hidden shrink-0 border border-white/[0.08]">
+              <img src="/coach_self_log.png" alt="My Self-Log" className="w-full h-full object-cover" />
+            </div>
+            <div>
+              <h3 className="text-xs font-bold text-text-headline">My Self-Log & Gratitude Journal</h3>
+              <p className="text-[10.5px] text-text-body mt-1 leading-relaxed">
+                Log your mood, monitor stress/anxiety, record daily reflections, and build positive thinking reframes.
+              </p>
+            </div>
+          </div>
+
           <div className="grid md:grid-cols-5 gap-6 text-left">
             {/* Form Column - 2/5 */}
             <div className="md:col-span-2 bg-bg-card border border-white/[0.06] p-5 rounded-2xl space-y-4 self-start">
@@ -1396,7 +1435,22 @@ export default function SupportiveMindView({ profile }: SupportiveMindViewProps)
 
       {/* Tab Content 4: ZEN BREATHING & SOUNDSCAPES */}
       {activeSubTab === 'relax' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in text-left">
+        <div className="space-y-6 animate-fade-in text-left">
+          
+          {/* Header Image Card */}
+          <div className="bg-bg-card border border-white/[0.06] p-4 rounded-xl flex items-center gap-4 text-left">
+            <div className="w-[72px] h-[72px] rounded-lg overflow-hidden shrink-0 border border-white/[0.08]">
+              <img src="/breathing_soundscapes.png" alt="Breathing & Soundscapes" className="w-full h-full object-cover" />
+            </div>
+            <div>
+              <h3 className="text-xs font-bold text-text-headline">Breathing Pacing & Soundscapes</h3>
+              <p className="text-[10.5px] text-text-body mt-1 leading-relaxed">
+                Synchronize your heart rate, practice guided deep breath patterns, and play ambient nature audio tracks to calm your mind.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           
           {/* Interactive Breathing Bubble (Live Stress Pacer) */}
           <div
@@ -1597,6 +1651,7 @@ export default function SupportiveMindView({ profile }: SupportiveMindViewProps)
           </div>
 
         </div>
+      </div>
       )}
 
     </div>

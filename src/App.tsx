@@ -674,6 +674,37 @@ export default function App() {
             {/* Column 1: Left Sidebar Nav & Profile (Desktop only) */}
             <aside className="hidden lg:flex lg:col-span-3 flex-col" style={{ gap: spacing[16] }}>
 
+              {/* ── Brand Logo Header (Desktop only) ── */}
+              <div
+                style={{
+                  background: colors.white,
+                  borderRadius: radii.card,
+                  boxShadow: shadows.card,
+                  padding: `${spacing[16]} ${spacing[24]}`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: spacing[12],
+                }}
+              >
+                <img
+                  src="/logo.png"
+                  alt="Health Care Hub Logo"
+                  style={{
+                    height: '42px',
+                    width: 'auto',
+                    objectFit: 'contain',
+                  }}
+                />
+                <div>
+                  <h2 style={{ fontFamily: fonts.heading, fontSize: '0.9375rem', fontWeight: 800, color: colors.text, margin: 0, lineHeight: 1.2 }}>
+                    HealthCareHub
+                  </h2>
+                  <span style={{ fontFamily: fonts.body, fontSize: '0.625rem', color: colors.muted, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                    Wellness Portal
+                  </span>
+                </div>
+              </div>
+
               {/* ── Profile Card ── */}
               <div
                 style={{
@@ -914,6 +945,7 @@ export default function App() {
                       toasts={toasts}
                       addToast={addToast}
                       playChime={playChime}
+                      setCurrentTab={setCurrentTab}
                     />
                   </motion.div>
                 )}
