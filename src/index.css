@@ -214,7 +214,7 @@ body {
 
 .btn-3d-gold {
   position: relative;
-  background: linear-gradient(135deg, var(--gold-primary) 0%, var(--gold-light) 100%) !important;
+  background: var(--gold-primary) !important;
   color: #FFFFFF !important;
   border-bottom: 2px solid var(--gold-dark) !important;
   border-radius: 12px !important;
