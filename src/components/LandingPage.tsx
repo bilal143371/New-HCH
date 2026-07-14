@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ShieldAlert, CheckCircle, Flame, Heart, Sparkles, LogIn, Clock, Smile, Dumbbell, Soup, Brain, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import TiltCard from './TiltCard';
+import { mediaMap } from '../data/mediaMap';
 
 interface LandingPageProps {
   onStartOnboarding: () => void;
@@ -44,6 +45,15 @@ const SVGIconReminders = () => (
   </svg>
 );
 
+const HERO_CAROUSEL_IMAGES = [
+  mediaMap.landing_hero_1,
+  mediaMap.landing_hero_2,
+  mediaMap.landing_hero_3,
+  mediaMap.landing_hero_4,
+  mediaMap.landing_hero_5,
+  mediaMap.landing_hero_6,
+];
+
 export default function LandingPage({
   onStartOnboarding,
   onStartGuest,
@@ -55,6 +65,15 @@ export default function LandingPage({
   const [passwordInput, setPasswordInput] = useState('');
   const [loginError, setLoginError] = useState('');
   const [activeFeatureTab, setActiveFeatureTab] = useState<'nutrition' | 'fitness' | 'mind' | 'reminders'>('nutrition');
+  const [carouselIndex, setCarouselIndex] = useState(0);
+
+  // Preload carousel images on mount
+  useEffect(() => {
+    HERO_CAROUSEL_IMAGES.forEach((src) => {
+      const img = new Image();
+      img.src = src;
+    });
+  }, []);
 
   // Cycle slogans every 3 seconds
   useEffect(() => {
@@ -62,6 +81,42 @@ export default function LandingPage({
       setSloganIndex((prev) => (prev + 1) % SLOGANS.length);
     }, 3000);
     return () => clearInterval(timer);
+  }, []);
+
+  // Auto-rotate background carousel images
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (mediaQuery.matches) {
+      // Respect prefers-reduced-motion
+      return;
+    }
+
+    let intervalId: NodeJS.Timeout;
+
+    const startRotation = () => {
+      intervalId = setInterval(() => {
+        setCarouselIndex((prev) => (prev + 1) % HERO_CAROUSEL_IMAGES.length);
+      }, 6000);
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        clearInterval(intervalId);
+      } else {
+        startRotation();
+      }
+    };
+
+    if (!document.hidden) {
+      startRotation();
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   const handleLoginSubmit = (e: React.FormEvent) => {
@@ -100,10 +155,32 @@ export default function LandingPage({
   };
 
   return (
-    <div className="w-full min-h-[calc(100vh-4rem)] flex flex-col justify-between bg-bg-deep text-text-body relative overflow-hidden">
-      {/* Immersive sky-blue gradient background glow */}
-      <div className="absolute top-0 left-0 w-full h-[550px] bg-gradient-to-b from-purple-100/40 via-transparent to-transparent pointer-events-none z-0" />
-      <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[600px] h-[350px] bg-purple-200/15 rounded-full filter blur-[120px] pointer-events-none z-0" />
+    <div className="w-full min-h-[calc(100vh-4rem)] flex flex-col justify-between bg-slate-950 text-text-body relative overflow-hidden">
+      {/* Background Image Carousel Container */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        {HERO_CAROUSEL_IMAGES.map((src, index) => {
+          const isActive = index === carouselIndex;
+          return (
+            <div
+              key={src}
+              style={{
+                position: 'absolute',
+                inset: 0,
+                backgroundImage: `url(${src})`,
+                backgroundPosition: 'center center',
+                backgroundSize: 'cover',
+                backgroundRepeat: 'no-repeat',
+                opacity: isActive ? 0.35 : 0,
+                transition: 'opacity 1500ms ease-in-out',
+              }}
+            />
+          );
+        })}
+        {/* Dark gradient overlay (bottom-to-top, ~40% opacity) */}
+        <div 
+          className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/40 to-slate-950/20 z-0" 
+        />
+      </div>
 
       {/* Main Container */}
       <motion.div 
@@ -116,12 +193,28 @@ export default function LandingPage({
           
           {/* Left Column (60% equivalent: col-span-7) */}
           <div className="col-span-1 lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left">
+            {/* Hero Brand Logo */}
+            <motion.div
+              variants={itemVariants}
+              className="flex items-center gap-3 mb-6 self-center lg:self-start"
+            >
+              <img 
+                src="/logo.png" 
+                alt="Health Care Hub Logo" 
+                style={{ height: '48px', width: 'auto', objectFit: 'contain' }} 
+              />
+              <div className="text-left">
+                <span className="block font-sans font-extrabold text-lg text-white tracking-tight leading-none">HealthCareHub</span>
+                <span className="text-[10px] text-slate-300 uppercase tracking-widest font-mono">Smarter Care • Better Health</span>
+              </div>
+            </motion.div>
+
             {/* Slogan Banner */}
             <motion.div 
               variants={itemVariants}
-              className="inline-flex items-center px-4 py-1.5 rounded-full bg-purple-50 border border-purple-100 mb-6 shadow-sm self-center lg:self-start"
+              className="inline-flex items-center px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 mb-6 shadow-sm self-center lg:self-start"
             >
-              <Sparkles className="w-3.5 h-3.5 text-purple-600 mr-2 animate-pulse shrink-0" />
+              <Sparkles className="w-3.5 h-3.5 text-white mr-2 animate-pulse shrink-0" />
               <AnimatePresence mode="wait">
                 <motion.span 
                   key={sloganIndex}
@@ -129,7 +222,7 @@ export default function LandingPage({
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -4 }}
                   transition={{ duration: 0.2 }}
-                  className="text-[11px] md:text-xs font-sans font-semibold text-purple-700 tracking-tight"
+                  className="text-[11px] md:text-xs font-sans font-semibold text-purple-200 tracking-tight"
                 >
                   {SLOGANS[sloganIndex]}
                 </motion.span>
@@ -139,24 +232,41 @@ export default function LandingPage({
             {/* Hero Content */}
             <motion.h1 
               variants={itemVariants}
-              className="text-4xl md:text-5xl lg:text-6xl font-sans font-extrabold tracking-tight text-text-headline mb-4 leading-tight"
+              className="text-4xl md:text-5xl lg:text-6xl font-sans font-extrabold tracking-tight text-white mb-4 leading-tight"
             >
               Your Health. <span className="text-gradient-purple">Your Way.</span>
             </motion.h1>
             
             <motion.p 
               variants={itemVariants}
-              className="text-base md:text-lg lg:text-xl font-sans font-semibold text-text-headline mb-4"
+              className="text-base md:text-lg lg:text-xl font-sans font-semibold text-slate-100 mb-4"
             >
               Take Care of Your Health — The Smart Way
             </motion.p>
             
             <motion.p 
               variants={itemVariants}
-              className="text-xs md:text-sm text-text-body max-w-xl mb-8 leading-relaxed"
+              className="text-xs md:text-sm text-slate-200 max-w-xl mb-6 leading-relaxed"
             >
               Get your food plan, workout routine, and mental health support — all in one free app. Specifically customized for traditional diets and lifestyle.
             </motion.p>
+
+            {/* Carousel Dot Indicators */}
+            <motion.div 
+              variants={itemVariants}
+              className="flex items-center space-x-2 mb-8 self-center lg:self-start"
+            >
+              {HERO_CAROUSEL_IMAGES.map((_, index) => (
+                <div
+                  key={index}
+                  className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
+                    index === carouselIndex 
+                      ? 'bg-purple-500 w-3' 
+                      : 'bg-white/30'
+                  }`}
+                />
+              ))}
+            </motion.div>
 
             {/* CTA Actions */}
             <motion.div 
@@ -573,90 +683,110 @@ export default function LandingPage({
             {/* Description Column */}
             <div className="flex-grow text-left space-y-4">
               {activeFeatureTab === 'nutrition' && (
-                <div className="space-y-3">
-                  <h3 className="text-base font-bold text-text-headline flex items-center">
-                    <span className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center mr-2 border border-emerald-100"><SVGIconNutrition /></span>
-                    Macro Portion Calculations
-                  </h3>
-                  <p className="text-xs text-text-body leading-relaxed">
-                    Enjoy eating meals tailored exactly to your bio-onboarding specifications. We provide a customized menu based on ingredients that are accessible locally in Pakistan.
-                  </p>
-                  <ul className="space-y-2 pt-1.5">
-                    <li className="flex items-start text-xs text-text-body">
-                      <CheckCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0 mr-2 mt-0.5" />
-                      <span><strong>Automatic Macro Splits</strong>: Carbs, fats, and protein are calculated based on your target weight goals.</span>
-                    </li>
-                    <li className="flex items-start text-xs text-text-body">
-                      <CheckCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0 mr-2 mt-0.5" />
-                      <span><strong>Traditional Swapper</strong>: Substitute high-oil ingredients with healthy lower-cholesterol alternatives.</span>
-                    </li>
-                  </ul>
+                <div className="flex flex-col md:flex-row gap-6 items-center">
+                  <div className="space-y-3 flex-grow md:w-2/3">
+                    <h3 className="text-base font-bold text-text-headline flex items-center">
+                      <span className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center mr-2 border border-emerald-100"><SVGIconNutrition /></span>
+                      Macro Portion Calculations
+                    </h3>
+                    <p className="text-xs text-text-body leading-relaxed">
+                      Enjoy eating meals tailored exactly to your bio-onboarding specifications. We provide a customized menu based on ingredients that are accessible locally in Pakistan.
+                    </p>
+                    <ul className="space-y-2 pt-1.5">
+                      <li className="flex items-start text-xs text-text-body">
+                        <CheckCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0 mr-2 mt-0.5" />
+                        <span><strong>Automatic Macro Splits</strong>: Carbs, fats, and protein are calculated based on your target weight goals.</span>
+                      </li>
+                      <li className="flex items-start text-xs text-text-body">
+                        <CheckCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0 mr-2 mt-0.5" />
+                        <span><strong>Traditional Swapper</strong>: Substitute high-oil ingredients with healthy lower-cholesterol alternatives.</span>
+                      </li>
+                    </ul>
+                  </div>
+                  <div className="w-28 h-28 rounded-2xl overflow-hidden border border-slate-100 shrink-0 shadow-sm md:block hidden">
+                    <img src="/landing_nutrition.png" alt="Nutrition" className="w-full h-full object-cover" />
+                  </div>
                 </div>
               )}
 
               {activeFeatureTab === 'fitness' && (
-                <div className="space-y-3">
-                  <h3 className="text-base font-bold text-text-headline flex items-center">
-                    <span className="w-8 h-8 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center mr-2 border border-sky-100"><SVGIconFitness /></span>
-                    Beginner Knee & Heart-Safe Moves
-                  </h3>
-                  <p className="text-xs text-text-body leading-relaxed">
-                    No gym equipment required. Work out safely with our custom routines. If you have joint pain or high blood pressure, the system locks advanced moves.
-                  </p>
-                  <ul className="space-y-2 pt-1.5">
-                    <li className="flex items-start text-xs text-text-body">
-                      <CheckCircle className="w-3.5 h-3.5 text-sky-500 shrink-0 mr-2 mt-0.5" />
-                      <span><strong>Active Rest Timer</strong>: Clear indicators let you perform intervals with structured rest times.</span>
-                    </li>
-                    <li className="flex items-start text-xs text-text-body">
-                      <CheckCircle className="w-3.5 h-3.5 text-sky-500 shrink-0 mr-2 mt-0.5" />
-                      <span><strong>Restriction Shield</strong>: Protects user cardiovascular systems by filtering high-impact moves automatically.</span>
-                    </li>
-                  </ul>
+                <div className="flex flex-col md:flex-row gap-6 items-center">
+                  <div className="space-y-3 flex-grow md:w-2/3">
+                    <h3 className="text-base font-bold text-text-headline flex items-center">
+                      <span className="w-8 h-8 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center mr-2 border border-sky-100"><SVGIconFitness /></span>
+                      Beginner Knee & Heart-Safe Moves
+                    </h3>
+                    <p className="text-xs text-text-body leading-relaxed">
+                      No gym equipment required. Work out safely with our custom routines. If you have joint pain or high blood pressure, the system locks advanced moves.
+                    </p>
+                    <ul className="space-y-2 pt-1.5">
+                      <li className="flex items-start text-xs text-text-body">
+                        <CheckCircle className="w-3.5 h-3.5 text-sky-500 shrink-0 mr-2 mt-0.5" />
+                        <span><strong>Active Rest Timer</strong>: Clear indicators let you perform intervals with structured rest times.</span>
+                      </li>
+                      <li className="flex items-start text-xs text-text-body">
+                        <CheckCircle className="w-3.5 h-3.5 text-sky-500 shrink-0 mr-2 mt-0.5" />
+                        <span><strong>Restriction Shield</strong>: Protects user cardiovascular systems by filtering high-impact moves automatically.</span>
+                      </li>
+                    </ul>
+                  </div>
+                  <div className="w-28 h-28 rounded-2xl overflow-hidden border border-slate-100 shrink-0 shadow-sm md:block hidden">
+                    <img src="/landing_fitness.png" alt="Fitness" className="w-full h-full object-cover" />
+                  </div>
                 </div>
               )}
 
               {activeFeatureTab === 'mind' && (
-                <div className="space-y-3">
-                  <h3 className="text-base font-bold text-text-headline flex items-center">
-                    <span className="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center mr-2 border border-purple-100"><SVGIconMind /></span>
-                    Stress Counsel & Breath Pacing
-                  </h3>
-                  <p className="text-xs text-text-body leading-relaxed">
-                    Ease day-end physical fatigue, anxiety, and headaches. Log cozy reminders, write gratitude lists, or breathe with custom pacing bubbles.
-                  </p>
-                  <ul className="space-y-2 pt-1.5">
-                    <li className="flex items-start text-xs text-text-body">
-                      <CheckCircle className="w-3.5 h-3.5 text-purple-500 shrink-0 mr-2 mt-0.5" />
-                      <span><strong>Mental Pacing Metronome</strong>: Follow visual inhalation guides to reduce heart rate and lower stress.</span>
-                    </li>
-                    <li className="flex items-start text-xs text-text-body">
-                      <CheckCircle className="w-3.5 h-3.5 text-purple-500 shrink-0 mr-2 mt-0.5" />
-                      <span><strong>Journal Ledger</strong>: A private dashboard to record warm memories and track mental energy.</span>
-                    </li>
-                  </ul>
+                <div className="flex flex-col md:flex-row gap-6 items-center">
+                  <div className="space-y-3 flex-grow md:w-2/3">
+                    <h3 className="text-base font-bold text-text-headline flex items-center">
+                      <span className="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center mr-2 border border-purple-100"><SVGIconMind /></span>
+                      Stress Counsel & Breath Pacing
+                    </h3>
+                    <p className="text-xs text-text-body leading-relaxed">
+                      Ease day-end physical fatigue, anxiety, and headaches. Log cozy reminders, write gratitude lists, or breathe with custom pacing bubbles.
+                    </p>
+                    <ul className="space-y-2 pt-1.5">
+                      <li className="flex items-start text-xs text-text-body">
+                        <CheckCircle className="w-3.5 h-3.5 text-purple-500 shrink-0 mr-2 mt-0.5" />
+                        <span><strong>Mental Pacing Metronome</strong>: Follow visual inhalation guides to reduce heart rate and lower stress.</span>
+                      </li>
+                      <li className="flex items-start text-xs text-text-body">
+                        <CheckCircle className="w-3.5 h-3.5 text-purple-500 shrink-0 mr-2 mt-0.5" />
+                        <span><strong>Journal Ledger</strong>: A private dashboard to record warm memories and track mental energy.</span>
+                      </li>
+                    </ul>
+                  </div>
+                  <div className="w-28 h-28 rounded-2xl overflow-hidden border border-slate-100 shrink-0 shadow-sm md:block hidden">
+                    <img src="/landing_mind.png" alt="Mind Support" className="w-full h-full object-cover" />
+                  </div>
                 </div>
               )}
 
               {activeFeatureTab === 'reminders' && (
-                <div className="space-y-3">
-                  <h3 className="text-base font-bold text-text-headline flex items-center">
-                    <span className="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center mr-2 border border-slate-200"><SVGIconReminders /></span>
-                    Hydration & Fasting Tracker
-                  </h3>
-                  <p className="text-xs text-text-body leading-relaxed">
-                    Maintain structured records of water cups, steps taken, and rest cycles. Includes Ramadan fasting windows (Sehri and Iftari) automatically.
-                  </p>
-                  <ul className="space-y-2 pt-1.5">
-                    <li className="flex items-start text-xs text-text-body">
-                      <CheckCircle className="w-3.5 h-3.5 text-slate-500 shrink-0 mr-2 mt-0.5" />
-                      <span><strong>Cups Ledger Gauge</strong>: Tap to log standard glasses of water and monitor daily hydration targets.</span>
-                    </li>
-                    <li className="flex items-start text-xs text-text-body">
-                      <CheckCircle className="w-3.5 h-3.5 text-slate-500 shrink-0 mr-2 mt-0.5" />
-                      <span><strong>Fasting Timetable</strong>: Tracks sunrise/sunset limits based on local time zones.</span>
-                    </li>
-                  </ul>
+                <div className="flex flex-col md:flex-row gap-6 items-center">
+                  <div className="space-y-3 flex-grow md:w-2/3">
+                    <h3 className="text-base font-bold text-text-headline flex items-center">
+                      <span className="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center mr-2 border border-slate-200"><SVGIconReminders /></span>
+                      Hydration & Fasting Tracker
+                    </h3>
+                    <p className="text-xs text-text-body leading-relaxed">
+                      Maintain structured records of water cups, steps taken, and rest cycles. Includes Ramadan fasting windows (Sehri and Iftari) automatically.
+                    </p>
+                    <ul className="space-y-2 pt-1.5">
+                      <li className="flex items-start text-xs text-text-body">
+                        <CheckCircle className="w-3.5 h-3.5 text-slate-500 shrink-0 mr-2 mt-0.5" />
+                        <span><strong>Cups Ledger Gauge</strong>: Tap to log standard glasses of water and monitor daily hydration targets.</span>
+                      </li>
+                      <li className="flex items-start text-xs text-text-body">
+                        <CheckCircle className="w-3.5 h-3.5 text-slate-500 shrink-0 mr-2 mt-0.5" />
+                        <span><strong>Fasting Timetable</strong>: Tracks sunrise/sunset limits based on local time zones.</span>
+                      </li>
+                    </ul>
+                  </div>
+                  <div className="w-28 h-28 rounded-2xl overflow-hidden border border-slate-100 shrink-0 shadow-sm md:block hidden">
+                    <img src="/hydration_window.png" alt="Reminders Log" className="w-full h-full object-cover" />
+                  </div>
                 </div>
               )}
             </div>
@@ -751,6 +881,16 @@ export default function LandingPage({
           >
             ✦ PERSONAL STORIES FROM OUR MEMBERS ✦
           </motion.h2>
+
+          {/* Testimonial lifestyle banner */}
+          <div className="w-full rounded-3xl overflow-hidden mb-8 border border-slate-100 shadow-sm" style={{ maxHeight: '240px' }}>
+            <img 
+              src="/landing_testimonial.png" 
+              alt="Healthy lifestyle integration" 
+              className="w-full h-[240px] object-cover" 
+            />
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <TiltCard>
               <div className="p-6 rounded-2xl bg-white border border-slate-100 shadow-sm relative h-full hover:shadow-md transition-all duration-300">

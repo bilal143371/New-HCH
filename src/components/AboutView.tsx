@@ -132,16 +132,21 @@ export default function AboutView() {
         <div style={{ position: 'relative', zIndex: 2 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: spacing[8] }}>
             <div style={{
-              width: '28px',
-              height: '28px',
+              width: '32px',
+              height: '32px',
               borderRadius: radii.button,
-              background: 'rgba(255,255,255,0.15)',
+              background: colors.white,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              backdropFilter: 'blur(4px)',
+              padding: '4px',
+              boxShadow: shadows.card,
             }}>
-              <Shield size={14} style={{ color: colors.white }} />
+              <img 
+                src="/logo.png" 
+                alt="Health Care Hub Logo" 
+                style={{ height: '100%', width: 'auto', objectFit: 'contain' }} 
+              />
             </div>
             <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: colors.accent, textTransform: 'uppercase', fontFamily: fonts.body }}>
               Regional Wellness Pilot

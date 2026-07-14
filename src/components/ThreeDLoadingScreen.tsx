@@ -56,7 +56,6 @@ export default function ThreeDLoadingScreen({ onComplete, username }: ThreeDLoad
     };
   }, [onComplete]);
 
-  const CurrentIcon = LOADING_STAGES[stageIndex].icon;
 
   return (
     <div className="fixed inset-0 z-[9999] bg-[#0A0D14] flex flex-col items-center justify-center overflow-hidden font-sans">
@@ -112,11 +111,22 @@ export default function ThreeDLoadingScreen({ onComplete, username }: ThreeDLoad
         </div>
 
         {/* Central Core Sphere */}
-        <div className="relative z-10 w-20 h-20 rounded-full bg-gradient-to-tr from-bg-surface to-bg-card border border-gold-primary/30 flex flex-col items-center justify-center shadow-[0_0_35px_rgba(244,162,32,0.15)] overflow-hidden">
+        <div className="relative z-10 w-20 h-20 rounded-full bg-white border border-gold-primary/30 flex items-center justify-center shadow-[0_0_35px_rgba(244,162,32,0.15)] overflow-hidden">
           {/* Pulsing glow layer */}
-          <div className="absolute inset-0 bg-gold-primary/10 animate-pulse" />
+          <div className="absolute inset-0 bg-gold-primary/5 animate-pulse" />
           
-          <CurrentIcon className="w-7 h-7 text-gold-primary relative z-10 animate-bounce" />
+          <img 
+            src="/logo.png" 
+            alt="Health Care Hub Logo" 
+            style={{ 
+              height: '46px', 
+              width: '46px', 
+              objectFit: 'contain', 
+              position: 'relative', 
+              zIndex: 10 
+            }} 
+            className="animate-pulse"
+          />
         </div>
       </div>
 

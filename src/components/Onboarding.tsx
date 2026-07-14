@@ -18,7 +18,7 @@ export default function Onboarding({
   onCancel
 }: OnboardingProps) {
   const [step, setStep] = useState(1);
-  const totalSteps = 3;
+  const totalSteps = 4;
   const [walkthroughStep, setWalkthroughStep] = useState<number | null>(null);
   const [pendingProfile, setPendingProfile] = useState<UserProfile | null>(null);
 
@@ -85,7 +85,7 @@ export default function Onboarding({
   ];
 
   useEffect(() => {
-    if (step === 3 && isCalculating) {
+    if (step === 4 && isCalculating) {
       const interval = setInterval(() => {
         setLoadingTipsIndex((prev) => (prev + 1) % LOADING_CHECKLIST.length);
       }, 500);
@@ -292,17 +292,51 @@ export default function Onboarding({
       {/* Onboarding Container Box */}
       <div className="p-6 md:p-8 rounded-2xl bg-white border border-slate-100 shadow-md shadow-slate-300/[0.03] min-h-[380px] flex flex-col justify-between">
         
-        {/* STEP 1: Bio-Metrics */}
+        {/* STEP 1: Welcome/Intro */}
         {step === 1 && (
-          <div className="space-y-6 text-left">
-            <div>
-              <h2 className="text-xl font-bold text-text-headline flex items-center">
-                <Sliders className="w-5 h-5 text-purple-600 mr-2 shrink-0" />
-                Configure Bio-Metrics
-              </h2>
-              <p className="text-xs text-text-muted">
-                Input your metrics to calibrate your targeted metabolic limits.
+          <div className="space-y-6 text-center animate-fade-in flex flex-col items-center">
+            <div className="w-full overflow-hidden rounded-2xl border border-slate-100 shadow-sm" style={{ maxHeight: '200px' }}>
+              <img 
+                src="/onboarding_welcome.png" 
+                alt="Welcome to Pakistan HealthCare Hub" 
+                style={{ width: '100%', height: '180px', objectFit: 'cover' }} 
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <h2 className="text-xl font-extrabold text-text-headline">Welcome to Pakistan HealthCare Hub</h2>
+              <p className="text-xs text-text-body max-w-md mx-auto leading-relaxed">
+                Take our quick 1-minute wellness quiz to configure customized dietary portion limits, joint-safe home workout programs, and respiratory pacing pacers.
               </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleNextStep}
+              className="px-8 py-3 bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold rounded-xl shadow-md transition active:scale-95 flex items-center justify-center space-x-1.5"
+            >
+              <span>Get Started</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        )}
+
+        {/* STEP 2: Bio-Metrics */}
+        {step === 2 && (
+          <div className="space-y-6 text-left">
+            <div style={{ display: 'flex', alignItems: 'center', gap: spacing[16], borderBottom: `1px solid ${colors.success}15`, paddingBottom: spacing[16] }}>
+              <div style={{ width: '60px', height: '60px', borderRadius: radii.button, overflow: 'hidden', flexShrink: 0, border: `1px solid ${colors.success}30` }}>
+                <img src="/onboarding_metrics.png" alt="Metrics Setup" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-text-headline flex items-center">
+                  <Sliders className="w-5 h-5 text-purple-600 mr-2 shrink-0" />
+                  Configure Bio-Metrics
+                </h2>
+                <p className="text-xs text-text-muted">
+                  Input your metrics to calibrate your targeted metabolic limits.
+                </p>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -447,8 +481,8 @@ export default function Onboarding({
           </div>
         )}
 
-        {/* STEP 2: Health Focus */}
-        {step === 2 && (
+        {/* STEP 3: Health Focus */}
+        {step === 3 && (
           <div className="space-y-6 text-left">
             <div>
               <h2 className="text-xl font-bold text-text-headline flex items-center">
@@ -573,8 +607,8 @@ export default function Onboarding({
           </div>
         )}
 
-        {/* STEP 3: Instant Strategy Generation & Low-Friction Signup Form */}
-        {step === 3 && isCalculating && (
+        {/* STEP 4: Instant Strategy Generation & Low-Friction Signup Form */}
+        {step === 4 && isCalculating && (
           <div className="py-12 flex flex-col items-center justify-center space-y-6 text-center">
             {/* Spinning load state indicator */}
             <div className="w-16 h-16 rounded-full border-4 border-purple-100 border-t-purple-600 animate-spin flex items-center justify-center">
@@ -590,16 +624,21 @@ export default function Onboarding({
           </div>
         )}
 
-        {step === 3 && !isCalculating && (
+        {step === 4 && !isCalculating && (
           <div className="space-y-6 text-left animate-fade-in">
-            <div>
-              <h2 className="text-xl font-bold text-text-headline flex items-center">
-                <Sparkles className="w-5 h-5 text-purple-600 mr-2 shrink-0" />
-                Your Customized Strategy Payoff
-              </h2>
-              <p className="text-xs text-text-muted">
-                Here are your instant metabolic targets and safety recommendations.
-              </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: spacing[16], borderBottom: `1px solid ${colors.success}15`, paddingBottom: spacing[16] }}>
+              <div style={{ width: '60px', height: '60px', borderRadius: radii.button, overflow: 'hidden', flexShrink: 0, border: `1px solid ${colors.success}30` }}>
+                <img src="/onboarding_results.png" alt="Celebration" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-text-headline flex items-center">
+                  <Sparkles className="w-5 h-5 text-purple-600 mr-2 shrink-0" />
+                  Your Customized Strategy Payoff
+                </h2>
+                <p className="text-xs text-text-muted">
+                  Here are your instant metabolic targets and safety recommendations.
+                </p>
+              </div>
             </div>
 
             {/* Strategy Cards Stack */}

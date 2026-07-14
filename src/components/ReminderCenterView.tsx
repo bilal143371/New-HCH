@@ -51,6 +51,7 @@ interface ReminderCenterViewProps {
   toasts: ToastNotification[];
   addToast: (title: string, message: string, type: string) => void;
   playChime: () => void;
+  setCurrentTab?: (tab: string) => void;
 }
 
 interface ReminderConfig {
@@ -159,7 +160,8 @@ export default function ReminderCenterView({
   setNotificationPermission,
   toasts,
   addToast,
-  playChime
+  playChime,
+  setCurrentTab
 }: ReminderCenterViewProps) {
   const [activeSubTab, setActiveSubTab] = useState<'reminders' | 'logs' | 'analytics'>('reminders');
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
@@ -461,6 +463,21 @@ export default function ReminderCenterView({
     const timeStr = triggerDate.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
     
     return `In ${diffMins} mins (${timeStr})`;
+  };
+
+  // Map reminder IDs to their corresponding unique image assets
+  const getReminderImage = (id: string) => {
+    switch (id) {
+      case 'hydration': return mediaMap.rem_hydration;
+      case 'meals': return mediaMap.reminder_meals;
+      case 'fitness': return mediaMap.reminder_fitness;
+      case 'posture': return mediaMap.reminder_posture;
+      case 'breathing': return mediaMap.reminder_breathing;
+      case 'sleep': return mediaMap.reminder_sleep;
+      case 'sehri': return mediaMap.rem_sehri;
+      case 'iftari': return mediaMap.rem_iftari;
+      default: return null;
+    }
   };
 
   // Get Lucide Icon dynamically
@@ -897,12 +914,9 @@ export default function ReminderCenterView({
                        color: colors.primary,
                        overflow: 'hidden',
                     }}>
-                      {rem.id === 'hydration' || rem.id === 'sehri' || rem.id === 'iftari' ? (
+                      {getReminderImage(rem.id) ? (
                         <img
-                          src={
-                            rem.id === 'hydration' ? mediaMap.rem_hydration :
-                            rem.id === 'sehri' ? mediaMap.rem_sehri : mediaMap.rem_iftari
-                          }
+                          src={getReminderImage(rem.id) || undefined}
                           alt=""
                           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                         />
@@ -1067,7 +1081,7 @@ export default function ReminderCenterView({
       </div>
         </>
       ) : activeSubTab === 'logs' ? (
-        <LogsHistoryView logs={logs} onClearLogs={onClearLogs} />
+        <LogsHistoryView logs={logs} onClearLogs={onClearLogs} setCurrentTab={setCurrentTab} />
       ) : (
         /* 7-DAY HEALTH ANALYTICS TAB */
         <div className="space-y-6 animate-fade-in text-left">
