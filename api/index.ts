@@ -1,6 +1,6 @@
 import express from "express";
 import { GoogleGenAI, Type } from "@google/genai";
-import { PAKISTANI_FOODS_DB_EXPANDED } from "../src/data/nutrition";
+import { PAKISTANI_FOODS_DB_EXPANDED } from "./nutrition";
 
 const app = express();
 app.use(express.json());
