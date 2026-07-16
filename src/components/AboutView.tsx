@@ -559,7 +559,7 @@ export default function AboutView() {
             <div>
               <h4 style={{ fontFamily: fonts.heading, fontSize: fontSizes.sm, fontWeight: 700, color: colors.text, margin: 0 }}>Academic Supervision & Institution</h4>
               <p style={{ fontFamily: fonts.body, fontSize: fontSizes.xs, color: colors.muted, marginTop: '2px', lineHeight: 1.4 }}>
-                [Enter University Name / Department / Supervisor details here]
+                Riphah International University Township Campus
               </p>
             </div>
           </div>

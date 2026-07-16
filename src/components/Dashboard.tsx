@@ -97,7 +97,7 @@ const ProgressRing: React.FC<{
   const offset = circumference - circumference * clampedProgress;
 
   return (
-    <div style={{ position: 'relative', width: size, height: size, flexShrink: 0 }}>
+    <div style={{ position: 'relative', width: size, height: size, flexShrink: 0, background: 'rgba(255, 255, 255, 0.85)', borderRadius: '50%', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)' }}>
       <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
         {/* Track */}
         <circle
@@ -163,6 +163,7 @@ export default function Dashboard({
   const [undoTimer, setUndoTimer] = useState(0);
   const [showUndo, setShowUndo] = useState(false);
   const [undoMsg, setUndoMsg] = useState('');
+  const [hoveredCard, setHoveredCard] = useState<'steps' | 'calories' | 'water' | null>(null);
 
   useEffect(() => {
     if (!showUndo || undoTimer <= 0) return;
@@ -518,24 +519,42 @@ export default function Dashboard({
         }}
       >
         {/* Steps Ring */}
-        <div style={{
-          background: colors.white,
-          borderRadius: radii.card,
-          boxShadow: shadows.card,
-          padding: spacing[24],
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: spacing[12],
-          textAlign: 'center',
-        }}>
-          <ProgressRing progress={stepsProgress} color={colors.primary} size={90} strokeWidth={7}>
+        <div
+          onMouseEnter={() => setHoveredCard('steps')}
+          onMouseLeave={() => setHoveredCard(null)}
+          style={{
+            background: hoveredCard === 'steps'
+              ? `linear-gradient(to bottom, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.2)), url(${mediaMap.stat_steps})`
+              : `linear-gradient(to bottom, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.4)), url(${mediaMap.stat_steps})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            borderRadius: radii.card,
+            boxShadow: hoveredCard === 'steps' ? '0 6px 20px rgba(38, 41, 31, 0.12)' : shadows.card,
+            padding: spacing[24],
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: spacing[12],
+            textAlign: 'center',
+            transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+            transform: hoveredCard === 'steps' ? 'translateY(-2px)' : 'translateY(0)',
+          }}
+        >
+          <ProgressRing progress={stepsProgress} color={colors.primary} size={90} strokeWidth={7} trackColor="rgba(0, 0, 0, 0.08)">
             <span style={{ fontFamily: fonts.heading, fontSize: '1.25rem', fontWeight: 700, color: colors.text, lineHeight: 1 }}>
               {loggedSteps > 0 ? (loggedSteps / 1000).toFixed(1) + 'k' : '0'}
             </span>
           </ProgressRing>
-          <div>
-            <span style={{ fontFamily: fonts.body, fontSize: fontSizes.xs, fontWeight: 600, color: colors.muted, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          <div style={{
+            background: 'rgba(255, 255, 255, 0.85)',
+            padding: '6px 12px',
+            borderRadius: '12px',
+            backdropFilter: 'blur(6px)',
+            border: '1px solid rgba(255, 255, 255, 0.5)',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
+            minWidth: '120px',
+          }}>
+            <span style={{ fontFamily: fonts.body, fontSize: fontSizes.xs, fontWeight: 700, color: colors.text, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               Steps
             </span>
             <span style={{ display: 'block', fontFamily: fonts.body, fontSize: '0.6875rem', color: colors.muted, marginTop: '2px' }}>
@@ -547,9 +566,10 @@ export default function Dashboard({
               onClick={() => addSteps(-1000)}
               style={{
                 width: '32px', height: '32px', borderRadius: radii.full,
-                border: `1.5px solid ${colors.success}60`, background: 'transparent',
+                border: `1.5px solid ${colors.success}60`, background: 'rgba(255, 255, 255, 0.9)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                cursor: 'pointer', color: colors.muted, transition: 'all 0.2s',
+                cursor: 'pointer', color: colors.text, transition: 'all 0.2s',
+                boxShadow: '0 2px 6px rgba(0,0,0,0.06)',
               }}
             >
               <Minus size={14} />
@@ -558,9 +578,10 @@ export default function Dashboard({
               onClick={() => addSteps(1000)}
               style={{
                 width: '32px', height: '32px', borderRadius: radii.full,
-                border: `1.5px solid ${colors.primary}50`, background: `${colors.primary}10`,
+                border: `1.5px solid ${colors.primary}50`, background: 'rgba(255, 255, 255, 0.9)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 cursor: 'pointer', color: colors.primary, transition: 'all 0.2s',
+                boxShadow: '0 2px 6px rgba(0,0,0,0.06)',
               }}
             >
               <Plus size={14} />
@@ -569,24 +590,42 @@ export default function Dashboard({
         </div>
 
         {/* Calories Ring */}
-        <div style={{
-          background: colors.white,
-          borderRadius: radii.card,
-          boxShadow: shadows.card,
-          padding: spacing[24],
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: spacing[12],
-          textAlign: 'center',
-        }}>
-          <ProgressRing progress={calProgress} color={colors.accent} size={90} strokeWidth={7}>
+        <div
+          onMouseEnter={() => setHoveredCard('calories')}
+          onMouseLeave={() => setHoveredCard(null)}
+          style={{
+            background: hoveredCard === 'calories'
+              ? `linear-gradient(to bottom, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.2)), url(${mediaMap.stat_calories})`
+              : `linear-gradient(to bottom, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.4)), url(${mediaMap.stat_calories})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            borderRadius: radii.card,
+            boxShadow: hoveredCard === 'calories' ? '0 6px 20px rgba(38, 41, 31, 0.12)' : shadows.card,
+            padding: spacing[24],
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: spacing[12],
+            textAlign: 'center',
+            transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+            transform: hoveredCard === 'calories' ? 'translateY(-2px)' : 'translateY(0)',
+          }}
+        >
+          <ProgressRing progress={calProgress} color={colors.accent} size={90} strokeWidth={7} trackColor="rgba(0, 0, 0, 0.08)">
             <span style={{ fontFamily: fonts.heading, fontSize: '1.25rem', fontWeight: 700, color: colors.text, lineHeight: 1 }}>
               {loggedCalories > 0 ? loggedCalories.toLocaleString() : '0'}
             </span>
           </ProgressRing>
-          <div>
-            <span style={{ fontFamily: fonts.body, fontSize: fontSizes.xs, fontWeight: 600, color: colors.muted, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          <div style={{
+            background: 'rgba(255, 255, 255, 0.85)',
+            padding: '6px 12px',
+            borderRadius: '12px',
+            backdropFilter: 'blur(6px)',
+            border: '1px solid rgba(255, 255, 255, 0.5)',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
+            minWidth: '120px',
+          }}>
+            <span style={{ fontFamily: fonts.body, fontSize: fontSizes.xs, fontWeight: 700, color: colors.text, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               Calories
             </span>
             <span style={{ display: 'block', fontFamily: fonts.body, fontSize: '0.6875rem', color: colors.muted, marginTop: '2px' }}>
@@ -598,9 +637,10 @@ export default function Dashboard({
               onClick={() => doUndoable('-100 kcal', { calories: Math.max(0, loggedCalories - 100) })}
               style={{
                 width: '32px', height: '32px', borderRadius: radii.full,
-                border: `1.5px solid ${colors.success}60`, background: 'transparent',
+                border: `1.5px solid ${colors.success}60`, background: 'rgba(255, 255, 255, 0.9)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                cursor: 'pointer', color: colors.muted, transition: 'all 0.2s',
+                cursor: 'pointer', color: colors.text, transition: 'all 0.2s',
+                boxShadow: '0 2px 6px rgba(0,0,0,0.06)',
               }}
             >
               <Minus size={14} />
@@ -609,9 +649,10 @@ export default function Dashboard({
               onClick={() => doUndoable('+100 kcal', { calories: loggedCalories + 100 })}
               style={{
                 width: '32px', height: '32px', borderRadius: radii.full,
-                border: `1.5px solid ${colors.accent}50`, background: `${colors.accent}10`,
+                border: `1.5px solid ${colors.accent}50`, background: 'rgba(255, 255, 255, 0.9)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 cursor: 'pointer', color: colors.accent, transition: 'all 0.2s',
+                boxShadow: '0 2px 6px rgba(0,0,0,0.06)',
               }}
             >
               <Plus size={14} />
@@ -620,24 +661,42 @@ export default function Dashboard({
         </div>
 
         {/* Water Ring */}
-        <div style={{
-          background: colors.white,
-          borderRadius: radii.card,
-          boxShadow: shadows.card,
-          padding: spacing[24],
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: spacing[12],
-          textAlign: 'center',
-        }}>
-          <ProgressRing progress={waterProgress} color={colors.blue} size={90} strokeWidth={7}>
+        <div
+          onMouseEnter={() => setHoveredCard('water')}
+          onMouseLeave={() => setHoveredCard(null)}
+          style={{
+            background: hoveredCard === 'water'
+              ? `linear-gradient(to bottom, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.2)), url(${mediaMap.stat_water})`
+              : `linear-gradient(to bottom, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.4)), url(${mediaMap.stat_water})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            borderRadius: radii.card,
+            boxShadow: hoveredCard === 'water' ? '0 6px 20px rgba(38, 41, 31, 0.12)' : shadows.card,
+            padding: spacing[24],
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: spacing[12],
+            textAlign: 'center',
+            transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+            transform: hoveredCard === 'water' ? 'translateY(-2px)' : 'translateY(0)',
+          }}
+        >
+          <ProgressRing progress={waterProgress} color={colors.blue} size={90} strokeWidth={7} trackColor="rgba(0, 0, 0, 0.08)">
             <span style={{ fontFamily: fonts.heading, fontSize: '1.25rem', fontWeight: 700, color: colors.text, lineHeight: 1 }}>
               {waterCups}
             </span>
           </ProgressRing>
-          <div>
-            <span style={{ fontFamily: fonts.body, fontSize: fontSizes.xs, fontWeight: 600, color: colors.muted, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          <div style={{
+            background: 'rgba(255, 255, 255, 0.85)',
+            padding: '6px 12px',
+            borderRadius: '12px',
+            backdropFilter: 'blur(6px)',
+            border: '1px solid rgba(255, 255, 255, 0.5)',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
+            minWidth: '120px',
+          }}>
+            <span style={{ fontFamily: fonts.body, fontSize: fontSizes.xs, fontWeight: 700, color: colors.text, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               Water
             </span>
             <span style={{ display: 'block', fontFamily: fonts.body, fontSize: '0.6875rem', color: colors.muted, marginTop: '2px' }}>
@@ -649,9 +708,10 @@ export default function Dashboard({
               onClick={() => addWater(-250)}
               style={{
                 width: '32px', height: '32px', borderRadius: radii.full,
-                border: `1.5px solid ${colors.success}60`, background: 'transparent',
+                border: `1.5px solid ${colors.success}60`, background: 'rgba(255, 255, 255, 0.9)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                cursor: 'pointer', color: colors.muted, transition: 'all 0.2s',
+                cursor: 'pointer', color: colors.text, transition: 'all 0.2s',
+                boxShadow: '0 2px 6px rgba(0,0,0,0.06)',
               }}
             >
               <Minus size={14} />
@@ -660,9 +720,10 @@ export default function Dashboard({
               onClick={() => addWater(250)}
               style={{
                 width: '32px', height: '32px', borderRadius: radii.full,
-                border: `1.5px solid ${colors.blue}50`, background: `${colors.blue}10`,
+                border: `1.5px solid ${colors.blue}50`, background: 'rgba(255, 255, 255, 0.9)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 cursor: 'pointer', color: colors.blue, transition: 'all 0.2s',
+                boxShadow: '0 2px 6px rgba(0,0,0,0.06)',
               }}
             >
               <Plus size={14} />

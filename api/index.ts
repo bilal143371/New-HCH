@@ -1,5 +1,6 @@
 import express from "express";
 import { GoogleGenAI, Type } from "@google/genai";
+import { PAKISTANI_FOODS_DB_EXPANDED } from "../src/data/nutrition";
 
 const app = express();
 app.use(express.json());
@@ -375,6 +376,398 @@ app.post("/api/supportive-mind-chat", async (req, res) => {
   } catch (routeErr: any) {
     console.error("Route error in /api/supportive-mind-chat:", routeErr);
     return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.post("/api/scan-food-photo", async (req, res) => {
+  try {
+    const { base64Image, assignedMealSlot } = req.body;
+    if (!base64Image || !assignedMealSlot) {
+      return res.status(400).json({ error: "Missing image data or meal slot." });
+    }
+
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      return res.status(400).json({
+        error: "Gemini API key is not configured. Couldn't identify this photo, try again or search manually."
+      });
+    }
+
+    // Clean base64 and extract mimeType
+    let base64Data = base64Image;
+    let mimeType = "image/jpeg";
+    if (base64Image.includes(";base64,")) {
+      const parts = base64Image.split(";base64,");
+      mimeType = parts[0].split(":")[1] || "image/jpeg";
+      base64Data = parts[1];
+    }
+
+    const ai = new GoogleGenAI({
+      apiKey,
+      httpOptions: {
+        headers: {
+          'User-Agent': 'aistudio-build'
+        }
+      }
+    });
+
+    const prompt = `Identify the food shown in this photo, estimating calories, protein, carbs, and fat. This food was eaten as part of a '${assignedMealSlot}' meal slot. If the image is not food, or cannot be identified, return a low confidence score.`;
+
+    let attempts = 3;
+    let delayMs = 1000;
+
+    while (attempts > 0) {
+      try {
+        const response = await ai.models.generateContent({
+          model: "gemini-2.5-flash",
+          contents: [
+            {
+              inlineData: {
+                mimeType: mimeType,
+                data: base64Data
+              }
+            },
+            prompt
+          ],
+          config: {
+            systemInstruction: "You are an expert nutritionist. Identify the food and provide structured nutritional estimations for a typical portion size. Respond strictly in JSON format.",
+            responseMimeType: "application/json",
+            responseSchema: {
+              type: Type.OBJECT,
+              properties: {
+                foodName: { type: Type.STRING, description: "Identified name of the food dish (e.g. Chicken Biryani, Boiled Egg)." },
+                calories: { type: Type.INTEGER, description: "Estimated total calories in kcal." },
+                protein: { type: Type.INTEGER, description: "Estimated protein in grams." },
+                carbs: { type: Type.INTEGER, description: "Estimated carbohydrates in grams." },
+                fat: { type: Type.INTEGER, description: "Estimated fat in grams." },
+                confidence: { type: Type.NUMBER, description: "Confidence score between 0.0 and 1.0." },
+                notes: { type: Type.STRING, description: "Brief healthy tips or ingredients breakdown." }
+              },
+              required: ["foodName", "calories", "protein", "carbs", "fat", "confidence", "notes"]
+            }
+          }
+        });
+
+        const responseText = response.text;
+        if (!responseText) {
+          throw new Error("No response text from Gemini.");
+        }
+
+        const scanResult = JSON.parse(responseText.trim());
+        return res.json({ scanResult });
+      } catch (err: any) {
+        attempts--;
+        console.warn(`Attempt failed for Gemini food photo scan (${attempts} retries left):`, err?.message || err);
+        
+        if (attempts <= 0) {
+          throw err;
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+        delayMs *= 2;
+      }
+    }
+  } catch (routeErr: any) {
+    console.error("Route error in /api/scan-food-photo:", routeErr);
+    return res.status(500).json({ error: "Couldn't identify this photo, try again or search manually." });
+  }
+});
+
+app.post("/api/lookup-food", async (req, res) => {
+  try {
+    const { query, assignedMealSlot } = req.body;
+    if (!query) {
+      return res.status(400).json({ error: "Missing search query." });
+    }
+
+    const slot = assignedMealSlot || "Lunch";
+
+    // 1. Check local database first
+    const queryLower = query.toLowerCase().trim();
+    const localMatch = PAKISTANI_FOODS_DB_EXPANDED.find(food => 
+      food.name.toLowerCase().includes(queryLower) || 
+      food.id.toLowerCase() === queryLower ||
+      queryLower.includes(food.id.toLowerCase())
+    );
+
+    if (localMatch) {
+      return res.json({
+        scanResult: {
+          foodName: localMatch.name,
+          calories: localMatch.calories,
+          protein: localMatch.protein,
+          carbs: localMatch.carbs,
+          fat: localMatch.fat,
+          confidence: 1.0,
+          notes: `${localMatch.description || ""} ${localMatch.advice || ""}`.trim()
+        },
+        source: "local"
+      });
+    }
+
+    // 2. If no local match, send query to Gemini
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      return res.status(400).json({
+        error: "Gemini API key is not configured and no local match was found. Try searching for standard items like 'roti', 'biryani', or 'daal'."
+      });
+    }
+
+    const ai = new GoogleGenAI({
+      apiKey,
+      httpOptions: {
+        headers: {
+          'User-Agent': 'aistudio-build'
+        }
+      }
+    });
+
+    const prompt = `Identify the food item and estimate its nutrition facts: '${query}'. This food is eaten as part of a '${slot}' meal slot. Assume South Asian/Pakistani cuisine context if ambiguous (e.g., if query is 'dal' or 'roti' or 'salan').`;
+
+    let attempts = 3;
+    let delayMs = 1000;
+
+    while (attempts > 0) {
+      try {
+        const response = await ai.models.generateContent({
+          model: "gemini-2.5-flash",
+          contents: prompt,
+          config: {
+            systemInstruction: "You are an expert nutritionist specializing in South Asian and Pakistani foods. Analyze the search query, identify the food, and provide structured nutritional estimations for a typical portion size. Respond strictly in JSON format.",
+            responseMimeType: "application/json",
+            responseSchema: {
+              type: Type.OBJECT,
+              properties: {
+                foodName: { type: Type.STRING, description: "Name of the identified food dish in English." },
+                calories: { type: Type.INTEGER, description: "Estimated total calories in kcal." },
+                protein: { type: Type.INTEGER, description: "Estimated protein in grams." },
+                carbs: { type: Type.INTEGER, description: "Estimated carbohydrates in grams." },
+                fat: { type: Type.INTEGER, description: "Estimated fat in grams." },
+                confidence: { type: Type.NUMBER, description: "Confidence score between 0.0 and 1.0." },
+                notes: { type: Type.STRING, description: "Brief healthy tips or portion info." }
+              },
+              required: ["foodName", "calories", "protein", "carbs", "fat", "confidence", "notes"]
+            }
+          }
+        });
+
+        const responseText = response.text;
+        if (!responseText) {
+          throw new Error("No response text from Gemini.");
+        }
+
+        const scanResult = JSON.parse(responseText.trim());
+        return res.json({ scanResult, source: "gemini" });
+      } catch (err: any) {
+        attempts--;
+        console.warn(`Attempt failed for Gemini food lookup (${attempts} retries left):`, err?.message || err);
+        
+        if (attempts <= 0) {
+          throw err;
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+        delayMs *= 2;
+      }
+    }
+  } catch (routeErr: any) {
+    console.error("Route error in /api/lookup-food:", routeErr);
+    return res.status(500).json({ error: "Couldn't identify this food, try again or search manually." });
+  }
+});
+
+app.post("/api/compare-foods", async (req, res) => {
+  try {
+    const { foodA, foodB } = req.body;
+    if (!foodA || !foodB) {
+      return res.status(400).json({ error: "Missing foodA or foodB parameters." });
+    }
+
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      return res.status(400).json({ error: "Gemini API key is not configured." });
+    }
+
+    const ai = new GoogleGenAI({
+      apiKey,
+      httpOptions: {
+        headers: {
+          'User-Agent': 'aistudio-build'
+        }
+      }
+    });
+
+    const prompt = `Perform a side-by-side nutritional comparison between:
+1. Food A (Traditional/Desi): '${foodA}'
+2. Food B (Western/Fast-food): '${foodB}'
+
+Estimate calories (kcal), protein (g), dietary fiber (g), iron (mg), and sodium (mg) for typical serving portions of each, and write one short plain-English takeaway sentence explaining which is healthier and why.`;
+
+    let attempts = 3;
+    let delayMs = 1000;
+
+    while (attempts > 0) {
+      try {
+        const response = await ai.models.generateContent({
+          model: "gemini-2.5-flash",
+          contents: prompt,
+          config: {
+            systemInstruction: "You are a professional dietitian specializing in South Asian and international nutrition. Compare the two foods side-by-side. Estimate typical serving portion weights and evaluate their macros. Respond strictly in JSON format.",
+            responseMimeType: "application/json",
+            responseSchema: {
+              type: Type.OBJECT,
+              properties: {
+                foodAName: { type: Type.STRING },
+                foodBName: { type: Type.STRING },
+                foodAStats: {
+                  type: Type.OBJECT,
+                  properties: {
+                    calories: { type: Type.INTEGER, description: "Calories in kcal" },
+                    protein: { type: Type.NUMBER, description: "Protein in grams" },
+                    fiber: { type: Type.NUMBER, description: "Dietary fiber in grams" },
+                    iron: { type: Type.NUMBER, description: "Iron in mg" },
+                    sodium: { type: Type.NUMBER, description: "Sodium in mg" }
+                  },
+                  required: ["calories", "protein", "fiber", "iron", "sodium"]
+                },
+                foodBStats: {
+                  type: Type.OBJECT,
+                  properties: {
+                    calories: { type: Type.INTEGER, description: "Calories in kcal" },
+                    protein: { type: Type.NUMBER, description: "Protein in grams" },
+                    fiber: { type: Type.NUMBER, description: "Dietary fiber in grams" },
+                    iron: { type: Type.NUMBER, description: "Iron in mg" },
+                    sodium: { type: Type.NUMBER, description: "Sodium in mg" }
+                  },
+                  required: ["calories", "protein", "fiber", "iron", "sodium"]
+                },
+                takeaway: { type: Type.STRING, description: "Short plain-English summary takeaway sentence (max 2 sentences)." }
+              },
+              required: ["foodAName", "foodBName", "foodAStats", "foodBStats", "takeaway"]
+            }
+          }
+        });
+
+        const responseText = response.text;
+        if (!responseText) {
+          throw new Error("No response text from Gemini.");
+        }
+
+        const comparisonResult = JSON.parse(responseText.trim());
+        return res.json({ comparisonResult });
+      } catch (err: any) {
+        attempts--;
+        console.warn(`Attempt failed for Gemini food comparison (${attempts} retries left):`, err?.message || err);
+        if (attempts <= 0) throw err;
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+        delayMs *= 2;
+      }
+    }
+  } catch (routeErr: any) {
+    console.error("Route error in /api/compare-foods:", routeErr);
+    return res.status(500).json({ error: "Failed to generate comparison. Please check your inputs and try again." });
+  }
+});
+
+app.post("/api/generate-recipe", async (req, res) => {
+  try {
+    const {
+      primaryGoal,
+      mealCategory,
+      cuisineStyle,
+      caloriesGoal,
+      minProteinTarget,
+      maxCookingTime,
+      allergies,
+      onHandIngredients
+    } = req.body;
+
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      return res.status(400).json({ error: "Gemini API key is not configured." });
+    }
+
+    const ai = new GoogleGenAI({
+      apiKey,
+      httpOptions: {
+        headers: {
+          'User-Agent': 'aistudio-build'
+        }
+      }
+    });
+
+    const prompt = `Create a custom recipe with these constraints:
+- Primary Goal: ${primaryGoal || "Stay Fit"}
+- Meal Category: ${mealCategory || "Lunch"}
+- Cuisine Style: ${cuisineStyle || "Home-Cooked"}
+- Target Calories: ~${caloriesGoal || 500} kcal
+- Target Protein: At least ${minProteinTarget || 20} grams
+- Maximum Cooking Time: ${maxCookingTime || 30} minutes
+- Allergies to avoid: ${allergies || "None"}
+- Ingredients to prioritize: ${onHandIngredients || "Any"}
+
+Make it a highly authentic and delicious recipe. Evaluate the final macronutrients accurately.`;
+
+    let attempts = 3;
+    let delayMs = 1000;
+
+    while (attempts > 0) {
+      try {
+        const response = await ai.models.generateContent({
+          model: "gemini-2.5-flash",
+          contents: prompt,
+          config: {
+            systemInstruction: "You are a professional chef and nutritionist. Generate a single complete recipe matching the requested goal, cuisine, and timing constraints. Make sure ingredients list exact quantities. Respond strictly in JSON format matching the schema.",
+            responseMimeType: "application/json",
+            responseSchema: {
+              type: Type.OBJECT,
+              properties: {
+                title: { type: Type.STRING },
+                ingredients: {
+                  type: Type.ARRAY,
+                  items: {
+                    type: Type.OBJECT,
+                    properties: {
+                      name: { type: Type.STRING },
+                      amount: { type: Type.STRING },
+                      unit: { type: Type.STRING }
+                    },
+                    required: ["name", "amount", "unit"]
+                  }
+                },
+                steps: {
+                  type: Type.ARRAY,
+                  items: { type: Type.STRING }
+                },
+                notes: { type: Type.STRING },
+                calories: { type: Type.INTEGER, description: "Total calories in kcal" },
+                protein: { type: Type.INTEGER, description: "Protein in grams" },
+                carbs: { type: Type.INTEGER, description: "Carbs in grams" },
+                fat: { type: Type.INTEGER, description: "Fat in grams" }
+              },
+              required: ["title", "ingredients", "steps", "notes", "calories", "protein", "carbs", "fat"]
+            }
+          }
+        });
+
+        const responseText = response.text;
+        if (!responseText) {
+          throw new Error("No response text from Gemini.");
+        }
+
+        const recipeResult = JSON.parse(responseText.trim());
+        return res.json({ recipe: recipeResult });
+      } catch (err: any) {
+        attempts--;
+        console.warn(`Attempt failed for Gemini recipe generation (${attempts} retries left):`, err?.message || err);
+        if (attempts <= 0) throw err;
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+        delayMs *= 2;
+      }
+    }
+  } catch (routeErr: any) {
+    console.error("Route error in /api/generate-recipe:", routeErr);
+    return res.status(500).json({ error: "Failed to generate recipe. Please refine your inputs and try again." });
   }
 });
 

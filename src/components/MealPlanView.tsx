@@ -8,7 +8,7 @@
  *   - Headspace: rounded shapes, calm gradients, generous whitespace, micro-animations
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { UserProfile, UserMetrics, MealPlan } from '../types';
 import { PAKISTANI_FOODS_DB_EXPANDED as PAKISTANI_FOODS_DB, DIET_PLAN_VARIATIONS } from '../data/nutrition';
 import { theme } from '../styles/theme';
@@ -35,7 +35,8 @@ import {
   ChevronRight,
   Check,
   Save,
-  FolderOpen
+  FolderOpen,
+  Upload
 } from 'lucide-react';
 
 const { colors, fonts, fontSizes, radii, shadows, spacing } = theme;
@@ -177,8 +178,8 @@ export default function MealPlanView({
   onAddCalories
 }: MealPlanViewProps) {
   // Navigation
-  const [activeTab, setActiveTab] = useState<'7day' | 'lookup' | 'photo' | 'ramadan' | 'compare'>('7day');
-  const [secondaryTab, setSecondaryTab] = useState<'cooking' | 'favorites' | null>(null);
+  const [activeTab, setActiveTab] = useState<'7day' | 'lookup' | 'photo' | 'ramadan' | 'compare' | 'cooking' | 'favorites' | 'past_plans'>('7day');
+  const [expandedRecipeIdx, setExpandedRecipeIdx] = useState<number | null>(null);
 
   // 7-Day Food Plan input states
   const [foodPreference, setFoodPreference] = useState('A Mix of Both Desi and Western (Recommended)');
@@ -204,10 +205,43 @@ export default function MealPlanView({
   // Look Up Food
   const [searchQuery, setSearchQuery] = useState('');
   const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
+  const [lookupMealSlot, setLookupMealSlot] = useState<'Breakfast' | 'Lunch' | 'Dinner' | 'Snack'>('Lunch');
+  const [lookupLoading, setLookupLoading] = useState(false);
+  const [lookupResult, setLookupResult] = useState<any | null>(null);
+  const [lookupError, setLookupError] = useState<string | null>(null);
+  const [searchedOnce, setSearchedOnce] = useState(false);
+
+  // Compare Foods states
+  const [compareFoodA, setCompareFoodA] = useState('');
+  const [compareFoodB, setCompareFoodB] = useState('');
+  const [comparingFoods, setComparingFoods] = useState(false);
+  const [compareResult, setCompareResult] = useState<any | null>(null);
+  const [compareError, setCompareError] = useState<string | null>(null);
+
+  // Easy Cooking Guide (Recipe Generator) states
+  const [recipeGoal, setRecipeGoal] = useState<'Fat Loss' | 'Muscle Gain' | 'Stay Fit'>('Fat Loss');
+  const [recipeCategory, setRecipeCategory] = useState('Lunch');
+  const [recipeStyle, setRecipeStyle] = useState<'Strictly Desi' | 'Desi Fusion' | 'Home-Cooked'>('Home-Cooked');
+  const [recipeCalories, setRecipeCalories] = useState(500);
+  const [recipeProtein, setRecipeProtein] = useState(25);
+  const [recipeTime, setRecipeTime] = useState(30);
+  const [recipeAllergies, setRecipeAllergies] = useState('');
+  const [recipeIngredients, setRecipeIngredients] = useState('');
+  const [generatingRecipe, setGeneratingRecipe] = useState(false);
+  const [generatedRecipe, setGeneratedRecipe] = useState<any | null>(null);
+  const [recipeError, setRecipeError] = useState<string | null>(null);
 
   // Photo Scan
   const [scanningPhoto, setScanningPhoto] = useState(false);
   const [scannedResult, setScannedResult] = useState<any | null>(null);
+  const [scanMode, setScanMode] = useState<'camera' | 'gallery'>('gallery');
+  const [cameraActive, setCameraActive] = useState(false);
+  const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const [selectedMealSlot, setSelectedMealSlot] = useState<'Breakfast' | 'Lunch' | 'Dinner' | 'Snack'>('Breakfast');
+  const [scanError, setScanError] = useState<string | null>(null);
+
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
 
   // Ramadan
   const [ramadanWaterGlasses, setRamadanWaterGlasses] = useState(0);
@@ -362,6 +396,11 @@ export default function MealPlanView({
           }
         }
         showLogToast('Your full week is ready! 🎉');
+        savePastPlanSnapshot({
+          type: 'weekly_plan',
+          title: `AI Weekly Plan - ${new Date().toLocaleDateString()}`,
+          data: tempPlans
+        });
       } catch (err: any) {
         console.error(err);
         setError(err?.message || 'An error occurred. Please try again.');
@@ -394,20 +433,298 @@ export default function MealPlanView({
     showLogToast(favoriteIds.includes(foodId) ? "Removed from favourites." : "Saved to favourites! ❤️");
   };
 
-  const simulatePhotoScan = (foodObj: any) => {
-    setScanningPhoto(true);
+  const startCamera = async () => {
+    setScanError(null);
+    setCameraActive(true);
+    setCapturedImage(null);
     setScannedResult(null);
-    setTimeout(() => {
-      setScanningPhoto(false);
-      setScannedResult({
-        name: foodObj.name,
-        calories: foodObj.calories,
-        protein: foodObj.protein,
-        carbs: foodObj.carbs,
-        fat: foodObj.fat,
-        notes: "Scan shows direct nutrition. Protein is high. Fats are within healthy budget."
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment' }
       });
-    }, 2000);
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.play();
+      }
+    } catch (err: any) {
+      console.error("Error accessing camera:", err);
+      setScanError("Unable to access camera. Please check permissions or upload an image instead.");
+      setCameraActive(false);
+    }
+  };
+
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+    setCameraActive(false);
+  };
+
+  const capturePhoto = () => {
+    if (videoRef.current) {
+      const video = videoRef.current;
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth || 640;
+      canvas.height = video.videoHeight || 480;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const dataUrl = canvas.toDataURL('image/jpeg');
+        setCapturedImage(dataUrl);
+        stopCamera();
+      }
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setScanError(null);
+      setScannedResult(null);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCapturedImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleScanFoodPhoto = async () => {
+    if (!capturedImage) {
+      setScanError("Please capture an image or upload a file first.");
+      return;
+    }
+
+    setScanningPhoto(true);
+    setScanError(null);
+    setScannedResult(null);
+
+    try {
+      const response = await fetch('/api/scan-food-photo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          base64Image: capturedImage,
+          assignedMealSlot: selectedMealSlot
+        })
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Couldn't identify this photo, try again or search manually.");
+      }
+
+      if (data.scanResult) {
+        setScannedResult({
+          name: data.scanResult.foodName,
+          calories: data.scanResult.calories,
+          protein: data.scanResult.protein,
+          carbs: data.scanResult.carbs,
+          fat: data.scanResult.fat,
+          notes: data.scanResult.notes,
+          confidence: data.scanResult.confidence
+        });
+        showLogToast(`Analysis ready for ${data.scanResult.foodName}! 🔍`);
+      } else {
+        throw new Error("Couldn't identify this photo, try again or search manually.");
+      }
+    } catch (err: any) {
+      console.error("Scan photo error:", err);
+      setScanError(err?.message || "Couldn't identify this photo, try again or search manually.");
+    } finally {
+      setScanningPhoto(false);
+    }
+  };
+
+  // Camera cleanup
+  useEffect(() => {
+    return () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, []);
+
+  const handleLookupFood = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!searchQuery.trim()) return;
+
+    setLookupLoading(true);
+    setLookupError(null);
+    setLookupResult(null);
+    setSearchedOnce(true);
+
+    try {
+      const response = await fetch('/api/lookup-food', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          query: searchQuery,
+          assignedMealSlot: lookupMealSlot
+        })
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Couldn't identify this food, try again or search manually.");
+      }
+
+      if (data.scanResult) {
+        setLookupResult({
+          name: data.scanResult.foodName,
+          calories: data.scanResult.calories,
+          protein: data.scanResult.protein,
+          carbs: data.scanResult.carbs,
+          fat: data.scanResult.fat,
+          notes: data.scanResult.notes,
+          confidence: data.scanResult.confidence,
+          source: data.source
+        });
+        showLogToast(`Found details for "${data.scanResult.foodName}"! 🔍`);
+      } else {
+        throw new Error("Couldn't identify this food, try again or search manually.");
+      }
+    } catch (err: any) {
+      console.error("Lookup food error:", err);
+      setLookupError(err?.message || "Couldn't identify this food, try again or search manually.");
+    } finally {
+      setLookupLoading(false);
+    }
+  };
+
+  // Persistence state hooks (local storage with placeholder backend comment)
+  const [customFavorites, setCustomFavorites] = useState<{ id: string; type: 'food' | 'recipe' | 'meal'; name: string; calories: number; protein: number; carbs?: number; fat?: number; notes?: string; recipe?: any }[]>(() => {
+    // Real backend persistence: fetch from database using GET /api/favorites
+    const saved = localStorage.getItem(`hch_custom_favorites_${profile.name}`);
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const [pastPlans, setPastPlans] = useState<{ id: string; timestamp: string; type: 'weekly_plan' | 'recipe'; name: string; data: any }[]>(() => {
+    // Real backend persistence: fetch from database using GET /api/past-plans
+    const saved = localStorage.getItem(`hch_past_plans_${profile.name}`);
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const toggleCustomFavorite = (item: { type: 'food' | 'recipe' | 'meal'; name: string; calories: number; protein: number; carbs?: number; fat?: number; notes?: string; recipe?: any }) => {
+    // Real backend persistence: POST /api/favorites/toggle
+    const exists = customFavorites.find(f => f.name === item.name);
+    let updated;
+    if (exists) {
+      updated = customFavorites.filter(f => f.name !== item.name);
+      showLogToast(`Removed "${item.name}" from favorites.`);
+    } else {
+      const newItem = {
+        id: Math.random().toString(36).substring(2, 9),
+        ...item
+      };
+      updated = [...customFavorites, newItem];
+      showLogToast(`Added "${item.name}" to favorites! ❤️`);
+    }
+    setCustomFavorites(updated);
+    localStorage.setItem(`hch_custom_favorites_${profile.name}`, JSON.stringify(updated));
+  };
+
+  const savePastPlanSnapshot = (snapshot: { type: 'weekly_plan' | 'recipe'; title: string; data: any }) => {
+    // Real backend persistence: POST /api/past-plans
+    const newSnapshot = {
+      id: Math.random().toString(36).substring(2, 9),
+      timestamp: new Date().toLocaleString(),
+      type: snapshot.type,
+      name: snapshot.title,
+      data: snapshot.data
+    };
+    const updated = [newSnapshot, ...pastPlans];
+    setPastPlans(updated);
+    localStorage.setItem(`hch_past_plans_${profile.name}`, JSON.stringify(updated));
+  };
+
+  const handleCompareFoods = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!compareFoodA.trim() || !compareFoodB.trim()) return;
+
+    setComparingFoods(true);
+    setCompareError(null);
+    setCompareResult(null);
+
+    try {
+      const response = await fetch('/api/compare-foods', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          foodA: compareFoodA,
+          foodB: compareFoodB
+        })
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to compare foods.");
+      }
+
+      if (data.comparisonResult) {
+        setCompareResult(data.comparisonResult);
+        showLogToast("Comparison complete! 📊");
+      } else {
+        throw new Error("Failed to compare foods.");
+      }
+    } catch (err: any) {
+      console.error("Compare foods error:", err);
+      setCompareError(err?.message || "Failed to compare foods. Please try again.");
+    } finally {
+      setComparingFoods(false);
+    }
+  };
+
+  const handleGenerateRecipe = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+
+    setGeneratingRecipe(true);
+    setRecipeError(null);
+    setGeneratedRecipe(null);
+
+    try {
+      const response = await fetch('/api/generate-recipe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          primaryGoal: recipeGoal,
+          mealCategory: recipeCategory,
+          cuisineStyle: recipeStyle,
+          caloriesGoal: recipeCalories,
+          minProteinTarget: recipeProtein,
+          maxCookingTime: recipeTime,
+          allergies: recipeAllergies,
+          onHandIngredients: recipeIngredients
+        })
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to generate recipe.");
+      }
+
+      if (data.recipe) {
+        setGeneratedRecipe(data.recipe);
+        showLogToast("Recipe generated successfully! 🍳");
+        
+        // Save to past plans snapshot
+        savePastPlanSnapshot({
+          type: 'recipe',
+          title: data.recipe.title,
+          data: data.recipe
+        });
+      } else {
+        throw new Error("Failed to generate recipe.");
+      }
+    } catch (err: any) {
+      console.error("Generate recipe error:", err);
+      setRecipeError(err?.message || "Failed to generate recipe. Please try again.");
+    } finally {
+      setGeneratingRecipe(false);
+    }
   };
 
   const addRamadanWater = () => {
@@ -560,77 +877,66 @@ export default function MealPlanView({
       </div>
 
       {/* ═══════════════════════════════════════════════════════
-          NAVIGATION TABS — Pill-shaped, Headspace rounded
+          SUB-NAVIGATION TAB BAR — Horizontal Scroll, Pill Buttons
          ═══════════════════════════════════════════════════════ */}
-      <div className="hch-animate-in" style={{ display: 'flex', flexDirection: 'column', gap: spacing[12] }}>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: spacing[8] }}>
-          {[
-            { id: '7day', label: 'Weekly Meals', icon: Calendar },
-            { id: 'lookup', label: 'Search Foods', icon: Search },
-            { id: 'ramadan', label: 'Fasting Helper', icon: Moon },
-            { id: 'compare', label: 'Compare', icon: ArrowLeftRight },
-          ].map((tab) => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id && !secondaryTab;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => { setActiveTab(tab.id as any); setSecondaryTab(null); }}
-                style={{
-                  padding: `${spacing[8]} ${spacing[16]}`,
-                  borderRadius: radii.button,
-                  border: isActive ? `2px solid ${colors.primary}` : `1.5px solid ${colors.success}30`,
-                  background: isActive ? colors.primary : colors.white,
-                  color: isActive ? colors.white : colors.muted,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: spacing[8],
-                  fontWeight: 600,
-                  fontSize: fontSizes.xs,
-                  fontFamily: fonts.body,
-                  transition: 'all 0.25s ease',
-                  boxShadow: isActive ? shadows.card : 'none',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                <Icon size={14} />
-                <span>{tab.label}</span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Secondary tabs */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: spacing[8] }}>
-          <span style={{ fontFamily: fonts.body, color: colors.muted, fontWeight: 600, fontSize: '0.6875rem', letterSpacing: '0.03em' }}>
-            Tools:
-          </span>
-          {[
-            { id: 'favorites', label: 'Favourites', icon: Heart },
-          ].map((tab) => {
-            const Icon = tab.icon;
-            const isActive = secondaryTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setSecondaryTab(tab.id as any)}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: spacing[4],
-                  padding: `6px ${spacing[12]}`, borderRadius: radii.button,
-                  border: 'none',
-                  background: isActive ? `${colors.primary}12` : 'transparent',
-                  color: isActive ? colors.primary : colors.muted,
-                  fontWeight: 600, fontSize: fontSizes.xs, fontFamily: fonts.body,
-                  cursor: 'pointer', transition: 'all 0.2s',
-                }}
-              >
-                <Icon size={14} style={tab.id === 'favorites' ? { fill: isActive ? colors.primary : 'none' } : {}} />
-                <span>{tab.label}</span>
-              </button>
-            );
-          })}
-        </div>
+      <div 
+        className="hch-animate-in" 
+        style={{ 
+          display: 'flex', 
+          gap: spacing[8], 
+          overflowX: 'auto', 
+          paddingBottom: spacing[8],
+          scrollbarWidth: 'none', /* Firefox */
+          msOverflowStyle: 'none', /* IE 10+ */
+          WebkitOverflowScrolling: 'touch',
+          borderBottom: `1px solid ${colors.success}20`,
+        }}
+      >
+        <style dangerouslySetInnerHTML={{__html: `
+          div::-webkit-scrollbar {
+            display: none;
+          }
+        `}} />
+        {[
+          { id: '7day', label: '7-Day Food Plan', icon: Calendar },
+          { id: 'lookup', label: 'Look Up Food', icon: Search },
+          { id: 'photo', label: 'Take Food Photo', icon: Camera },
+          { id: 'ramadan', label: 'Ramadan Health Helper', icon: Moon },
+          { id: 'compare', label: 'Compare Foods', icon: ArrowLeftRight },
+          { id: 'cooking', label: 'Easy Cooking Guide', icon: ChefHat },
+          { id: 'favorites', label: 'Favorites', icon: Heart },
+          { id: 'past_plans', label: 'Past Plans', icon: FolderOpen },
+        ].map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              style={{
+                padding: `${spacing[8]} ${spacing[16]}`,
+                borderRadius: radii.button,
+                border: isActive ? `2px solid ${colors.accent}` : `1.5px solid ${colors.success}30`,
+                background: isActive ? colors.accent : colors.white,
+                color: isActive ? colors.white : colors.muted,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: spacing[8],
+                fontWeight: 600,
+                fontSize: fontSizes.xs,
+                fontFamily: fonts.body,
+                transition: 'all 0.25s ease',
+                boxShadow: isActive ? shadows.card : 'none',
+                whiteSpace: 'nowrap',
+                flexShrink: 0,
+              }}
+            >
+              <Icon size={14} style={tab.id === 'favorites' && isActive ? { fill: colors.white } : {}} />
+              <span>{tab.label}</span>
+            </button>
+          );
+        })}
       </div>
 
       {/* ═══════════════════════════════════════════════════════
@@ -663,9 +969,9 @@ export default function MealPlanView({
 
 
       {/* ═══════════════════════════════════════════════════════
-          B. FAVOURITES (Secondary Tab)
+          B. FAVOURITES
          ═══════════════════════════════════════════════════════ */}
-      {secondaryTab === 'favorites' && (
+      {activeTab === 'favorites' && (
         <div className="hch-animate-in" style={{ display: 'flex', flexDirection: 'column', gap: spacing[16] }}>
           <div>
             <h3 style={{ fontFamily: fonts.heading, fontSize: fontSizes.lg, fontWeight: 700, color: colors.text, margin: 0, display: 'flex', alignItems: 'center', gap: spacing[8] }}>
@@ -720,7 +1026,7 @@ export default function MealPlanView({
       {/* ═══════════════════════════════════════════════════════
           C. WEEKLY MEALS (Main Tab: 7-Day Plan)
          ═══════════════════════════════════════════════════════ */}
-      {activeTab === '7day' && !secondaryTab && (
+      {activeTab === '7day' && (
         <div className="hch-animate-in" style={{ display: 'flex', flexDirection: 'column', gap: spacing[20] }}>
 
           {/* Mode toggle: Presets vs Custom */}
@@ -976,19 +1282,36 @@ export default function MealPlanView({
                         <p style={{ fontFamily: fonts.body, fontSize: fontSizes.sm, color: colors.text, lineHeight: 1.65, margin: 0 }}>{meal.text}</p>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: spacing[12] }}>
                           <span style={{ fontSize: '0.6875rem', color: colors.muted }}>~{prot}g protein</span>
-                          <button
-                            onClick={() => handleLogMealCalories(meal.label, cal, prot)}
-                            style={{
-                              padding: '8px 16px', borderRadius: radii.button,
-                              border: `1.5px solid ${colors.primary}`,
-                              background: 'transparent', color: colors.primary,
-                              fontFamily: fonts.body, fontSize: '0.6875rem', fontWeight: 700,
-                              cursor: 'pointer', transition: 'all 0.2s',
-                              display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap',
-                            }}
-                          >
-                            <Flame size={12} /> Log this meal
-                          </button>
+                          <div style={{ display: 'flex', gap: spacing[8], alignItems: 'center' }}>
+                            <button
+                              type="button"
+                              onClick={() => toggleCustomFavorite({
+                                type: 'meal',
+                                name: `${meal.label}: ${meal.text.substring(0, 30)}${meal.text.length > 30 ? '...' : ''}`,
+                                calories: cal,
+                                protein: prot,
+                                carbs: 0,
+                                fat: 0,
+                                notes: meal.text
+                              })}
+                              style={{ padding: '6px', border: 'none', background: 'none', cursor: 'pointer', color: customFavorites.some(f => f.name.startsWith(`${meal.label}:`)) ? '#e54d2e' : colors.muted, transition: 'transform 0.1s' }}
+                            >
+                              <Heart size={16} style={{ fill: customFavorites.some(f => f.name.startsWith(`${meal.label}:`)) ? '#e54d2e' : 'none' }} />
+                            </button>
+                            <button
+                              onClick={() => handleLogMealCalories(meal.label, cal, prot)}
+                              style={{
+                                padding: '8px 16px', borderRadius: radii.button,
+                                border: `1.5px solid ${colors.primary}`,
+                                background: 'transparent', color: colors.primary,
+                                fontFamily: fonts.body, fontSize: '0.6875rem', fontWeight: 700,
+                                cursor: 'pointer', transition: 'all 0.2s',
+                                display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap',
+                              }}
+                            >
+                              <Flame size={12} /> Log this meal
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -1016,156 +1339,237 @@ export default function MealPlanView({
             </div>
           )}
 
-          {/* Saved Plans Archive */}
-          <div style={{ ...sectionCard, display: 'flex', flexDirection: 'column', gap: spacing[16] }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: spacing[8] }}>
-                <FolderOpen size={18} style={{ color: colors.primary }} />
-                <h4 style={{ fontFamily: fonts.heading, fontSize: fontSizes.sm, fontWeight: 700, color: colors.text, margin: 0 }}>Saved Plans</h4>
-              </div>
-              <span style={{ fontSize: '0.625rem', fontWeight: 700, color: colors.muted, background: colors.background, padding: '3px 10px', borderRadius: radii.full }}>{savedMealPlans.length} archived</span>
-            </div>
 
-            {savedMealPlans.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: spacing[24], background: colors.background, border: `1.5px dashed ${colors.success}50`, borderRadius: radii.card, display: 'flex', flexDirection: 'column', gap: spacing[12], alignItems: 'center' }}>
-                <Calendar size={28} style={{ color: colors.muted }} />
-                <span style={{ fontSize: fontSizes.xs, color: colors.muted }}>No saved plans yet. Save your active week to archive it.</span>
-                <button onClick={handleSaveCurrentPlan} className="hch-btn hch-btn--primary" style={{ fontSize: fontSizes.xs }}>
-                  <Save size={12} /> Save Current Week
-                </button>
-              </div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[8], maxHeight: '200px', overflowY: 'auto' }}>
-                {savedMealPlans.map((plan) => (
-                  <div key={plan.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: spacing[12], padding: spacing[12], borderRadius: '12px', background: colors.background, border: `1px solid ${colors.success}25` }}>
-                    <div>
-                      <span style={{ fontFamily: fonts.body, fontSize: fontSizes.xs, fontWeight: 700, color: colors.text }}>{plan.name}</span>
-                      <span style={{ fontSize: '0.625rem', color: colors.muted, display: 'block' }}>Saved: {plan.date} · {Object.keys(plan.days).length} days</span>
-                    </div>
-                    <div style={{ display: 'flex', gap: spacing[4] }}>
-                      <button
-                        onClick={() => handleRestoreSavedPlan(plan)}
-                        style={{ padding: '6px 12px', borderRadius: radii.button, background: colors.primary, color: colors.white, border: 'none', fontSize: '0.625rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}
-                      >
-                        <RefreshCw size={10} /> Load
-                      </button>
-                      <button
-                        onClick={() => handleDeleteSavedPlan(plan.id, plan.name)}
-                        style={{ padding: '6px', borderRadius: radii.full, border: 'none', background: 'transparent', cursor: 'pointer', color: '#e54d2e' }}
-                      >
-                        <Trash2 size={12} />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
         </div>
       )}
 
       {/* ═══════════════════════════════════════════════════════
-          D. SEARCH FOODS — with Noom color coding
+          D. LOOK UP FOODS — AI & Local Database Lookup
          ═══════════════════════════════════════════════════════ */}
-      {activeTab === 'lookup' && !secondaryTab && (
+      {activeTab === 'lookup' && (
         <div className="hch-animate-in" style={{ display: 'flex', flexDirection: 'column', gap: spacing[16] }}>
           <div>
             <h3 style={{ fontFamily: fonts.heading, fontSize: fontSizes.lg, fontWeight: 700, color: colors.text, margin: 0, display: 'flex', alignItems: 'center', gap: spacing[8] }}>
-              <Search size={20} color={colors.primary} /> Food Directory
+              <Search size={20} color={colors.primary} /> Food Directory & AI Lookup
             </h3>
             <p style={{ fontFamily: fonts.body, fontSize: fontSizes.sm, color: colors.muted, lineHeight: 1.6, marginTop: spacing[4] }}>
-              Search traditional foods, see Noom-style colour codes, and log instantly. 🥗
+              Search traditional foods in English or Urdu script to fetch instant calorie & macronutrient estimates. 🥗
             </p>
           </div>
 
-          {/* Search bar */}
-          <div style={{ position: 'relative' }}>
-            <input
-              type="text"
-              placeholder="Search food (e.g. roti, biryani, daal)…"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              style={{ ...inputStyle, paddingLeft: '40px' }}
-            />
-            <Search size={16} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: colors.muted }} />
-          </div>
-
-          {/* Plate composition widget */}
-          <div style={{ ...sectionCard, display: 'flex', alignItems: 'center', gap: spacing[20], flexWrap: 'wrap' }}>
-            <div style={{ flex: 1, minWidth: '200px' }}>
-              <span style={{ fontSize: '0.625rem', fontWeight: 700, color: colors.muted, textTransform: 'uppercase', letterSpacing: '0.04em', display: 'block', marginBottom: spacing[4] }}>Plate Composition</span>
-              <h4 style={{ fontFamily: fonts.heading, fontSize: fontSizes.base, fontWeight: 700, color: colors.text, margin: 0 }}>Build your balanced plate</h4>
-              <p style={{ fontSize: fontSizes.xs, color: colors.muted, marginTop: spacing[4], lineHeight: 1.5 }}>Log foods below to see your plate fill up. Aim for balance! 🍽️</p>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: spacing[8] }}>
-                <span style={{ fontSize: '0.625rem', padding: '3px 8px', borderRadius: '6px', background: '#e8f5e8', color: '#2d6a2d', border: '1px solid #c8e6c8', fontWeight: 600 }}>Fibre: {plateComposition.fibers}%</span>
-                <span style={{ fontSize: '0.625rem', padding: '3px 8px', borderRadius: '6px', background: '#f3e8ff', color: '#6b21a8', border: '1px solid #d8b4fe', fontWeight: 600 }}>Protein: {plateComposition.protein}%</span>
-                <span style={{ fontSize: '0.625rem', padding: '3px 8px', borderRadius: '6px', background: '#fef9e7', color: '#8a6d1b', border: '1px solid #f7e3a0', fontWeight: 600 }}>Carbs: {plateComposition.carbs}%</span>
-              </div>
-            </div>
-            <div style={{ width: '100px', height: '100px', position: 'relative', flexShrink: 0 }}>
-              <svg viewBox="0 0 100 100" style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }}>
-                <circle cx="50" cy="50" r="46" fill="none" stroke={`${colors.success}20`} strokeWidth="3" />
-                <path d="M50,50 L91,50 A41,41 0 0,1 9,50 Z" fill={plateComposition.fibers > 0 ? `${colors.primary}40` : 'transparent'} stroke={colors.primary} strokeWidth="1.5" style={{ transition: 'all 0.5s' }} />
-                <path d="M50,50 L9,50 A41,41 0 0,1 50,91 Z" fill={plateComposition.protein > 0 ? `${colors.blue}40` : 'transparent'} stroke={colors.blue} strokeWidth="1.5" style={{ transition: 'all 0.5s' }} />
-                <path d="M50,50 L50,91 A41,41 0 0,1 91,50 Z" fill={plateComposition.carbs > 0 ? `${colors.accent}40` : 'transparent'} stroke={colors.accent} strokeWidth="1.5" style={{ transition: 'all 0.5s' }} />
-              </svg>
-              <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                <span style={{ fontSize: '0.5rem', fontWeight: 700, color: colors.muted, textTransform: 'uppercase' }}>Portions</span>
-                <button onClick={resetPlate} style={{ fontSize: '0.5rem', fontWeight: 600, color: colors.primary, cursor: 'pointer', background: 'none', border: 'none', padding: 0 }}>Reset</button>
-              </div>
-            </div>
-          </div>
-
-          {/* Food list */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: spacing[12] }}>
-            {filteredFoods.map((food) => {
-              const noom = getNoomColor(food.category);
-              return (
-                <div key={food.id} style={{ ...sectionCard, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: spacing[12], padding: spacing[16], transition: 'all 0.25s ease' }}
-                  onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 6px 20px rgba(38,41,31,0.1)'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.boxShadow = shadows.card; }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                    <span style={{ fontSize: '0.625rem', fontWeight: 700, padding: '3px 8px', borderRadius: '6px', background: noom.bg, color: noom.text, border: `1px solid ${noom.border}` }}>{noom.label}</span>
-                    <button onClick={() => toggleFavorite(food.id)} style={{ padding: '4px', border: 'none', background: 'none', cursor: 'pointer', color: favoriteIds.includes(food.id) ? '#e54d2e' : colors.muted, transition: 'color 0.2s' }}>
-                      <Heart size={16} style={{ fill: favoriteIds.includes(food.id) ? '#e54d2e' : 'none' }} />
-                    </button>
-                  </div>
-
-                  <div>
-                    <h4 style={{ fontFamily: fonts.body, fontSize: fontSizes.sm, fontWeight: 700, color: colors.text, margin: 0 }}>{food.name}</h4>
-                    <p style={{ fontSize: fontSizes.xs, color: colors.muted, marginTop: '4px', lineHeight: 1.5 }}>{food.description}</p>
-                  </div>
-
-                  <div style={{ borderTop: `1px solid ${colors.success}20`, paddingTop: spacing[12], display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <div>
-                      <span style={{ fontFamily: fonts.heading, fontSize: fontSizes.base, fontWeight: 700, color: colors.text }}>{food.calories}</span>
-                      <span style={{ fontSize: '0.625rem', color: colors.muted, marginLeft: '4px' }}>kcal</span>
-                      <span style={{ display: 'block', fontSize: '0.6875rem', color: colors.muted }}>Protein: {food.protein}g</span>
-                    </div>
-                    <button
-                      onClick={() => { handleLogMealCalories(food.name, food.calories, food.protein); addFoodToPlate(food.category); }}
-                      style={{
-                        padding: '8px 14px', borderRadius: radii.button,
-                        background: colors.primary, color: colors.white, border: 'none',
-                        fontSize: '0.6875rem', fontWeight: 700, cursor: 'pointer',
-                        display: 'flex', alignItems: 'center', gap: '4px',
-                        transition: 'all 0.2s', whiteSpace: 'nowrap',
-                      }}
-                    >
-                      <Plus size={12} /> Log
-                    </button>
-                  </div>
+          {/* Search form & Slot Selector */}
+          <form onSubmit={(e) => handleLookupFood(e)} style={{ ...sectionCard, padding: spacing[16], display: 'flex', flexDirection: 'column', gap: spacing[16] }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr minmax(140px, auto)', gap: spacing[12] }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[4] }}>
+                <label style={{ fontSize: fontSizes.xs, fontWeight: 700, color: colors.text }}>Search Food Item</label>
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type="text"
+                    placeholder="Search Desi foods (e.g. Dal Chawal, دال چاول, Roti)…"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    style={{ ...inputStyle, paddingLeft: '40px', width: '100%' }}
+                  />
+                  <Search size={16} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: colors.muted }} />
                 </div>
-              );
-            })}
-
-            {filteredFoods.length === 0 && (
-              <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: spacing[32], color: colors.muted, fontSize: fontSizes.sm }}>
-                No foods match your search. Try a different keyword! 🔍
               </div>
-            )}
-          </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[4] }}>
+                <label style={{ fontSize: fontSizes.xs, fontWeight: 700, color: colors.text }}>Meal Slot</label>
+                <select
+                  value={lookupMealSlot}
+                  onChange={(e) => setLookupMealSlot(e.target.value as any)}
+                  style={{ ...inputStyle, minWidth: '130px' }}
+                >
+                  <option value="Breakfast">Breakfast 🍳</option>
+                  <option value="Lunch">Lunch 🍛</option>
+                  <option value="Dinner">Dinner 🍲</option>
+                  <option value="Snack">Snack 🍎</option>
+                </select>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={lookupLoading || !searchQuery.trim()}
+              className="hch-btn hch-btn--primary"
+              style={{ width: '100%', padding: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: spacing[8] }}
+            >
+              <Search size={14} /> {lookupLoading ? 'Searching database & AI…' : 'Look Up Nutrition'}
+            </button>
+          </form>
+
+          {/* Result view */}
+          {lookupLoading ? (
+            <div style={{
+              ...sectionCard,
+              padding: spacing[48],
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              textAlign: 'center',
+              background: '#fcfbf9'
+            }}>
+              <div style={{
+                width: '48px', height: '48px', borderRadius: '50%',
+                border: `3px solid ${colors.success}30`,
+                borderTop: `3px solid ${colors.primary}`,
+                animation: 'hch-ring-fill 1s linear infinite',
+                marginBottom: spacing[16]
+              }} />
+              <h4 style={{ fontFamily: fonts.heading, fontSize: fontSizes.base, fontWeight: 700, color: colors.text, margin: 0 }}>Searching Foods…</h4>
+              <p style={{ fontSize: fontSizes.xs, color: colors.muted, marginTop: spacing[4] }}>Checking local database and running AI estimates</p>
+            </div>
+          ) : lookupError ? (
+            <div style={{ ...sectionCard, background: '#fef2f2', border: '1px solid #fecaca', padding: spacing[20], display: 'flex', gap: spacing[12], alignItems: 'flex-start' }}>
+              <AlertCircle size={20} color="#b91c1c" style={{ flexShrink: 0, marginTop: '2px' }} />
+              <div>
+                <h5 style={{ fontFamily: fonts.heading, fontSize: fontSizes.sm, fontWeight: 700, color: '#b91c1c', margin: 0 }}>Lookup Error</h5>
+                <p style={{ fontSize: fontSizes.xs, color: '#b91c1c', lineHeight: 1.5, margin: `${spacing[4]} 0 0` }}>{lookupError}</p>
+              </div>
+            </div>
+          ) : lookupResult ? (
+            /* Result Panel */
+            <div className="hch-animate-in" style={{ ...sectionCard, display: 'flex', flexDirection: 'column', gap: spacing[16] }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: spacing[8] }}>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: spacing[6], flexWrap: 'wrap' }}>
+                    {lookupResult.source === 'local' ? (
+                      <span style={{ fontSize: '0.625rem', fontWeight: 700, color: colors.primary, background: `${colors.primary}10`, padding: '2px 8px', borderRadius: '4px', textTransform: 'uppercase' }}>Local Match</span>
+                    ) : (
+                      <span style={{ fontSize: '0.625rem', fontWeight: 700, color: colors.accent, background: `${colors.accent}10`, padding: '2px 8px', borderRadius: '4px', textTransform: 'uppercase' }}>AI Estimated</span>
+                    )}
+                    {lookupResult.confidence !== undefined && (
+                      <span style={{ fontSize: '0.625rem', color: colors.muted }}>({Math.round(lookupResult.confidence * 100)}% Match)</span>
+                    )}
+                  </div>
+                  <h4 style={{ fontFamily: fonts.heading, fontSize: fontSizes.base, fontWeight: 700, color: colors.text, margin: `${spacing[4]} 0 0` }}>{lookupResult.name}</h4>
+                </div>
+                <div style={{ display: 'flex', gap: spacing[12], alignItems: 'center' }}>
+                  <span style={{ fontSize: fontSizes.base, fontWeight: 800, color: colors.accent }}>{lookupResult.calories} kcal</span>
+                  <button
+                    type="button"
+                    onClick={() => toggleCustomFavorite({
+                      type: 'food',
+                      name: lookupResult.name,
+                      calories: lookupResult.calories,
+                      protein: lookupResult.protein,
+                      carbs: lookupResult.carbs,
+                      fat: lookupResult.fat,
+                      notes: lookupResult.notes
+                    })}
+                    style={{ padding: '4px', border: 'none', background: 'none', cursor: 'pointer', color: customFavorites.some(f => f.name === lookupResult.name) ? '#e54d2e' : colors.muted, transition: 'transform 0.1s' }}
+                  >
+                    <Heart size={20} style={{ fill: customFavorites.some(f => f.name === lookupResult.name) ? '#e54d2e' : 'none' }} />
+                  </button>
+                </div>
+              </div>
+
+              <p style={{ fontSize: fontSizes.xs, color: colors.muted, lineHeight: 1.5, margin: 0 }}>"{lookupResult.notes}"</p>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: spacing[8], borderTop: `1px solid ${colors.success}15`, paddingTop: spacing[12] }}>
+                {[
+                  { label: 'Protein', value: `${lookupResult.protein}g`, color: colors.primary },
+                  { label: 'Carbs', value: `${lookupResult.carbs}g`, color: colors.accent },
+                  { label: 'Fat', value: `${lookupResult.fat}g`, color: colors.text },
+                ].map((macro) => (
+                  <div key={macro.label} style={{ textAlign: 'center', padding: '8px', background: colors.background, borderRadius: '8px' }}>
+                    <span style={{ fontSize: '0.625rem', color: colors.muted, display: 'block' }}>{macro.label}</span>
+                    <strong style={{ fontSize: fontSizes.xs, color: macro.color, display: 'block', marginTop: '2px' }}>{macro.value}</strong>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ display: 'flex', gap: spacing[8], marginTop: spacing[4] }}>
+                <button
+                  type="button"
+                  onClick={() => handleLogMealCalories(`${lookupMealSlot}: ${lookupResult.name}`, lookupResult.calories, lookupResult.protein)}
+                  className="hch-btn hch-btn--primary"
+                  style={{ flex: 1, padding: '10px 16px', fontSize: fontSizes.xs }}
+                >
+                  <Plus size={12} /> Log to {lookupMealSlot}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setLookupResult(null); setSearchQuery(''); }}
+                  className="hch-btn hch-btn--ghost"
+                  style={{ fontSize: fontSizes.xs }}
+                >
+                  Reset Search
+                </button>
+              </div>
+            </div>
+          ) : (
+            /* Empty State */
+            <div style={{
+              ...sectionCard,
+              textAlign: 'center',
+              padding: spacing[48],
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: spacing[16]
+            }}>
+              <div style={{ fontSize: '3rem' }}>🔍🥗</div>
+              <h3 style={{ fontFamily: fonts.heading, fontSize: fontSizes.base, fontWeight: 600, color: colors.text, margin: 0 }}>
+                Ready to search Pakistani & Fusion foods
+              </h3>
+              <p style={{ fontSize: fontSizes.xs, color: colors.muted, margin: 0, maxWidth: '340px', lineHeight: 1.6 }}>
+                Type a food item in English or Urdu script. We'll search our local database first, then query Gemini AI for macro and calorie estimates.
+              </p>
+
+              <div style={{ borderTop: `1px solid ${colors.success}10`, width: '100%', paddingTop: spacing[16], marginTop: spacing[8] }}>
+                <span style={{ fontSize: '0.625rem', fontWeight: 800, color: colors.primary, textTransform: 'uppercase', display: 'block', marginBottom: spacing[8] }}>Quick Demo Searches</span>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: spacing[8], justifyContent: 'center' }}>
+                  <button
+                    type="button"
+                    onClick={() => { setSearchQuery('roti'); setLookupMealSlot('Lunch'); setTimeout(() => {
+                      const btn = document.querySelector('form button[type="submit"]') as HTMLButtonElement;
+                      if (btn) btn.click();
+                    }, 50); }}
+                    className="hch-btn hch-btn--outline"
+                    style={{ fontSize: '0.6875rem', padding: '6px 12px' }}
+                  >
+                    Roti (Hits Local DB 🏠)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setSearchQuery('Haleem'); setLookupMealSlot('Dinner'); setTimeout(() => {
+                      const btn = document.querySelector('form button[type="submit"]') as HTMLButtonElement;
+                      if (btn) btn.click();
+                    }, 50); }}
+                    className="hch-btn hch-btn--outline"
+                    style={{ fontSize: '0.6875rem', padding: '6px 12px' }}
+                  >
+                    Haleem (Hits Local DB 🏠)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setSearchQuery('Halwa Puri'); setLookupMealSlot('Breakfast'); setTimeout(() => {
+                      const btn = document.querySelector('form button[type="submit"]') as HTMLButtonElement;
+                      if (btn) btn.click();
+                    }, 50); }}
+                    className="hch-btn hch-btn--outline"
+                    style={{ fontSize: '0.6875rem', padding: '6px 12px' }}
+                  >
+                    Halwa Puri (Hits Gemini AI 🤖)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setSearchQuery('دال چاول'); setLookupMealSlot('Lunch'); setTimeout(() => {
+                      const btn = document.querySelector('form button[type="submit"]') as HTMLButtonElement;
+                      if (btn) btn.click();
+                    }, 50); }}
+                    className="hch-btn hch-btn--outline"
+                    style={{ fontSize: '0.6875rem', padding: '6px 12px' }}
+                  >
+                    دال چاول (Urdu - Hits Gemini AI 🤖)
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -1174,7 +1578,7 @@ export default function MealPlanView({
       {/* ═══════════════════════════════════════════════════════
           F. RAMADAN HEALTH HELPER
          ═══════════════════════════════════════════════════════ */}
-      {activeTab === 'ramadan' && !secondaryTab && (
+      {activeTab === 'ramadan' && (
         <div className="hch-animate-in" style={{ display: 'flex', flexDirection: 'column', gap: spacing[16] }}>
           <div>
             <h3 style={{ fontFamily: fonts.heading, fontSize: fontSizes.lg, fontWeight: 700, color: colors.text, margin: 0, display: 'flex', alignItems: 'center', gap: spacing[8] }}>
@@ -1294,105 +1698,941 @@ export default function MealPlanView({
       {/* ═══════════════════════════════════════════════════════
           G. COMPARE FOODS — Side by side
          ═══════════════════════════════════════════════════════ */}
-      {activeTab === 'compare' && !secondaryTab && (
+      {activeTab === 'compare' && (
         <div className="hch-animate-in" style={{ display: 'flex', flexDirection: 'column', gap: spacing[16] }}>
           <div>
             <h3 style={{ fontFamily: fonts.heading, fontSize: fontSizes.lg, fontWeight: 700, color: colors.text, margin: 0, display: 'flex', alignItems: 'center', gap: spacing[8] }}>
               <ArrowLeftRight size={20} color={colors.primary} /> Compare Foods
             </h3>
             <p style={{ fontFamily: fonts.body, fontSize: fontSizes.sm, color: colors.muted, lineHeight: 1.6, marginTop: spacing[4] }}>
-              Put two foods side by side and see which is the healthier swap. Knowledge is power! 💪
+              Compare a traditional Pakistani food side-by-side with a Western fast food to see healthy swaps. 📊
             </p>
           </div>
 
-          <div style={{ ...sectionCard, display: 'flex', flexDirection: 'column', gap: spacing[20] }}>
-            {/* Selection */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: spacing[16] }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[4] }}>
-                <label style={{ fontSize: fontSizes.xs, fontWeight: 700, color: colors.text }}>First food</label>
-                <select value={foodAId} onChange={(e) => setFoodAId(e.target.value)} style={inputStyle}>
-                  {PAKISTANI_FOODS_DB.map(f => (<option key={f.id} value={f.id}>{f.name}</option>))}
-                </select>
+          <div style={{ ...sectionCard, padding: spacing[20], display: 'flex', flexDirection: 'column', gap: spacing[16] }}>
+            {/* Input Row */}
+            <form onSubmit={(e) => handleCompareFoods(e)} style={{ display: 'flex', flexDirection: 'column', gap: spacing[12] }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: spacing[12] }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[4] }}>
+                  <label style={{ fontSize: fontSizes.xs, fontWeight: 700, color: colors.text }}>Food A (Traditional / Desi)</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Chicken Biryani, Roti"
+                    value={compareFoodA}
+                    onChange={(e) => setCompareFoodA(e.target.value)}
+                    style={inputStyle}
+                  />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[4] }}>
+                  <label style={{ fontSize: fontSizes.xs, fontWeight: 700, color: colors.text }}>Food B (Western / Fast Food)</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Beef Burger, French Fries"
+                    value={compareFoodB}
+                    onChange={(e) => setCompareFoodB(e.target.value)}
+                    style={inputStyle}
+                  />
+                </div>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[4] }}>
-                <label style={{ fontSize: fontSizes.xs, fontWeight: 700, color: colors.text }}>Second food</label>
-                <select value={foodBId} onChange={(e) => setFoodBId(e.target.value)} style={inputStyle}>
-                  {PAKISTANI_FOODS_DB.map(f => (<option key={f.id} value={f.id}>{f.name}</option>))}
-                </select>
-              </div>
-            </div>
 
-            {/* Side-by-side cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: spacing[16] }}>
-              {[foodA, foodB].map((food, idx) => {
-                const noom = getNoomColor(food.category || 'other');
-                const grade = food.healthGrade || 'B';
-                const gradeColor = grade.startsWith('A') || grade.startsWith('B') ? colors.primary : grade.startsWith('C') ? '#b59b1b' : '#e54d2e';
-                return (
-                  <div key={idx} style={{ background: colors.background, borderRadius: radii.card, padding: spacing[16], display: 'flex', flexDirection: 'column', gap: spacing[12] }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                      <span style={{ fontSize: '0.625rem', fontWeight: 700, padding: '3px 8px', borderRadius: '6px', background: noom.bg, color: noom.text, border: `1px solid ${noom.border}` }}>{food.category || 'Food'}</span>
-                      <div style={{ width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: fontSizes.xs, fontWeight: 800, border: `2px solid ${gradeColor}30`, background: `${gradeColor}08`, color: gradeColor }}>{grade}</div>
-                    </div>
-                    <h4 style={{ fontFamily: fonts.heading, fontSize: fontSizes.sm, fontWeight: 700, color: colors.text, margin: 0 }}>{food.name}</h4>
-                    <p style={{ fontSize: fontSizes.xs, color: colors.muted, fontStyle: 'italic', lineHeight: 1.5, margin: 0 }}>"{food.description}"</p>
-
-                    {/* Macro bars */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[8], borderTop: `1px solid ${colors.success}15`, paddingTop: spacing[12] }}>
-                      {[
-                        { label: 'Calories', value: food.calories, max: 600, unit: 'kcal', color: colors.accent },
-                        { label: 'Protein', value: food.protein, max: 35, unit: 'g', color: colors.primary },
-                      ].map((macro) => (
-                        <div key={macro.label}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: fontSizes.xs }}>
-                            <span style={{ color: colors.muted }}>{macro.label}</span>
-                            <span style={{ fontWeight: 700, color: colors.text }}>{macro.value} {macro.unit}</span>
-                          </div>
-                          <div style={{ width: '100%', height: '6px', background: `${colors.success}15`, borderRadius: radii.full, overflow: 'hidden', marginTop: '4px' }}>
-                            <div style={{ width: `${Math.min(100, (macro.value / macro.max) * 100)}%`, height: '100%', background: macro.color, borderRadius: radii.full, transition: 'width 0.5s ease' }} />
-                          </div>
-                        </div>
-                      ))}
-
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: spacing[4], marginTop: spacing[4] }}>
-                        {[
-                          { label: 'Carbs', value: `${food.carbs}g` },
-                          { label: 'Fat', value: `${food.fat}g` },
-                          { label: 'Fibre', value: `${food.fiber || 0}g` },
-                        ].map((m) => (
-                          <div key={m.label} style={{ textAlign: 'center', padding: '8px', background: colors.white, borderRadius: '8px', fontSize: '0.625rem' }}>
-                            <span style={{ color: colors.muted, display: 'block' }}>{m.label}</span>
-                            <span style={{ fontWeight: 700, color: colors.text, display: 'block', marginTop: '2px' }}>{m.value}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Coach verdict */}
-            <div style={{ background: `${colors.success}10`, borderRadius: radii.card, padding: spacing[16], display: 'flex', gap: spacing[12], alignItems: 'flex-start' }}>
-              <ChefHat size={20} style={{ color: colors.primary, marginTop: '2px', flexShrink: 0 }} />
+              {/* Quick Matches */}
               <div>
-                <span style={{ fontSize: fontSizes.xs, fontWeight: 700, color: colors.primary, letterSpacing: '0.03em' }}>Coach's Verdict</span>
-                <p style={{ fontFamily: fonts.body, fontSize: fontSizes.sm, color: colors.text, lineHeight: 1.65, marginTop: spacing[4], margin: `${spacing[4]} 0 0` }}>{getComparisonTip(foodA, foodB)}</p>
+                <span style={{ fontSize: '0.625rem', fontWeight: 800, color: colors.primary, textTransform: 'uppercase', display: 'block', marginBottom: spacing[8] }}>Popular Quick Matches</span>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: spacing[8] }}>
+                  {[
+                    { label: "Biryani vs Burger", a: "Chicken Biryani", b: "Beef Burger" },
+                    { label: "Samosa vs Fries", a: "Samosa", b: "French Fries" },
+                    { label: "Paratha vs Croissant", a: "Plain Paratha", b: "Butter Croissant" },
+                    { label: "Halwa Puri vs Pancake", a: "Halwa Puri", b: "Maple Syrup Pancakes" },
+                  ].map((preset) => (
+                    <button
+                      key={preset.label}
+                      type="button"
+                      onClick={() => {
+                        setCompareFoodA(preset.a);
+                        setCompareFoodB(preset.b);
+                        // Trigger compare
+                        setTimeout(() => {
+                          const btn = document.getElementById('hch-compare-submit-btn') as HTMLButtonElement;
+                          if (btn) btn.click();
+                        }, 50);
+                      }}
+                      className="hch-btn hch-btn--outline"
+                      style={{ fontSize: '0.6875rem', padding: '6px 12px' }}
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <button
+                id="hch-compare-submit-btn"
+                type="submit"
+                disabled={comparingFoods || !compareFoodA.trim() || !compareFoodB.trim()}
+                className="hch-btn hch-btn--primary"
+                style={{ width: '100%', padding: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: spacing[8] }}
+              >
+                <ArrowLeftRight size={14} /> {comparingFoods ? 'Comparing Foods…' : 'Calculate Nutritional Comparison'}
+              </button>
+            </form>
+          </div>
+
+          {/* Loader or Error */}
+          {comparingFoods && (
+            <div style={{ ...sectionCard, padding: spacing[48], display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', background: '#fcfbf9' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '50%', border: `3px solid ${colors.success}30`, borderTop: `3px solid ${colors.primary}`, animation: 'hch-ring-fill 1s linear infinite', marginBottom: spacing[16] }} />
+              <h4 style={{ fontFamily: fonts.heading, fontSize: fontSizes.base, fontWeight: 700, color: colors.text, margin: 0 }}>Comparing Foods…</h4>
+              <p style={{ fontSize: fontSizes.xs, color: colors.muted, marginTop: spacing[4] }}>Analyzing portion sizes and mineral data via AI</p>
+            </div>
+          )}
+
+          {compareError && (
+            <div style={{ ...sectionCard, background: '#fef2f2', border: '1px solid #fecaca', padding: spacing[20], display: 'flex', gap: spacing[12], alignItems: 'flex-start' }}>
+              <AlertCircle size={20} color="#b91c1c" style={{ flexShrink: 0, marginTop: '2px' }} />
+              <div>
+                <h5 style={{ fontFamily: fonts.heading, fontSize: fontSizes.sm, fontWeight: 700, color: '#b91c1c', margin: 0 }}>Comparison Error</h5>
+                <p style={{ fontSize: fontSizes.xs, color: '#b91c1c', lineHeight: 1.5, margin: `${spacing[4]} 0 0` }}>{compareError}</p>
               </div>
             </div>
+          )}
 
-            {((foodA.healthGrade || 'B').startsWith('D') || (foodA.healthGrade || 'B').startsWith('F') || (foodB.healthGrade || 'B').startsWith('D') || (foodB.healthGrade || 'B').startsWith('F')) && (
-              <div style={{ background: `${colors.accent}08`, border: `1px solid ${colors.accent}20`, borderRadius: radii.card, padding: spacing[16], display: 'flex', gap: spacing[12], alignItems: 'flex-start' }}>
-                <span style={{ fontSize: '1.25rem' }}>💡</span>
+          {/* Result View */}
+          {compareResult && !comparingFoods && (
+            <div className="hch-animate-in" style={{ display: 'flex', flexDirection: 'column', gap: spacing[16] }}>
+              <div style={{ ...sectionCard, padding: 0, overflow: 'hidden' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: fontSizes.sm }}>
+                  <thead>
+                    <tr style={{ background: '#faf9f6', borderBottom: `1px solid ${colors.success}15` }}>
+                      <th style={{ padding: '16px', fontWeight: 700, color: colors.muted, fontSize: '0.6875rem', textTransform: 'uppercase' }}>Nutrient (per serving)</th>
+                      <th style={{ padding: '16px', fontWeight: 700, color: colors.primary }}>{compareResult.foodAName} (Desi)</th>
+                      <th style={{ padding: '16px', fontWeight: 700, color: colors.accent }}>{compareResult.foodBName} (Western)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[
+                      { name: "Calories", unit: "kcal", a: compareResult.foodAStats.calories, b: compareResult.foodBStats.calories, lowerIsBetter: true },
+                      { name: "Protein", unit: "g", a: compareResult.foodAStats.protein, b: compareResult.foodBStats.protein, lowerIsBetter: false },
+                      { name: "Dietary Fiber", unit: "g", a: compareResult.foodAStats.fiber, b: compareResult.foodBStats.fiber, lowerIsBetter: false },
+                      { name: "Iron", unit: "mg", a: compareResult.foodAStats.iron, b: compareResult.foodBStats.iron, lowerIsBetter: false },
+                      { name: "Sodium", unit: "mg", a: compareResult.foodAStats.sodium, b: compareResult.foodBStats.sodium, lowerIsBetter: true }
+                    ].map((row, idx) => {
+                      const isABetter = row.lowerIsBetter ? (row.a < row.b) : (row.a > row.b);
+                      const isBBetter = row.lowerIsBetter ? (row.b < row.a) : (row.b > row.a);
+                      return (
+                        <tr key={row.name} style={{ borderBottom: idx < 4 ? `1px solid ${colors.success}10` : 'none' }}>
+                          <td style={{ padding: '14px 16px', fontWeight: 600, color: colors.text }}>{row.name}</td>
+                          <td style={{ padding: '14px 16px', color: colors.text }}>
+                            <strong style={{ color: isABetter ? colors.primary : colors.text }}>{row.a} {row.unit}</strong>
+                            {isABetter && <span style={{ fontSize: '0.625rem', color: colors.primary, marginLeft: '4px', background: `${colors.primary}10`, padding: '2px 6px', borderRadius: '4px' }}>Better</span>}
+                          </td>
+                          <td style={{ padding: '14px 16px', color: colors.text }}>
+                            <strong style={{ color: isBBetter ? colors.accent : colors.text }}>{row.b} {row.unit}</strong>
+                            {isBBetter && <span style={{ fontSize: '0.625rem', color: colors.accent, marginLeft: '4px', background: `${colors.accent}10`, padding: '2px 6px', borderRadius: '4px' }}>Better</span>}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* takeaway box */}
+              <div style={{ background: `${colors.primary}08`, border: `1px solid ${colors.primary}15`, borderRadius: radii.card, padding: spacing[16], display: 'flex', gap: spacing[12], alignItems: 'flex-start' }}>
+                <span style={{ fontSize: '1.5rem' }}>🥗</span>
                 <div>
-                  <span style={{ fontSize: fontSizes.xs, fontWeight: 700, color: colors.accent }}>Smart Swap Tip</span>
-                  <p style={{ fontSize: fontSizes.xs, color: colors.text, lineHeight: 1.6, marginTop: spacing[4], margin: `${spacing[4]} 0 0` }}>
-                    You're comparing items with lower health grades. Try swapping fried or refined options for whole grains like <strong>Whole-wheat Roti (Grade A)</strong> — it can save up to 15g fat per meal! 🌾
+                  <span style={{ fontSize: fontSizes.xs, fontWeight: 700, color: colors.primary, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Dietitian Takeaway</span>
+                  <p style={{ fontFamily: fonts.body, fontSize: fontSizes.sm, color: colors.text, lineHeight: 1.6, marginTop: spacing[4], margin: `${spacing[4]} 0 0` }}>
+                    {compareResult.takeaway}
                   </p>
                 </div>
               </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════
+          E. TAKE FOOD PHOTO — AI Vision Scanner
+         ═══════════════════════════════════════════════════════ */}
+      {activeTab === 'photo' && (
+        <div className="hch-animate-in" style={{ display: 'flex', flexDirection: 'column', gap: spacing[16] }}>
+          <div>
+            <h3 style={{ fontFamily: fonts.heading, fontSize: fontSizes.lg, fontWeight: 700, color: colors.text, margin: 0, display: 'flex', alignItems: 'center', gap: spacing[8] }}>
+              <Camera size={20} color={colors.primary} /> AI Food Photo Scanner
+            </h3>
+            <p style={{ fontFamily: fonts.body, fontSize: fontSizes.sm, color: colors.muted, lineHeight: 1.6, marginTop: spacing[4] }}>
+              Snap a picture of your plate or upload an image to instantly analyze ingredients, calories, and macronutrients. 📸
+            </p>
+          </div>
+
+          {/* Mode Selector & Slot Selector */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: spacing[16] }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[4] }}>
+              <label style={{ fontSize: fontSizes.xs, fontWeight: 700, color: colors.text }}>Scan Input Source</label>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: spacing[4], background: colors.background, padding: '4px', borderRadius: radii.button }}>
+                <button
+                  type="button"
+                  onClick={() => { setScanMode('gallery'); stopCamera(); setCapturedImage(null); setScannedResult(null); setScanError(null); }}
+                  style={pillToggle(scanMode === 'gallery')}
+                >
+                  <Upload size={14} /> Gallery Upload
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setScanMode('camera'); setCapturedImage(null); setScannedResult(null); setScanError(null); }}
+                  style={pillToggle(scanMode === 'camera')}
+                >
+                  <Camera size={14} /> Device Camera
+                </button>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[4] }}>
+              <label style={{ fontSize: fontSizes.xs, fontWeight: 700, color: colors.text }}>Assigned Meal Slot</label>
+              <select
+                value={selectedMealSlot}
+                onChange={(e) => setSelectedMealSlot(e.target.value as any)}
+                style={inputStyle}
+              >
+                <option value="Breakfast">Breakfast 🍳</option>
+                <option value="Lunch">Lunch 🍛</option>
+                <option value="Dinner">Dinner 🍲</option>
+                <option value="Snack">Snack 🍎</option>
+              </select>
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: spacing[16] }}>
+            {/* Input Capture Box */}
+            <div style={{
+              ...sectionCard,
+              padding: spacing[20],
+              minHeight: '320px',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              border: `2px dashed ${colors.primary}30`,
+              position: 'relative',
+              overflow: 'hidden',
+              background: '#fdfcfb'
+            }}>
+              {scanMode === 'camera' ? (
+                cameraActive ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[12], width: '100%', height: '100%', alignItems: 'center' }}>
+                    <div style={{ width: '100%', position: 'relative', borderRadius: '12px', overflow: 'hidden', background: '#000', aspectRatio: '4/3' }}>
+                      <video
+                        ref={videoRef}
+                        playsInline
+                        muted
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                      {/* Dotted Scan Overlay */}
+                      <div style={{
+                        position: 'absolute', top: '10%', bottom: '10%', left: '10%', right: '10%',
+                        border: `2px dashed ${colors.primary}80`, borderRadius: '12px', pointerEvents: 'none'
+                      }} />
+                      {/* Scan Line Animation */}
+                      <div style={{
+                        position: 'absolute', left: 0, right: 0, height: '4px',
+                        background: `linear-gradient(90deg, transparent, ${colors.primary}, transparent)`,
+                        top: '10%', animation: 'scanLine 2.5s ease-in-out infinite'
+                      }} />
+                    </div>
+                    <div style={{ display: 'flex', gap: spacing[8], width: '100%' }}>
+                      <button type="button" onClick={capturePhoto} className="hch-btn hch-btn--primary" style={{ flex: 1 }}>
+                        <Camera size={14} /> Capture Frame
+                      </button>
+                      <button type="button" onClick={stopCamera} className="hch-btn hch-btn--ghost">
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : capturedImage ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[12], alignItems: 'center' }}>
+                    <img src={capturedImage} alt="Captured preview" style={{ width: '100%', borderRadius: '12px', maxHeight: '220px', objectFit: 'contain' }} />
+                    <button type="button" onClick={startCamera} className="hch-btn hch-btn--outline" style={{ width: '100%' }}>
+                      <RefreshCw size={14} /> Retake Photo
+                    </button>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: spacing[12], textAlign: 'center' }}>
+                    <div style={{ width: '64px', height: '64px', borderRadius: radii.full, background: `${colors.primary}08`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: colors.primary }}>
+                      <Camera size={32} />
+                    </div>
+                    <div>
+                      <h4 style={{ fontFamily: fonts.heading, fontSize: fontSizes.base, fontWeight: 700, color: colors.text, margin: 0 }}>Camera Standby</h4>
+                      <p style={{ fontSize: fontSizes.xs, color: colors.muted, lineHeight: 1.5, margin: `${spacing[4]} 0 0`, maxWidth: '240px' }}>
+                        Access your device camera to take a real-time shot of your meal.
+                      </p>
+                    </div>
+                    <button type="button" onClick={startCamera} className="hch-btn hch-btn--primary" style={{ padding: '10px 24px', fontSize: fontSizes.xs }}>
+                      Start Camera
+                    </button>
+                  </div>
+                )
+              ) : (
+                /* Gallery Mode */
+                capturedImage ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[12], alignItems: 'center' }}>
+                    <img src={capturedImage} alt="Uploaded preview" style={{ width: '100%', borderRadius: '12px', maxHeight: '220px', objectFit: 'contain' }} />
+                    <button type="button" onClick={() => setCapturedImage(null)} className="hch-btn hch-btn--outline" style={{ width: '100%' }}>
+                      Clear & Upload Another
+                    </button>
+                  </div>
+                ) : (
+                  <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: spacing[12], cursor: 'pointer', textAlign: 'center', padding: spacing[20] }}>
+                    <div style={{ width: '64px', height: '64px', borderRadius: radii.full, background: `${colors.primary}08`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: colors.primary }}>
+                      <Upload size={32} />
+                    </div>
+                    <div>
+                      <h4 style={{ fontFamily: fonts.heading, fontSize: fontSizes.base, fontWeight: 700, color: colors.text, margin: 0 }}>Select Food Image</h4>
+                      <p style={{ fontSize: fontSizes.xs, color: colors.muted, lineHeight: 1.5, margin: `${spacing[4]} 0 0`, maxWidth: '240px' }}>
+                        Drag & drop or click to browse files (JPEG, PNG). Portion size will be estimated.
+                      </p>
+                    </div>
+                    <input type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} />
+                    <span className="hch-btn hch-btn--outline" style={{ pointerEvents: 'none', fontSize: fontSizes.xs }}>Browse Gallery</span>
+                  </label>
+                )
+              )}
+            </div>
+
+            {/* Results / Scanning Box */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[16] }}>
+              {scanningPhoto ? (
+                <div style={{
+                  ...sectionCard,
+                  padding: spacing[32],
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: '100%',
+                  textAlign: 'center',
+                  background: '#fcfbf9'
+                }}>
+                  <div style={{
+                    width: '64px', height: '64px', borderRadius: '50%',
+                    border: `4px solid ${colors.success}30`,
+                    borderTop: `4px solid ${colors.primary}`,
+                    animation: 'hch-ring-fill 1.2s linear infinite',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '1.5rem', marginBottom: spacing[16]
+                  }}>
+                    📸
+                  </div>
+                  <h4 style={{ fontFamily: fonts.heading, fontSize: fontSizes.base, fontWeight: 700, color: colors.text, margin: 0 }}>AI Photo Analysis Active…</h4>
+                  <p style={{ fontSize: fontSizes.xs, color: colors.muted, lineHeight: 1.5, margin: `${spacing[8]} 0 0`, maxWidth: '220px' }}>
+                    Identifying local ingredients and estimating caloric density. Please wait…
+                  </p>
+                </div>
+              ) : scannedResult ? (
+                /* Real Scanned Result */
+                <div className="hch-animate-in" style={{ ...sectionCard, display: 'flex', flexDirection: 'column', gap: spacing[16] }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: spacing[6] }}>
+                        <span style={{ fontSize: '0.625rem', fontWeight: 700, color: colors.primary, background: `${colors.primary}10`, padding: '2px 8px', borderRadius: '4px', textTransform: 'uppercase' }}>Scan Successful</span>
+                        {scannedResult.confidence !== undefined && (
+                          <span style={{ fontSize: '0.625rem', fontWeight: 700, color: colors.muted }}>({Math.round(scannedResult.confidence * 100)}% Match)</span>
+                        )}
+                      </div>
+                      <h4 style={{ fontFamily: fonts.heading, fontSize: fontSizes.base, fontWeight: 700, color: colors.text, margin: `${spacing[4]} 0 0` }}>{scannedResult.name}</h4>
+                    </div>
+                    <span style={{ fontSize: fontSizes.base, fontWeight: 800, color: colors.accent }}>{scannedResult.calories} kcal</span>
+                  </div>
+
+                  <p style={{ fontSize: fontSizes.xs, color: colors.muted, lineHeight: 1.5, margin: 0 }}>"{scannedResult.notes}"</p>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: spacing[8], borderTop: `1px solid ${colors.success}15`, paddingTop: spacing[12] }}>
+                    {[
+                      { label: 'Protein', value: `${scannedResult.protein}g`, color: colors.primary },
+                      { label: 'Carbs', value: `${scannedResult.carbs}g`, color: colors.accent },
+                      { label: 'Fat', value: `${scannedResult.fat}g`, color: colors.text },
+                    ].map((macro) => (
+                      <div key={macro.label} style={{ textAlign: 'center', padding: '8px', background: colors.background, borderRadius: '8px' }}>
+                        <span style={{ fontSize: '0.625rem', color: colors.muted, display: 'block' }}>{macro.label}</span>
+                        <strong style={{ fontSize: fontSizes.xs, color: macro.color, display: 'block', marginTop: '2px' }}>{macro.value}</strong>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div style={{ display: 'flex', gap: spacing[8], marginTop: spacing[4] }}>
+                    <button
+                      type="button"
+                      onClick={() => handleLogMealCalories(`${selectedMealSlot}: ${scannedResult.name}`, scannedResult.calories, scannedResult.protein)}
+                      className="hch-btn hch-btn--primary"
+                      style={{ flex: 1, padding: '10px 16px', fontSize: fontSizes.xs }}
+                    >
+                      <Plus size={12} /> Log to {selectedMealSlot}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setScannedResult(null)}
+                      className="hch-btn hch-btn--ghost"
+                      style={{ fontSize: fontSizes.xs }}
+                    >
+                      Reset
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                /* Standby State with Submit */
+                <div style={{ ...sectionCard, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: spacing[16], height: '100%' }}>
+                  <h4 style={{ fontFamily: fonts.heading, fontSize: fontSizes.sm, fontWeight: 700, color: colors.text, margin: 0 }}>Nutritional Estimation</h4>
+                  <p style={{ fontSize: fontSizes.xs, color: colors.muted, lineHeight: 1.6, margin: 0 }}>
+                    Our AI model will estimate calories and macros based on typical portion sizes. Provide a picture of your plate to start.
+                  </p>
+                  
+                  {scanError && (
+                    <div style={{ background: '#fef2f2', border: '1px solid #fecaca', padding: spacing[12], borderRadius: '8px', display: 'flex', gap: spacing[8], alignItems: 'flex-start' }}>
+                      <AlertCircle size={16} color="#b91c1c" style={{ flexShrink: 0, marginTop: '2px' }} />
+                      <span style={{ fontSize: '0.75rem', color: '#b91c1c', lineHeight: 1.4 }}>{scanError}</span>
+                    </div>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={handleScanFoodPhoto}
+                    disabled={!capturedImage || scanningPhoto}
+                    className="hch-btn hch-btn--primary"
+                    style={{ width: '100%', padding: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: spacing[8] }}
+                  >
+                    <Sparkles size={16} /> Scan Food Photo
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════
+          I. EASY COOKING GUIDE — AI Recipe Generator
+         ═══════════════════════════════════════════════════════ */}
+      {activeTab === 'cooking' && (
+        <div className="hch-animate-in" style={{ display: 'flex', flexDirection: 'column', gap: spacing[16] }}>
+          <div>
+            <h3 style={{ fontFamily: fonts.heading, fontSize: fontSizes.lg, fontWeight: 700, color: colors.text, margin: 0, display: 'flex', alignItems: 'center', gap: spacing[8] }}>
+              <ChefHat size={20} color={colors.primary} /> Easy Cooking Guide & AI Chef
+            </h3>
+            <p style={{ fontFamily: fonts.body, fontSize: fontSizes.sm, color: colors.muted, lineHeight: 1.6, marginTop: spacing[4] }}>
+              Generate custom, low-oil Pakistani recipes based on your specific macro, calorie, and allergy constraints. 🧑‍🍳
+            </p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: spacing[16], alignItems: 'flex-start' }}>
+            {/* Left Panel: Targets Setup */}
+            <form onSubmit={(e) => handleGenerateRecipe(e)} style={{ ...sectionCard, padding: spacing[20], display: 'flex', flexDirection: 'column', gap: spacing[16] }}>
+              <h4 style={{ fontFamily: fonts.heading, fontSize: fontSizes.sm, fontWeight: 700, color: colors.text, margin: 0 }}>Setup Recipe Targets</h4>
+
+              {/* Goal */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[4] }}>
+                <span style={{ fontSize: fontSizes.xs, fontWeight: 700, color: colors.text }}>Primary Target Goal</span>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: spacing[4], background: colors.background, padding: '4px', borderRadius: radii.button }}>
+                  {(['Fat Loss', 'Muscle Gain', 'Stay Fit'] as const).map((g) => (
+                    <button
+                      key={g}
+                      type="button"
+                      onClick={() => setRecipeGoal(g)}
+                      style={pillToggle(recipeGoal === g)}
+                    >
+                      {g}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Meal Category */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[4] }}>
+                <span style={{ fontSize: fontSizes.xs, fontWeight: 700, color: colors.text }}>Meal Category</span>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: spacing[6] }}>
+                  {['Breakfast', 'Lunch', 'Dinner', 'Snack'].map((cat) => (
+                    <button
+                      key={cat}
+                      type="button"
+                      onClick={() => setRecipeCategory(cat)}
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: radii.button,
+                        border: recipeCategory === cat ? `1.5px solid ${colors.primary}` : `1px solid ${colors.success}20`,
+                        background: recipeCategory === cat ? `${colors.primary}08` : 'transparent',
+                        color: recipeCategory === cat ? colors.primary : colors.text,
+                        fontSize: '0.6875rem',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Cuisine Style */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[4] }}>
+                <span style={{ fontSize: fontSizes.xs, fontWeight: 700, color: colors.text }}>Cuisine Style</span>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: spacing[4], background: colors.background, padding: '4px', borderRadius: radii.button }}>
+                  {(['Strictly Desi', 'Desi Fusion', 'Home-Cooked'] as const).map((style) => (
+                    <button
+                      key={style}
+                      type="button"
+                      onClick={() => setRecipeStyle(style)}
+                      style={pillToggle(recipeStyle === style)}
+                    >
+                      {style}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Calorie Slider */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[4] }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: fontSizes.xs }}>
+                  <span style={{ fontWeight: 700, color: colors.text }}>Target Calories</span>
+                  <span style={{ fontWeight: 700, color: colors.primary }}>{recipeCalories} kcal</span>
+                </div>
+                <input
+                  type="range"
+                  min="200"
+                  max="1200"
+                  step="50"
+                  value={recipeCalories}
+                  onChange={(e) => setRecipeCalories(parseInt(e.target.value))}
+                  style={{ width: '100%', accentColor: colors.primary }}
+                />
+              </div>
+
+              {/* Protein Slider */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[4] }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: fontSizes.xs }}>
+                  <span style={{ fontWeight: 700, color: colors.text }}>Minimum Protein</span>
+                  <span style={{ fontWeight: 700, color: colors.primary }}>{recipeProtein} g</span>
+                </div>
+                <input
+                  type="range"
+                  min="10"
+                  max="80"
+                  step="5"
+                  value={recipeProtein}
+                  onChange={(e) => setRecipeProtein(parseInt(e.target.value))}
+                  style={{ width: '100%', accentColor: colors.primary }}
+                />
+              </div>
+
+              {/* Time Slider */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[4] }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: fontSizes.xs }}>
+                  <span style={{ fontWeight: 700, color: colors.text }}>Max Cooking Time</span>
+                  <span style={{ fontWeight: 700, color: colors.primary }}>{recipeTime} mins</span>
+                </div>
+                <input
+                  type="range"
+                  min="10"
+                  max="90"
+                  step="5"
+                  value={recipeTime}
+                  onChange={(e) => setRecipeTime(parseInt(e.target.value))}
+                  style={{ width: '100%', accentColor: colors.primary }}
+                />
+              </div>
+
+              {/* Allergies Textbox */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[4] }}>
+                <label style={{ fontSize: fontSizes.xs, fontWeight: 700, color: colors.text }}>Allergies (Optional)</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Gluten, Dairy, Peanuts"
+                  value={recipeAllergies}
+                  onChange={(e) => setRecipeAllergies(e.target.value)}
+                  style={inputStyle}
+                />
+              </div>
+
+              {/* On-hand Ingredients Textbox */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[4] }}>
+                <label style={{ fontSize: fontSizes.xs, fontWeight: 700, color: colors.text }}>Ingredients On Hand (Optional)</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Chicken breast, Lentils, Spinach"
+                  value={recipeIngredients}
+                  onChange={(e) => setRecipeIngredients(e.target.value)}
+                  style={inputStyle}
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={generatingRecipe}
+                className="hch-btn hch-btn--primary"
+                style={{ width: '100%', padding: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: spacing[8] }}
+              >
+                <Sparkles size={16} /> {generatingRecipe ? 'Chef is cooking up recipe…' : 'Generate Recipe'}
+              </button>
+            </form>
+
+            {/* Right Panel: Recipe Output or Empty State */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[16] }}>
+              {generatingRecipe ? (
+                <div style={{ ...sectionCard, padding: spacing[48], display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', minHeight: '380px', background: '#fcfbf9' }}>
+                  <div style={{ width: '56px', height: '56px', borderRadius: '50%', border: `4px solid ${colors.success}30`, borderTop: `4px solid ${colors.primary}`, animation: 'hch-ring-fill 1s linear infinite', marginBottom: spacing[16], display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🍳</div>
+                  <h4 style={{ fontFamily: fonts.heading, fontSize: fontSizes.base, fontWeight: 700, color: colors.text, margin: 0 }}>AI Chef generating recipe…</h4>
+                  <p style={{ fontSize: fontSizes.xs, color: colors.muted, marginTop: spacing[4], maxWidth: '240px' }}>Evaluating caloric budgets, sodium, cooking time, and allergen exclusions</p>
+                </div>
+              ) : recipeError ? (
+                <div style={{ ...sectionCard, background: '#fef2f2', border: '1px solid #fecaca', padding: spacing[20], display: 'flex', gap: spacing[12], alignItems: 'flex-start', minHeight: '380px' }}>
+                  <AlertCircle size={20} color="#b91c1c" style={{ flexShrink: 0, marginTop: '2px' }} />
+                  <div>
+                    <h5 style={{ fontFamily: fonts.heading, fontSize: fontSizes.sm, fontWeight: 700, color: '#b91c1c', margin: 0 }}>Chef Error</h5>
+                    <p style={{ fontSize: fontSizes.xs, color: '#b91c1c', lineHeight: 1.5, margin: `${spacing[4]} 0 0` }}>{recipeError}</p>
+                  </div>
+                </div>
+              ) : generatedRecipe ? (
+                /* Generated Recipe card */
+                <div className="hch-animate-in" style={{ ...sectionCard, display: 'flex', flexDirection: 'column', gap: spacing[16] }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <div>
+                      <span style={{ fontSize: '0.625rem', fontWeight: 700, color: colors.primary, background: `${colors.primary}10`, padding: '2px 8px', borderRadius: '4px', textTransform: 'uppercase' }}>Custom Recipe</span>
+                      <h4 style={{ fontFamily: fonts.heading, fontSize: fontSizes.base, fontWeight: 700, color: colors.text, margin: `${spacing[4]} 0 0` }}>{generatedRecipe.title}</h4>
+                    </div>
+                    
+                    {/* Heart button */}
+                    <button
+                      type="button"
+                      onClick={() => toggleCustomFavorite({
+                        type: 'recipe',
+                        name: generatedRecipe.title,
+                        calories: generatedRecipe.calories,
+                        protein: generatedRecipe.protein,
+                        carbs: generatedRecipe.carbs,
+                        fat: generatedRecipe.fat,
+                        notes: generatedRecipe.notes,
+                        recipe: generatedRecipe
+                      })}
+                      style={{ padding: '6px', border: 'none', background: 'none', cursor: 'pointer', color: customFavorites.some(f => f.name === generatedRecipe.title) ? '#e54d2e' : colors.muted, transition: 'transform 0.1s' }}
+                    >
+                      <Heart size={20} style={{ fill: customFavorites.some(f => f.name === generatedRecipe.title) ? '#e54d2e' : 'none' }} />
+                    </button>
+                  </div>
+
+                  {/* Nutrition stats */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: spacing[8], background: colors.background, padding: '10px', borderRadius: '12px' }}>
+                    {[
+                      { label: 'Calories', val: `${generatedRecipe.calories} kcal` },
+                      { label: 'Protein', val: `${generatedRecipe.protein}g` },
+                      { label: 'Carbs', val: `${generatedRecipe.carbs}g` },
+                      { label: 'Fat', val: `${generatedRecipe.fat}g` }
+                    ].map((stat) => (
+                      <div key={stat.label} style={{ textAlign: 'center' }}>
+                        <span style={{ fontSize: '0.55rem', color: colors.muted, display: 'block' }}>{stat.label}</span>
+                        <strong style={{ fontSize: '0.75rem', color: colors.text }}>{stat.val}</strong>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Ingredients */}
+                  <div>
+                    <h5 style={{ fontFamily: fonts.heading, fontSize: fontSizes.xs, fontWeight: 700, color: colors.text, margin: '0 0 6px 0' }}>Ingredients</h5>
+                    <ul style={{ paddingLeft: '18px', margin: 0, fontSize: fontSizes.xs, color: colors.text, lineHeight: 1.6 }}>
+                      {generatedRecipe.ingredients.map((ing: any, i: number) => (
+                        <li key={i} style={{ marginBottom: '2px' }}>
+                          <strong>{ing.amount} {ing.unit}</strong> {ing.name}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Cooking Steps */}
+                  <div>
+                    <h5 style={{ fontFamily: fonts.heading, fontSize: fontSizes.xs, fontWeight: 700, color: colors.text, margin: '0 0 6px 0' }}>Instructions</h5>
+                    <ol style={{ paddingLeft: '18px', margin: 0, fontSize: fontSizes.xs, color: colors.text, lineHeight: 1.65 }}>
+                      {generatedRecipe.steps.map((step: string, s: number) => (
+                        <li key={s} style={{ marginBottom: '6px' }}>{step}</li>
+                      ))}
+                    </ol>
+                  </div>
+
+                  {/* Notes */}
+                  {generatedRecipe.notes && (
+                    <div style={{ borderTop: `1px solid ${colors.success}10`, paddingTop: spacing[12], fontStyle: 'italic', fontSize: '0.75rem', color: colors.muted }}>
+                      "{generatedRecipe.notes}"
+                    </div>
+                  )}
+
+                  {/* Log button */}
+                  <button
+                    type="button"
+                    onClick={() => handleLogMealCalories(`AI Cooked: ${generatedRecipe.title}`, generatedRecipe.calories, generatedRecipe.protein)}
+                    className="hch-btn hch-btn--primary"
+                    style={{ width: '100%', padding: '10px' }}
+                  >
+                    <Plus size={14} /> Log Meal to Intake
+                  </button>
+                </div>
+              ) : (
+                /* Empty state */
+                <div style={{ ...sectionCard, textAlign: 'center', padding: spacing[48], display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: spacing[16], minHeight: '380px' }}>
+                  <div style={{ fontSize: '3rem' }}>🍲</div>
+                  <h4 style={{ fontFamily: fonts.heading, fontSize: fontSizes.sm, fontWeight: 700, color: colors.text, margin: 0 }}>No custom recipe generated yet</h4>
+                  <p style={{ fontSize: fontSizes.xs, color: colors.muted, margin: 0, maxWidth: '260px', lineHeight: 1.5 }}>
+                    Adjust your sliders and target preferences in the left panel, and click **Generate Recipe** to cook up an AI meal.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Traditional Cookbook Archive */}
+          <div style={{ ...sectionCard, display: 'flex', flexDirection: 'column', gap: spacing[12], border: `1px solid ${colors.success}15`, marginTop: spacing[8] }}>
+            <h4 style={{ fontFamily: fonts.heading, fontSize: fontSizes.sm, fontWeight: 700, color: colors.text, margin: 0 }}>Or Browse Traditional Favorites</h4>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: spacing[12] }}>
+              {RECIPES.map((recipe, idx) => (
+                <div key={idx} style={{ background: colors.background, borderRadius: radii.card, padding: spacing[12], display: 'flex', flexDirection: 'column', gap: spacing[8] }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <h5 style={{ fontFamily: fonts.heading, fontSize: fontSizes.xs, fontWeight: 700, color: colors.text, margin: 0 }}>{recipe.title}</h5>
+                    <span style={{ fontSize: '0.625rem', color: colors.muted }}>{recipe.time} mins</span>
+                  </div>
+                  <p style={{ fontSize: '0.6875rem', color: colors.muted, margin: 0 }}>{recipe.ingredients.slice(0, 3).join(', ')}...</p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setGeneratedRecipe({
+                        title: recipe.title,
+                        ingredients: recipe.ingredients.map(ing => {
+                          const parts = ing.split(' ');
+                          const amt = parts[0] || "1";
+                          const unit = parts[1] || "unit";
+                          const name = parts.slice(2).join(' ') || ing;
+                          return { name, amount: amt, unit };
+                        }),
+                        steps: recipe.steps,
+                        notes: "Traditional favorite loaded from local cookbook database.",
+                        calories: parseInt(recipe.calories) || 350,
+                        protein: parseInt(recipe.protein) || 20,
+                        carbs: 40,
+                        fat: 10
+                      });
+                      showLogToast(`Loaded recipe: ${recipe.title}!`);
+                    }}
+                    className="hch-btn hch-btn--ghost"
+                    style={{ alignSelf: 'flex-start', padding: '4px 8px', fontSize: '0.6875rem' }}
+                  >
+                    Load Recipe →
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════
+          J. FAVORITES TAB
+         ═══════════════════════════════════════════════════════ */}
+      {activeTab === 'favorites' && (
+        <div className="hch-animate-in" style={{ display: 'flex', flexDirection: 'column', gap: spacing[16] }}>
+          <div>
+            <h3 style={{ fontFamily: fonts.heading, fontSize: fontSizes.lg, fontWeight: 700, color: colors.text, margin: 0, display: 'flex', alignItems: 'center', gap: spacing[8] }}>
+              <Heart size={20} color={colors.primary} style={{ fill: colors.primary }} /> Favorites
+            </h3>
+            <p style={{ fontFamily: fonts.body, fontSize: fontSizes.sm, color: colors.muted, lineHeight: 1.6, marginTop: spacing[4] }}>
+              Your personally favorited meals, recipes, and food items for quick access. ❤️
+            </p>
+          </div>
+
+          <div style={{ ...sectionCard, display: 'flex', flexDirection: 'column', gap: spacing[16] }}>
+            {customFavorites.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: spacing[24], background: colors.background, border: `1.5px dashed ${colors.success}50`, borderRadius: radii.card, display: 'flex', flexDirection: 'column', gap: spacing[12], alignItems: 'center' }}>
+                <Heart size={28} style={{ color: colors.muted }} />
+                <span style={{ fontSize: fontSizes.xs, color: colors.muted }}>
+                  No favorites saved yet. Toggle the heart icon on any AI-generated recipe or food lookup to save them here.
+                </span>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[8] }}>
+                {customFavorites.map((fav) => (
+                  <div key={fav.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: spacing[12], padding: spacing[12], borderRadius: '12px', background: colors.background, border: `1px solid ${colors.success}25` }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: spacing[6] }}>
+                        <span style={{ fontSize: '0.625rem', fontWeight: 700, color: colors.primary, background: `${colors.primary}10`, padding: '2px 8px', borderRadius: '4px', textTransform: 'uppercase' }}>{fav.type}</span>
+                        <span style={{ fontFamily: fonts.body, fontSize: fontSizes.xs, fontWeight: 700, color: colors.text }}>{fav.name}</span>
+                      </div>
+                      <span style={{ fontSize: '0.625rem', color: colors.muted, display: 'block', marginTop: '2px' }}>{fav.calories} kcal · {fav.protein}g Protein</span>
+                    </div>
+                    <div style={{ display: 'flex', gap: spacing[4], alignItems: 'center' }}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (fav.type === 'recipe') {
+                            setGeneratedRecipe(fav.recipe);
+                            setActiveTab('cooking');
+                          } else {
+                            setSearchQuery(fav.name);
+                            setActiveTab('lookup');
+                            setTimeout(() => {
+                              const btn = document.querySelector('form button[type="submit"]') as HTMLButtonElement;
+                              if (btn) btn.click();
+                            }, 50);
+                          }
+                          showLogToast(`Opened "${fav.name}" details.`);
+                        }}
+                        className="hch-btn hch-btn--outline"
+                        style={{ fontSize: '0.6875rem', padding: '6px 12px' }}
+                      >
+                        View Details
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => toggleCustomFavorite(fav)}
+                        style={{ padding: '6px', borderRadius: radii.full, border: 'none', background: 'transparent', cursor: 'pointer', color: '#e54d2e' }}
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════
+          H. PAST PLANS ARCHIVE — Snaps & Saved plans
+         ═══════════════════════════════════════════════════════ */}
+      {activeTab === 'past_plans' && (
+        <div className="hch-animate-in" style={{ display: 'flex', flexDirection: 'column', gap: spacing[16] }}>
+          <div>
+            <h3 style={{ fontFamily: fonts.heading, fontSize: fontSizes.lg, fontWeight: 700, color: colors.text, margin: 0, display: 'flex', alignItems: 'center', gap: spacing[8] }}>
+              <FolderOpen size={20} color={colors.primary} /> Saved Plans & Snapshots
+            </h3>
+            <p style={{ fontFamily: fonts.body, fontSize: fontSizes.sm, color: colors.muted, lineHeight: 1.6, marginTop: spacing[4] }}>
+              Review, restore, or manage your saved weekly meal plan variations and generated recipe snapshots. 📁
+            </p>
+          </div>
+
+          {/* Preset Saved Plans Section */}
+          <div style={{ ...sectionCard, display: 'flex', flexDirection: 'column', gap: spacing[16] }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: spacing[8] }}>
+                <FolderOpen size={18} style={{ color: colors.primary }} />
+                <h4 style={{ fontFamily: fonts.heading, fontSize: fontSizes.sm, fontWeight: 700, color: colors.text, margin: 0 }}>Saved Weekly Plans</h4>
+              </div>
+              <span style={{ fontSize: '0.625rem', fontWeight: 700, color: colors.muted, background: colors.background, padding: '3px 10px', borderRadius: radii.full }}>{savedMealPlans.length} archived</span>
+            </div>
+
+            {savedMealPlans.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: spacing[24], background: colors.background, border: `1.5px dashed ${colors.success}50`, borderRadius: radii.card, display: 'flex', flexDirection: 'column', gap: spacing[12], alignItems: 'center' }}>
+                <Calendar size={28} style={{ color: colors.muted }} />
+                <span style={{ fontSize: fontSizes.xs, color: colors.muted }}>No saved plans yet. Go to "7-Day Food Plan" and save your active week to archive it here.</span>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[8], maxHeight: '400px', overflowY: 'auto' }}>
+                {savedMealPlans.map((plan) => (
+                  <div key={plan.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: spacing[12], padding: spacing[12], borderRadius: '12px', background: colors.background, border: `1px solid ${colors.success}25` }}>
+                    <div>
+                      <span style={{ fontFamily: fonts.body, fontSize: fontSizes.xs, fontWeight: 700, color: colors.text }}>{plan.name}</span>
+                      <span style={{ fontSize: '0.625rem', color: colors.muted, display: 'block' }}>Saved: {plan.date} · {Object.keys(plan.days).length} days</span>
+                    </div>
+                    <div style={{ display: 'flex', gap: spacing[4] }}>
+                      <button
+                        type="button"
+                        onClick={() => handleRestoreSavedPlan(plan)}
+                        style={{ padding: '6px 12px', borderRadius: radii.button, background: colors.primary, color: colors.white, border: 'none', fontSize: '0.625rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}
+                      >
+                        <RefreshCw size={10} /> Load
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteSavedPlan(plan.id, plan.name)}
+                        style={{ padding: '6px', borderRadius: radii.full, border: 'none', background: 'transparent', cursor: 'pointer', color: '#e54d2e' }}
+                      >
+                        <Trash2 size={12} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Auto Snapshot Past Plans Section */}
+          <div style={{ ...sectionCard, display: 'flex', flexDirection: 'column', gap: spacing[16] }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: spacing[8] }}>
+                <Clock size={18} style={{ color: colors.primary }} />
+                <h4 style={{ fontFamily: fonts.heading, fontSize: fontSizes.sm, fontWeight: 700, color: colors.text, margin: 0 }}>AI Creation History Snapshots</h4>
+              </div>
+              <span style={{ fontSize: '0.625rem', fontWeight: 700, color: colors.muted, background: colors.background, padding: '3px 10px', borderRadius: radii.full }}>{pastPlans.length} snapshots</span>
+            </div>
+
+            {pastPlans.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: spacing[24], background: colors.background, border: `1.5px dashed ${colors.success}50`, borderRadius: radii.card, display: 'flex', flexDirection: 'column', gap: spacing[12], alignItems: 'center' }}>
+                <Clock size={28} style={{ color: colors.muted }} />
+                <span style={{ fontSize: fontSizes.xs, color: colors.muted }}>No automatic creation snapshots yet. Generating AI plans or custom recipes will save snapshots here.</span>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: spacing[8], maxHeight: '400px', overflowY: 'auto' }}>
+                {pastPlans.map((snap) => (
+                  <div key={snap.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: spacing[12], padding: spacing[12], borderRadius: '12px', background: colors.background, border: `1px solid ${colors.success}25` }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: spacing[6] }}>
+                        <span style={{ fontSize: '0.625rem', fontWeight: 700, color: colors.accent, background: `${colors.accent}10`, padding: '2px 8px', borderRadius: '4px', textTransform: 'uppercase' }}>{snap.type === 'weekly_plan' ? 'Weekly AI' : 'Recipe AI'}</span>
+                        <span style={{ fontFamily: fonts.body, fontSize: fontSizes.xs, fontWeight: 700, color: colors.text }}>{snap.name}</span>
+                      </div>
+                      <span style={{ fontSize: '0.625rem', color: colors.muted, display: 'block', marginTop: '2px' }}>Created: {snap.timestamp}</span>
+                    </div>
+                    <div style={{ display: 'flex', gap: spacing[4] }}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (snap.type === 'weekly_plan') {
+                            setMealPlans(snap.data);
+                            setActiveTab('7day');
+                            showLogToast(`Restored AI Weekly Plan! ✅`);
+                          } else if (snap.type === 'recipe') {
+                            setGeneratedRecipe(snap.data);
+                            setActiveTab('cooking');
+                            showLogToast(`Loaded AI Recipe: ${snap.name}! 🍳`);
+                          }
+                        }}
+                        style={{ padding: '6px 12px', borderRadius: radii.button, background: colors.primary, color: colors.white, border: 'none', fontSize: '0.625rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}
+                      >
+                        <RefreshCw size={10} /> View / Reopen
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const updated = pastPlans.filter(p => p.id !== snap.id);
+                          setPastPlans(updated);
+                          localStorage.setItem(`hch_past_plans_${profile.name}`, JSON.stringify(updated));
+                          showLogToast(`Deleted snapshot.`);
+                        }}
+                        style={{ padding: '6px', borderRadius: radii.full, border: 'none', background: 'transparent', cursor: 'pointer', color: '#e54d2e' }}
+                      >
+                        <Trash2 size={12} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Option to save current week */}
+          {Object.keys(mealPlans).length > 0 && (
+            <div style={{ ...sectionCard, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: spacing[16], background: `${colors.success}10` }}>
+              <div>
+                <span style={{ fontSize: fontSizes.xs, fontWeight: 700, color: colors.primary }}>Save Current Active Plan</span>
+                <p style={{ fontSize: '0.6875rem', color: colors.muted, margin: '2px 0 0' }}>Archive your current week to load it back later.</p>
+              </div>
+              <button onClick={handleSaveCurrentPlan} className="hch-btn hch-btn--primary" style={{ padding: '10px 18px', fontSize: fontSizes.xs }}>
+                <Save size={12} /> Save Current Week
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>
