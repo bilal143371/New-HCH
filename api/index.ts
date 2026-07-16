@@ -739,8 +739,8 @@ app.post("/api/scan-food-photo", async (req, res) => {
     }
 
     const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey || apiKey.startsWith("AQ.")) {
-      console.warn("Gemini API key is not configured or is a placeholder. Using local fallback scanner...");
+    if (!apiKey) {
+      console.warn("Gemini API key is not configured. Using local fallback scanner...");
       return res.json({
         scanResult: {
           foodName: `${assignedMealSlot} Platter (Offline Fallback)`,
@@ -919,8 +919,8 @@ app.post("/api/lookup-food", async (req, res) => {
       };
     };
 
-    if (!apiKey || apiKey.startsWith("AQ.")) {
-      console.warn("Gemini API key is not configured or is placeholder. Using local fallback lookup...");
+    if (!apiKey) {
+      console.warn("Gemini API key is not configured. Using local fallback lookup...");
       return res.json(getLocalFallback(query));
     }
 
@@ -1057,8 +1057,8 @@ app.post("/api/compare-foods", async (req, res) => {
 
     const apiKey = process.env.GEMINI_API_KEY;
 
-    if (!apiKey || apiKey.startsWith("AQ.")) {
-      console.warn("Gemini API key is not configured or is placeholder. Using local fallback comparison...");
+    if (!apiKey) {
+      console.warn("Gemini API key is not configured. Using local fallback comparison...");
       return res.json(getLocalCompareFallback(foodA, foodB));
     }
 
@@ -1201,8 +1201,8 @@ app.post("/api/generate-recipe", async (req, res) => {
   try {
     const apiKey = process.env.GEMINI_API_KEY;
 
-    if (!apiKey || apiKey.startsWith("AQ.")) {
-      console.warn("Gemini API key is not configured or is placeholder. Using local fallback recipe...");
+    if (!apiKey) {
+      console.warn("Gemini API key is not configured. Using local fallback recipe...");
       return res.json(getLocalRecipeFallback(primaryGoal, mealCategory, cuisineStyle, caloriesGoal, minProteinTarget, onHandIngredients));
     }
 
