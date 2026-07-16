@@ -732,8 +732,8 @@ app.post("/api/supportive-mind-chat", async (req, res) => {
 });
 
 app.post("/api/scan-food-photo", async (req, res) => {
+  const { base64Image, assignedMealSlot } = req.body;
   try {
-    const { base64Image, assignedMealSlot } = req.body;
     if (!base64Image || !assignedMealSlot) {
       return res.status(400).json({ error: "Missing image data or meal slot." });
     }
@@ -856,8 +856,8 @@ app.post("/api/scan-food-photo", async (req, res) => {
 });
 
 app.post("/api/lookup-food", async (req, res) => {
+  const { query, assignedMealSlot } = req.body;
   try {
-    const { query, assignedMealSlot } = req.body;
     if (!query) {
       return res.status(400).json({ error: "Missing search query." });
     }
@@ -1007,55 +1007,55 @@ app.post("/api/lookup-food", async (req, res) => {
 });
 
 app.post("/api/compare-foods", async (req, res) => {
+  const { foodA, foodB } = req.body;
+  const getLocalCompareFallback = (faName: string, fbName: string) => {
+    const findFood = (name: string) => {
+      const n = name.toLowerCase().trim();
+      return PAKISTANI_FOODS_DB_EXPANDED.find(f => 
+        f.name.toLowerCase().includes(n) || 
+        f.id.toLowerCase() === n ||
+        n.includes(f.id.toLowerCase())
+      ) || {
+        name: name,
+        calories: 320,
+        protein: 12,
+        carbs: 40,
+        fat: 8,
+        fiber: 2,
+        healthGrade: 'B' as const
+      };
+    };
+    const fA = findFood(faName);
+    const fB = findFood(fbName);
+    return {
+      comparisonResult: {
+        foodAName: fA.name,
+        foodBName: fB.name,
+        foodAStats: {
+          calories: fA.calories,
+          protein: fA.protein,
+          fiber: (fA as any).fiber || 2.0,
+          iron: 1.5,
+          sodium: 320
+        },
+        foodBStats: {
+          calories: fB.calories,
+          protein: fB.protein,
+          fiber: (fB as any).fiber || 1.0,
+          iron: 0.8,
+          sodium: 680
+        },
+        takeaway: `Offline Comparison: ${fA.name} is generally a more whole-grain, fiber-dense choice than ${fB.name}. Configure a valid Gemini API key in your .env for live AI-driven dietitian verdict.`
+      }
+    };
+  };
+
   try {
-    const { foodA, foodB } = req.body;
     if (!foodA || !foodB) {
       return res.status(400).json({ error: "Missing foodA or foodB parameters." });
     }
 
     const apiKey = process.env.GEMINI_API_KEY;
-    
-    const getLocalCompareFallback = (faName: string, fbName: string) => {
-      const findFood = (name: string) => {
-        const n = name.toLowerCase().trim();
-        return PAKISTANI_FOODS_DB_EXPANDED.find(f => 
-          f.name.toLowerCase().includes(n) || 
-          f.id.toLowerCase() === n ||
-          n.includes(f.id.toLowerCase())
-        ) || {
-          name: name,
-          calories: 320,
-          protein: 12,
-          carbs: 40,
-          fat: 8,
-          fiber: 2,
-          healthGrade: 'B'
-        };
-      };
-      const fA = findFood(faName);
-      const fB = findFood(fbName);
-      return {
-        comparisonResult: {
-          foodAName: fA.name,
-          foodBName: fB.name,
-          foodAStats: {
-            calories: fA.calories,
-            protein: fA.protein,
-            fiber: (fA as any).fiber || 2.0,
-            iron: 1.5,
-            sodium: 320
-          },
-          foodBStats: {
-            calories: fB.calories,
-            protein: fB.protein,
-            fiber: (fB as any).fiber || 1.0,
-            iron: 0.8,
-            sodium: 680
-          },
-          takeaway: `Offline Comparison: ${fA.name} is generally a more whole-grain, fiber-dense choice than ${fB.name}. Configure a valid Gemini API key in your .env for live AI-driven dietitian verdict.`
-        }
-      };
-    };
 
     if (!apiKey || apiKey.startsWith("AQ.")) {
       console.warn("Gemini API key is not configured or is placeholder. Using local fallback comparison...");
@@ -1153,53 +1153,53 @@ Estimate calories (kcal), protein (g), dietary fiber (g), iron (mg), and sodium 
 });
 
 app.post("/api/generate-recipe", async (req, res) => {
-  try {
-    const {
-      primaryGoal,
-      mealCategory,
-      cuisineStyle,
-      caloriesGoal,
-      minProteinTarget,
-      maxCookingTime,
-      allergies,
-      onHandIngredients
-    } = req.body;
+  const {
+    primaryGoal,
+    mealCategory,
+    cuisineStyle,
+    caloriesGoal,
+    minProteinTarget,
+    maxCookingTime,
+    allergies,
+    onHandIngredients
+  } = req.body;
 
-    const apiKey = process.env.GEMINI_API_KEY;
-    
-    const getLocalRecipeFallback = (
-      pGoal: string,
-      mCategory: string,
-      cStyle: string,
-      calGoal: number,
-      pTarget: number,
-      onHand: string
-    ) => {
-      const actualCal = calGoal ? parseInt(calGoal as any, 10) : 450;
-      const actualProtein = pTarget ? parseInt(pTarget as any, 10) : 30;
-      return {
-        recipe: {
-          title: `Healthy ${cStyle || "Desi"} ${mCategory || "Lunch"} Bowl (Offline)`,
-          ingredients: [
-            { name: onHand ? `Prioritized: ${onHand}` : "Chicken breast or Paneer", amount: "150", unit: "g" },
-            { name: "Sautéed vegetables (spinach, cabbage, okra)", amount: "1.5", unit: "cups" },
-            { name: "Olive oil or Canola oil", amount: "1", unit: "tsp" },
-            { name: "Whole-wheat flatbread or Brown rice", amount: "1", unit: "serving" }
-          ],
-          steps: [
-            "Wash and prep the chicken or paneer, and chop vegetables into medium chunks.",
-            "Heat 1 tsp oil in a pan, toss in spices (turmeric, cumin, garlic), and cook protein.",
-            "Toss in vegetables and sauté for 4-5 minutes until cooked but still crispy.",
-            "Serve warm alongside whole wheat bread or cooked brown rice portion."
-          ],
-          notes: `Optimized for '${pGoal || "Wellness"}' goal. Offline mode - Configure a valid Gemini API key in your .env for custom AI chef creation.`,
-          calories: actualCal,
-          protein: actualProtein,
-          carbs: Math.round(actualCal * 0.45 / 4),
-          fat: Math.round(actualCal * 0.25 / 9)
-        }
-      };
+  const getLocalRecipeFallback = (
+    pGoal: string,
+    mCategory: string,
+    cStyle: string,
+    calGoal: number,
+    pTarget: number,
+    onHand: string
+  ) => {
+    const actualCal = calGoal ? parseInt(calGoal as any, 10) : 450;
+    const actualProtein = pTarget ? parseInt(pTarget as any, 10) : 30;
+    return {
+      recipe: {
+        title: `Healthy ${cStyle || "Desi"} ${mCategory || "Lunch"} Bowl (Offline)`,
+        ingredients: [
+          { name: onHand ? `Prioritized: ${onHand}` : "Chicken breast or Paneer", amount: "150", unit: "g" },
+          { name: "Sautéed vegetables (spinach, cabbage, okra)", amount: "1.5", unit: "cups" },
+          { name: "Olive oil or Canola oil", amount: "1", unit: "tsp" },
+          { name: "Whole-wheat flatbread or Brown rice", amount: "1", unit: "serving" }
+        ],
+        steps: [
+          "Wash and prep the chicken or paneer, and chop vegetables into medium chunks.",
+          "Heat 1 tsp oil in a pan, toss in spices (turmeric, cumin, garlic), and cook protein.",
+          "Toss in vegetables and sauté for 4-5 minutes until cooked but still crispy.",
+          "Serve warm alongside whole wheat bread or cooked brown rice portion."
+        ],
+        notes: `Optimized for '${pGoal || "Wellness"}' goal. Offline mode - Configure a valid Gemini API key in your .env for custom AI chef creation.`,
+        calories: actualCal,
+        protein: actualProtein,
+        carbs: Math.round(actualCal * 0.45 / 4),
+        fat: Math.round(actualCal * 0.25 / 9)
+      }
     };
+  };
+
+  try {
+    const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey || apiKey.startsWith("AQ.")) {
       console.warn("Gemini API key is not configured or is placeholder. Using local fallback recipe...");
